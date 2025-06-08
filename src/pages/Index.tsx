@@ -8,6 +8,7 @@ import { EmergencyNotices } from "@/components/home/EmergencyNotices";
 import { PostFeed } from "@/components/social/PostFeed";
 import { QuickAccess } from "@/components/home/QuickAccess";
 import { LocalInfo } from "@/components/home/LocalInfo";
+import { MarketRates } from "@/components/home/MarketRates";
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
 
@@ -62,14 +63,15 @@ const Index = () => {
 
       {/* Main Content Grid */}
       <section className="py-12 px-4">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Local Info */}
-          <div className="lg:col-span-1">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
+          {/* Left Column - Local Info & Market Rates */}
+          <div className="lg:col-span-1 space-y-6">
             <LocalInfo />
+            <MarketRates />
           </div>
 
           {/* Right Column - Social Feed */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center text-green-800 dark:text-green-400">

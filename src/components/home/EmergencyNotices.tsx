@@ -4,39 +4,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, AlertTriangle, Zap, Droplets, Cloud } from "lucide-react";
+import { useData } from "@/contexts/DataContext";
 
 export const EmergencyNotices = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { notices } = useData();
 
-  const notices = [
-    {
-      id: 1,
-      type: "electricity",
-      icon: Zap,
-      title: "বিদ্যুৎ বিভ্রাট সংক্রান্ত",
-      message: "আগামীকাল (১৫ ডিসেম্বর) সকাল ৯টা থেকে বিকেল ৩টা পর্যন্ত রক্ষণাবেক্ষণের কাজে বিদ্যুৎ বন্ধ থাকবে।",
-      severity: "high",
-      time: "২ ঘন্টা আগে"
-    },
-    {
-      id: 2,
-      type: "weather",
-      icon: Cloud,
-      title: "আবহাওয়া সতর্কতা",
-      message: "আগামী ৪৮ ঘন্টায় ভারী বৃষ্টিপাত ও বজ্রসহ বৃষ্টির সম্ভাবনা। সবাই সতর্ক থাকুন।",
-      severity: "medium",
-      time: "৫ ঘন্টা আগে"
-    },
-    {
-      id: 3,
-      type: "gas",
-      icon: Droplets,
-      title: "গ্যাস সরবরাহ",
-      message: "পাইপ লাইন মেরামতের কারণে আজ রাত ১২টা থেকে সকাল ৬টা পর্যন্ত গ্যাস সরবরাহ বন্ধ থাকবে।",
-      severity: "medium",
-      time: "১ দিন আগে"
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "electricity": return Zap;
+      case "weather": return Cloud;
+      case "gas": return Droplets;
+      default: return AlertTriangle;
     }
-  ];
+  };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -44,6 +25,14 @@ export const EmergencyNotices = () => {
       case "medium": return "bg-yellow-500";
       default: return "bg-blue-500";
     }
+  };
+
+  const getTimeAgo = (createdAt: string) => {
+    const diff = Date.now() - new Date(createdAt).getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 1) return "এইমাত্র";
+    if (hours < 24) return `${hours} ঘন্টা আগে`;
+    return `${Math.floor(hours / 24)} দিন আগে`;
   };
 
   const nextSlide = () => {
@@ -55,12 +44,24 @@ export const EmergencyNotices = () => {
   };
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    if (notices.length > 1) {
+      const timer = setInterval(nextSlide, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [notices.length]);
+
+  if (notices.length === 0) {
+    return (
+      <Card className="shadow-lg border-l-4 border-l-green-500 bg-white/90 backdrop-blur-sm">
+        <CardContent className="p-6 text-center">
+          <p className="text-gray-600">কোনো জরুরি বিজ্ঞপ্তি নেই</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const currentNotice = notices[currentIndex];
-  const IconComponent = currentNotice.icon;
+  const IconComponent = getIcon(currentNotice.type);
 
   return (
     <div className="relative">
@@ -79,33 +80,37 @@ export const EmergencyNotices = () => {
                   </Badge>
                 </div>
                 <p className="text-gray-700 mb-3">{currentNotice.message}</p>
-                <span className="text-sm text-gray-500">{currentNotice.time}</span>
+                <span className="text-sm text-gray-500">{getTimeAgo(currentNotice.createdAt)}</span>
               </div>
             </div>
             
-            <div className="flex items-center space-x-2 ml-4">
-              <Button variant="ghost" size="sm" onClick={prevSlide}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm text-gray-500">{currentIndex + 1}/{notices.length}</span>
-              <Button variant="ghost" size="sm" onClick={nextSlide}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            {notices.length > 1 && (
+              <div className="flex items-center space-x-2 ml-4">
+                <Button variant="ghost" size="sm" onClick={prevSlide}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-gray-500">{currentIndex + 1}/{notices.length}</span>
+                <Button variant="ghost" size="sm" onClick={nextSlide}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
           
           {/* Indicators */}
-          <div className="flex justify-center space-x-2 mt-4">
-            {notices.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentIndex ? "bg-red-500" : "bg-gray-300"
-                }`}
-              />
-            ))}
-          </div>
+          {notices.length > 1 && (
+            <div className="flex justify-center space-x-2 mt-4">
+              {notices.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentIndex ? "bg-red-500" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

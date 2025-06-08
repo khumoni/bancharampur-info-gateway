@@ -3,10 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Menu, X, User, LogIn, UserPlus, Settings, Globe, Moon, Shield } from "lucide-react";
+import { Bell, Menu, X, User, Settings, Globe, Moon, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/lib/translations";
+import { LoginDialog } from "@/components/auth/LoginDialog";
+import { RegisterDialog } from "@/components/auth/RegisterDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +21,8 @@ import {
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { language, toggleLanguage, isDarkMode, toggleDarkMode } = useApp();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { label: t("home", language), href: "/" },
@@ -96,12 +99,14 @@ export const Header = () => {
                   />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/admin" className="flex items-center">
-                    <Shield className="h-4 w-4 mr-2" />
-                    {t("admin", language)}
-                  </Link>
-                </DropdownMenuItem>
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="flex items-center">
+                      <Shield className="h-4 w-4 mr-2" />
+                      {t("admin", language)}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -114,23 +119,18 @@ export const Header = () => {
             </Button>
 
             {/* Auth Buttons */}
-            {isLoggedIn ? (
+            {user ? (
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm">
+                <span className="text-sm font-medium">{user.name}</span>
+                <Button variant="ghost" size="sm" onClick={logout}>
                   <User className="h-4 w-4 mr-2" />
-                  {t("profile", language)}
+                  {language === 'bn' ? "লগআউট" : "Logout"}
                 </Button>
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-2">
-                <Button variant="ghost" size="sm">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  {t("login", language)}
-                </Button>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  {t("register", language)}
-                </Button>
+                <LoginDialog />
+                <RegisterDialog />
               </div>
             )}
 
@@ -160,16 +160,10 @@ export const Header = () => {
                   {item.label}
                 </Link>
               ))}
-              {!isLoggedIn && (
+              {!user && (
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                  <Button variant="ghost" className="w-full justify-start">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {t("login", language)}
-                  </Button>
-                  <Button className="w-full justify-start bg-green-600 hover:bg-green-700">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    {t("register", language)}
-                  </Button>
+                  <LoginDialog />
+                  <RegisterDialog />
                 </div>
               )}
             </nav>
