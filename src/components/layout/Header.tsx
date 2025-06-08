@@ -1,0 +1,123 @@
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Bell, Menu, X, User, LogIn, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
+
+export const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // This will be connected to auth later
+
+  const menuItems = [
+    { label: "হোম", href: "/" },
+    { label: "বিজ্ঞপ্তি", href: "/notices" },
+    { label: "মানচিত্র", href: "/map" },
+    { label: "সামাজিক", href: "/social" },
+    { label: "প্রশ্নোত্তর", href: "/qa" },
+    { label: "চাকরি", href: "/jobs" },
+  ];
+
+  return (
+    <header className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-green-100">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">বি</span>
+            </div>
+            <div className="hidden md:block">
+              <h1 className="text-xl font-bold text-green-800">বাঁচারামপুর ইনফোগেট</h1>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            {menuItems.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right Side */}
+          <div className="flex items-center space-x-4">
+            {/* Notification Bell */}
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="h-5 w-5" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-xs">
+                3
+              </Badge>
+            </Button>
+
+            {/* Auth Buttons */}
+            {isLoggedIn ? (
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm">
+                  <User className="h-4 w-4 mr-2" />
+                  প্রোফাইল
+                </Button>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <Button variant="ghost" size="sm">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  লগইন
+                </Button>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  রেজিস্টার
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden border-t border-green-100 py-4">
+            <nav className="flex flex-col space-y-3">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="text-gray-700 hover:text-green-600 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {!isLoggedIn && (
+                <div className="pt-4 border-t border-gray-200 space-y-2">
+                  <Button variant="ghost" className="w-full justify-start">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    লগইন
+                  </Button>
+                  <Button className="w-full justify-start bg-green-600 hover:bg-green-700">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    রেজিস্টার
+                  </Button>
+                </div>
+              )}
+            </nav>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+};
