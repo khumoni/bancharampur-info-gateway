@@ -1,5 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  User as FirebaseUser
+} from 'firebase/auth';
+import { auth, db } from '@/lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface User {
   id: string;
@@ -12,7 +21,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -28,51 +37,41 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        console.log('User authenticated:', firebaseUser.email);
+        // Get user data from Firestore
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email!,
+            name: userData.name,
+            role: userData.role || 'user'
+          });
+        }
+      } else {
+        console.log('User not authenticated');
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // Simulate API call - replace with actual authentication
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check for admin credentials
-      const isAdmin = email === 'mdaytullaalkhumoni@gmail.com' && password === 'admin123';
-      
-      if (isAdmin) {
-        const adminUser: User = {
-          id: 'admin-1',
-          email,
-          name: 'Admin',
-          role: 'admin'
-        };
-        setUser(adminUser);
-        localStorage.setItem('currentUser', JSON.stringify(adminUser));
-        return true;
-      }
-      
-      // Regular user login simulation
-      if (password === 'user123') {
-        const regularUser: User = {
-          id: 'user-' + Date.now(),
-          email,
-          name: email.split('@')[0],
-          role: 'user'
-        };
-        setUser(regularUser);
-        localStorage.setItem('currentUser', JSON.stringify(regularUser));
-        return true;
-      }
-      
-      return false;
+      console.log('Attempting login for:', email);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -84,18 +83,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Attempting registration for:', email);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      const newUser: User = {
-        id: 'user-' + Date.now(),
-        email,
+      // Save user data to Firestore
+      const isAdmin = email === 'mdaytullaalkhumoni@gmail.com';
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
         name,
-        role: 'user'
-      };
+        email,
+        role: isAdmin ? 'admin' : 'user',
+        createdAt: new Date()
+      });
       
-      setUser(newUser);
-      localStorage.setItem('currentUser', JSON.stringify(newUser));
       return true;
     } catch (error) {
       console.error('Registration error:', error);
@@ -105,9 +104,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('currentUser');
+  const logout = async (): Promise<void> => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (

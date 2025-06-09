@@ -1,5 +1,17 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  onSnapshot, 
+  orderBy, 
+  query,
+  Timestamp 
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface Notice {
   id: string;
@@ -22,10 +34,11 @@ interface MarketRate {
 interface DataContextType {
   notices: Notice[];
   marketRates: MarketRate[];
-  addNotice: (notice: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => void;
-  updateMarketRate: (id: string, rate: Partial<MarketRate>) => void;
-  addMarketRate: (rate: Omit<MarketRate, 'id' | 'lastUpdated'>) => void;
-  deleteMarketRate: (id: string) => void;
+  addNotice: (notice: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => Promise<void>;
+  updateMarketRate: (id: string, rate: Partial<MarketRate>) => Promise<void>;
+  addMarketRate: (rate: Omit<MarketRate, 'id' | 'lastUpdated'>) => Promise<void>;
+  deleteMarketRate: (id: string) => Promise<void>;
+  loading: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -39,57 +52,106 @@ export const useData = () => {
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notices, setNotices] = useState<Notice[]>([
-    {
-      id: '1',
-      type: 'electricity',
-      title: 'বিদ্যুৎ বিভ্রাট সংক্রান্ত',
-      message: 'আগামীকাল (১৫ ডিসেম্বর) সকাল ৯টা থেকে বিকেল ৩টা পর্যন্ত রক্ষণাবেক্ষণের কাজে বিদ্যুৎ বন্ধ থাকবে।',
-      severity: 'high',
-      createdAt: new Date().toISOString(),
-      isActive: true
-    }
-  ]);
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [marketRates, setMarketRates] = useState<MarketRate[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [marketRates, setMarketRates] = useState<MarketRate[]>([
-    { id: '1', item: 'চাল (মোটা)', price: '৫৫', unit: 'কেজি', lastUpdated: new Date().toLocaleDateString('bn-BD') },
-    { id: '2', item: 'চাল (চিকন)', price: '৬৫', unit: 'কেজি', lastUpdated: new Date().toLocaleDateString('bn-BD') },
-    { id: '3', item: 'ডাল (মসুর)', price: '১২০', unit: 'কেজি', lastUpdated: new Date().toLocaleDateString('bn-BD') },
-    { id: '4', item: 'পেঁয়াজ', price: '৮০', unit: 'কেজি', lastUpdated: new Date().toLocaleDateString('bn-BD') },
-    { id: '5', item: 'আলু', price: '৩৫', unit: 'কেজি', lastUpdated: new Date().toLocaleDateString('bn-BD') },
-  ]);
-
-  const addNotice = (noticeData: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => {
-    const newNotice: Notice = {
-      ...noticeData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      isActive: true
-    };
-    setNotices(prev => [newNotice, ...prev]);
-  };
-
-  const updateMarketRate = (id: string, rateData: Partial<MarketRate>) => {
-    setMarketRates(prev => 
-      prev.map(rate => 
-        rate.id === id 
-          ? { ...rate, ...rateData, lastUpdated: new Date().toLocaleDateString('bn-BD') }
-          : rate
-      )
+  useEffect(() => {
+    console.log('Setting up Firestore listeners...');
+    
+    // Listen to notices collection
+    const noticesQuery = query(
+      collection(db, 'notices'), 
+      orderBy('createdAt', 'desc')
     );
-  };
+    
+    const unsubscribeNotices = onSnapshot(noticesQuery, (snapshot) => {
+      const noticesData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        } as Notice;
+      });
+      console.log('Notices updated:', noticesData);
+      setNotices(noticesData);
+    }, (error) => {
+      console.error('Error listening to notices:', error);
+    });
 
-  const addMarketRate = (rateData: Omit<MarketRate, 'id' | 'lastUpdated'>) => {
-    const newRate: MarketRate = {
-      ...rateData,
-      id: Date.now().toString(),
-      lastUpdated: new Date().toLocaleDateString('bn-BD')
+    // Listen to market rates collection
+    const marketRatesQuery = query(collection(db, 'marketRates'));
+    
+    const unsubscribeMarketRates = onSnapshot(marketRatesQuery, (snapshot) => {
+      const marketRatesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as MarketRate[];
+      console.log('Market rates updated:', marketRatesData);
+      setMarketRates(marketRatesData);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error listening to market rates:', error);
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribeNotices();
+      unsubscribeMarketRates();
     };
-    setMarketRates(prev => [...prev, newRate]);
+  }, []);
+
+  const addNotice = async (noticeData: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => {
+    try {
+      console.log('Adding notice:', noticeData);
+      await addDoc(collection(db, 'notices'), {
+        ...noticeData,
+        createdAt: Timestamp.now(),
+        isActive: true
+      });
+    } catch (error) {
+      console.error('Error adding notice:', error);
+      throw error;
+    }
   };
 
-  const deleteMarketRate = (id: string) => {
-    setMarketRates(prev => prev.filter(rate => rate.id !== id));
+  const updateMarketRate = async (id: string, rateData: Partial<MarketRate>) => {
+    try {
+      console.log('Updating market rate:', id, rateData);
+      const rateRef = doc(db, 'marketRates', id);
+      await updateDoc(rateRef, {
+        ...rateData,
+        lastUpdated: new Date().toLocaleDateString('bn-BD')
+      });
+    } catch (error) {
+      console.error('Error updating market rate:', error);
+      throw error;
+    }
+  };
+
+  const addMarketRate = async (rateData: Omit<MarketRate, 'id' | 'lastUpdated'>) => {
+    try {
+      console.log('Adding market rate:', rateData);
+      await addDoc(collection(db, 'marketRates'), {
+        ...rateData,
+        lastUpdated: new Date().toLocaleDateString('bn-BD')
+      });
+    } catch (error) {
+      console.error('Error adding market rate:', error);
+      throw error;
+    }
+  };
+
+  const deleteMarketRate = async (id: string) => {
+    try {
+      console.log('Deleting market rate:', id);
+      const rateRef = doc(db, 'marketRates', id);
+      await deleteDoc(rateRef);
+    } catch (error) {
+      console.error('Error deleting market rate:', error);
+      throw error;
+    }
   };
 
   return (
@@ -99,7 +161,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addNotice,
       updateMarketRate,
       addMarketRate,
-      deleteMarketRate
+      deleteMarketRate,
+      loading
     }}>
       {children}
     </DataContext.Provider>
