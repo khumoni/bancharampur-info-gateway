@@ -1,7 +1,7 @@
 
 export const translations = {
   bn: {
-    siteName: "বাঁচারামপুর ডিজিটাল ইনফোগেট",
+    siteName: "বাঞ্ছারামপুর ডিজিটাল ইনফোকাইট",
     tagline: "আপনার প্রয়োজনীয় তথ্য এক জায়গায়",
     joinUs: "যোগ দিন",
     viewMap: "মানচিত্র দেখুন",
@@ -23,7 +23,13 @@ export const translations = {
     adminPhone: "অ্যাডমিন ফোন",
     language: "ভাষা",
     darkMode: "ডার্ক মোড",
-    settings: "সেটিংস"
+    settings: "সেটিংস",
+    logout: "লগআউট",
+    editProfile: "প্রোফাইল সম্পাদনা",
+    username: "ব্যবহারকারীর নাম",
+    phone: "ফোন নম্বর",
+    uploadPhoto: "ছবি আপলোড করুন",
+    comments: "মন্তব্য"
   },
   en: {
     siteName: "Bancharampur Digital Infogate",
@@ -48,7 +54,13 @@ export const translations = {
     adminPhone: "Admin Phone",
     language: "Language",
     darkMode: "Dark Mode",
-    settings: "Settings"
+    settings: "Settings",
+    logout: "Logout",
+    editProfile: "Edit Profile",
+    username: "Username",
+    phone: "Phone Number",
+    uploadPhoto: "Upload Photo",
+    comments: "Comments"
   }
 };
 

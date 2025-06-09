@@ -3,13 +3,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Menu, X, User, Settings, Globe, Moon, Shield } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Bell, Menu, X, Settings, Globe, Moon, Shield, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/lib/translations";
 import { LoginDialog } from "@/components/auth/LoginDialog";
 import { RegisterDialog } from "@/components/auth/RegisterDialog";
+import { ProfileDialog } from "@/components/auth/ProfileDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,6 +109,15 @@ export const Header = () => {
                     </Link>
                   </DropdownMenuItem>
                 )}
+                {user && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="flex items-center text-red-600">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {t("logout", language)}
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -121,11 +132,23 @@ export const Header = () => {
             {/* Auth Buttons */}
             {user ? (
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">{user.name}</span>
-                <Button variant="ghost" size="sm" onClick={logout}>
-                  <User className="h-4 w-4 mr-2" />
-                  {language === 'bn' ? "লগআউট" : "Logout"}
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={user.profilePicture} />
+                    <AvatarFallback>
+                      {user.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:block">
+                    <span className="text-sm font-medium">{user.username}</span>
+                    {!user.emailVerified && (
+                      <div className="text-xs text-orange-600">
+                        {language === 'bn' ? "ইমেইল যাচাই করুন" : "Verify email"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <ProfileDialog />
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-2">

@@ -15,23 +15,38 @@ export const RegisterDialog = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const { register, isLoading } = useAuth();
   const { language } = useApp();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await register(email, password, name);
+    
+    // Validate Bangladeshi phone number format
+    if (phone && !phone.match(/^(\+880|880|0)?1[3-9]\d{8}$/)) {
+      toast({
+        title: language === 'bn' ? "ত্রুটি!" : "Error!",
+        description: language === 'bn' ? "সঠিক বাংলাদেশী ফোন নম্বর দিন" : "Please enter a valid Bangladeshi phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const success = await register(email, password, name, username, phone);
     
     if (success) {
       toast({
         title: language === 'bn' ? "সফল!" : "Success!",
-        description: language === 'bn' ? "সফলভাবে রেজিস্টার হয়েছে" : "Successfully registered",
+        description: language === 'bn' ? "সফলভাবে রেজিস্টার হয়েছে। ইমেইল যাচাই করুন।" : "Successfully registered. Please verify your email.",
       });
       setIsOpen(false);
       setEmail("");
       setPassword("");
       setName("");
+      setUsername("");
+      setPhone("");
     } else {
       toast({
         title: language === 'bn' ? "ত্রুটি!" : "Error!",
@@ -68,6 +83,19 @@ export const RegisterDialog = () => {
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="username">
+              {t("username", language)}
+            </Label>
+            <Input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder={language === 'bn' ? "ব্যবহারকারীর নাম লিখুন" : "Enter username"}
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="reg-email">
               {language === 'bn' ? "ইমেইল" : "Email"}
             </Label>
@@ -78,6 +106,18 @@ export const RegisterDialog = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder={language === 'bn' ? "আপনার ইমেইল লিখুন" : "Enter your email"}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">
+              {t("phone", language)} {language === 'bn' ? "(ঐচ্ছিক)" : "(Optional)"}
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder={language === 'bn' ? "বাংলাদেশী মোবাইল নম্বর" : "Bangladeshi mobile number"}
             />
           </div>
           <div className="space-y-2">

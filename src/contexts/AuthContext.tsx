@@ -5,23 +5,31 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
+  sendEmailVerification,
   User as FirebaseUser
 } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db, storage } from '@/lib/firebase';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface User {
   id: string;
   email: string;
   name: string;
+  username: string;
   role: 'admin' | 'user';
+  profilePicture?: string;
+  phone?: string;
+  emailVerified: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string) => Promise<boolean>;
+  register: (email: string, password: string, name: string, username: string, phone?: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<boolean>;
+  uploadProfilePicture: (file: File) => Promise<boolean>;
   isLoading: boolean;
 }
 
@@ -53,7 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: firebaseUser.uid,
             email: firebaseUser.email!,
             name: userData.name,
-            role: userData.role || 'user'
+            username: userData.username,
+            role: userData.role || 'user',
+            profilePicture: userData.profilePicture,
+            phone: userData.phone,
+            emailVerified: firebaseUser.emailVerified
           });
         }
       } else {
@@ -80,19 +92,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string): Promise<boolean> => {
+  const register = async (email: string, password: string, name: string, username: string, phone?: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       console.log('Attempting registration for:', email);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+      
       // Save user data to Firestore
       const isAdmin = email === 'mdaytullaalkhumoni@gmail.com';
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         name,
+        username,
         email,
+        phone,
         role: isAdmin ? 'admin' : 'user',
-        createdAt: new Date()
+        createdAt: new Date(),
+        emailVerified: false
       });
       
       return true;
@@ -101,6 +119,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateProfile = async (data: Partial<User>): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      const userDocRef = doc(db, 'users', user.id);
+      await updateDoc(userDocRef, data);
+      
+      setUser(prev => prev ? { ...prev, ...data } : null);
+      return true;
+    } catch (error) {
+      console.error('Profile update error:', error);
+      return false;
+    }
+  };
+
+  const uploadProfilePicture = async (file: File): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      const storageRef = ref(storage, `profile-pictures/${user.id}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      await updateProfile({ profilePicture: downloadURL });
+      return true;
+    } catch (error) {
+      console.error('Profile picture upload error:', error);
+      return false;
     }
   };
 
@@ -113,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, uploadProfilePicture, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
