@@ -17,6 +17,7 @@ export const ProfileDialog = () => {
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const { user, updateProfile, uploadProfilePicture } = useAuth();
   const { language } = useApp();
   const { toast } = useToast();
@@ -32,21 +33,33 @@ export const ProfileDialog = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUpdating(true);
     
-    const success = await updateProfile({ name, username, phone });
-    
-    if (success) {
-      toast({
-        title: language === 'bn' ? "সফল!" : "Success!",
-        description: language === 'bn' ? "প্রোফাইল আপডেট হয়েছে" : "Profile updated successfully",
-      });
-      setIsOpen(false);
-    } else {
+    try {
+      const success = await updateProfile({ name, username, phone });
+      
+      if (success) {
+        toast({
+          title: language === 'bn' ? "সফল!" : "Success!",
+          description: language === 'bn' ? "প্রোফাইল আপডেট হয়েছে" : "Profile updated successfully",
+        });
+        setIsOpen(false);
+      } else {
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "প্রোফাইল আপডেট ব্যর্থ" : "Failed to update profile",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: language === 'bn' ? "ত্রুটি!" : "Error!",
         description: language === 'bn' ? "প্রোফাইল আপডেট ব্যর্থ" : "Failed to update profile",
         variant: "destructive",
       });
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -54,22 +67,56 @@ export const ProfileDialog = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
-    const success = await uploadProfilePicture(file);
-    
-    if (success) {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: language === 'bn' ? "সফল!" : "Success!",
-        description: language === 'bn' ? "ছবি আপলোড হয়েছে" : "Photo uploaded successfully",
+        title: language === 'bn' ? "ত্রুটি!" : "Error!",
+        description: language === 'bn' ? "শুধুমাত্র ছবি ফাইল আপলোড করুন" : "Please upload image files only",
+        variant: "destructive",
       });
-    } else {
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: language === 'bn' ? "ত্রুটি!" : "Error!",
+        description: language === 'bn' ? "ছবির সাইজ ৫ এমবি এর বেশি হতে পারবে না" : "Image size must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      console.log('Uploading profile picture:', file.name, file.size);
+      const success = await uploadProfilePicture(file);
+      
+      if (success) {
+        toast({
+          title: language === 'bn' ? "সফল!" : "Success!",
+          description: language === 'bn' ? "ছবি আপলোড হয়েছে" : "Photo uploaded successfully",
+        });
+      } else {
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "ছবি আপলোড ব্যর্থ" : "Failed to upload photo",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Photo upload error:', error);
       toast({
         title: language === 'bn' ? "ত্রুটি!" : "Error!",
         description: language === 'bn' ? "ছবি আপলোড ব্যর্থ" : "Failed to upload photo",
         variant: "destructive",
       });
+    } finally {
+      setUploading(false);
+      // Clear the input value to allow re-uploading the same file
+      e.target.value = '';
     }
-    setUploading(false);
   };
 
   if (!user) return null;
@@ -102,14 +149,20 @@ export const ProfileDialog = () => {
                 onChange={handlePhotoUpload}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 disabled={uploading}
+                id="profile-picture-upload"
               />
-              <Button variant="outline" size="sm" disabled={uploading}>
-                {uploading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Camera className="h-4 w-4 mr-2" />
-                )}
-                {t("uploadPhoto", language)}
+              <Button variant="outline" size="sm" disabled={uploading} asChild>
+                <label htmlFor="profile-picture-upload" className="cursor-pointer">
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Camera className="h-4 w-4 mr-2" />
+                  )}
+                  {uploading 
+                    ? (language === 'bn' ? "আপলোড হচ্ছে..." : "Uploading...")
+                    : t("uploadPhoto", language)
+                  }
+                </label>
               </Button>
             </div>
           </div>
@@ -150,8 +203,15 @@ export const ProfileDialog = () => {
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full">
-              {language === 'bn' ? "আপডেট করুন" : "Update Profile"}
+            <Button type="submit" className="w-full" disabled={updating}>
+              {updating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {language === 'bn' ? "আপডেট হচ্ছে..." : "Updating..."}
+                </>
+              ) : (
+                language === 'bn' ? "আপডেট করুন" : "Update Profile"
+              )}
             </Button>
           </form>
         </div>

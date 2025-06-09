@@ -4,137 +4,89 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send } from "lucide-react";
+import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
+import { useSocial } from "@/contexts/SocialContext";
 import { t } from "@/lib/translations";
-
-interface Comment {
-  id: number;
-  author: string;
-  avatar: string;
-  content: string;
-  time: string;
-  profilePicture?: string;
-}
-
-interface Post {
-  id: number;
-  author: string;
-  avatar: string;
-  time: string;
-  content: string;
-  likes: number;
-  comments: Comment[];
-  shares: number;
-  hashtags: string[];
-  profilePicture?: string;
-}
+import { useToast } from "@/hooks/use-toast";
 
 export const PostFeed = () => {
   const [newPost, setNewPost] = useState("");
-  const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
-  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
+  const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
+  const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
+  const [isPosting, setIsPosting] = useState(false);
   const { user } = useAuth();
   const { language } = useApp();
-  
-  const [posts, setPosts] = useState<Post[]>([
-    {
-      id: 1,
-      author: "মোহাম্মদ রহিম",
-      avatar: "MR",
-      time: "২ ঘন্টা আগে",
-      content: "বাঁচারামপুর বাজারে আজ সবজির দাম কেমন? কেউ জানেন? #বাঁচারামপুর #বাজার",
-      likes: 12,
-      comments: [
-        {
-          id: 1,
-          author: "সালমা বেগম",
-          avatar: "সব",
-          content: "আলু ৪০ টাকা কেজি, পেঁয়াজ ৫৫ টাকা",
-          time: "১ ঘন্টা আগে"
-        }
-      ],
-      shares: 2,
-      hashtags: ["#বাঁচারামপুর", "#বাজার"]
-    },
-    {
-      id: 2,
-      author: "ফাতেমা খাতুন",
-      avatar: "FK",
-      time: "৪ ঘন্টা আগে",
-      content: "কাল আমাদের এলাকায় বিদ্যুৎ থাকবে কি? রান্নার গ্যাসও নেই। #বাঁচারামপুর #বিদ্যুৎ",
-      likes: 25,
-      comments: [],
-      shares: 4,
-      hashtags: ["#বাঁচারামপুর", "#বিদ্যুৎ"]
-    },
-    {
-      id: 3,
-      author: "আব্দুল করিম",
-      avatar: "AK",
-      time: "৬ ঘন্টা আগে",
-      content: "নতুন স্বাস্থ্য কমপ্লেক্সে সেবা নিলাম। খুবই ভালো ব্যবস্থা। ডাক্তারগণ খুব যত্ন নিয়ে দেখেছেন। #স্বাস্থ্যসেবা #বাঁচারামপুর",
-      likes: 18,
-      comments: [],
-      shares: 6,
-      hashtags: ["#স্বাস্থ্যসেবা", "#বাঁচারামপুর"]
-    }
-  ]);
+  const { posts, addPost, addComment, likePost, loading } = useSocial();
+  const { toast } = useToast();
 
-  const handlePostSubmit = () => {
+  const handlePostSubmit = async () => {
     if (newPost.trim() && user) {
-      const hashtags = newPost.match(/#\w+/g) || [];
-      const newPostObj: Post = {
-        id: posts.length + 1,
-        author: user.name,
-        avatar: user.name.charAt(0).toUpperCase(),
-        time: "এখনই",
-        content: newPost,
-        likes: 0,
-        comments: [],
-        shares: 0,
-        hashtags,
-        profilePicture: user.profilePicture
-      };
-      setPosts([newPostObj, ...posts]);
-      setNewPost("");
+      setIsPosting(true);
+      try {
+        await addPost(newPost);
+        setNewPost("");
+        toast({
+          title: language === 'bn' ? "সফল!" : "Success!",
+          description: language === 'bn' ? "পোস্ট প্রকাশিত হয়েছে" : "Post published successfully",
+        });
+      } catch (error) {
+        console.error('Error posting:', error);
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "পোস্ট প্রকাশে ব্যর্থ" : "Failed to publish post",
+          variant: "destructive",
+        });
+      } finally {
+        setIsPosting(false);
+      }
     }
   };
 
-  const handleLike = (postId: number) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { ...post, likes: post.likes + 1 }
-        : post
-    ));
+  const handleLike = async (postId: string) => {
+    try {
+      await likePost(postId);
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
   };
 
-  const handleCommentSubmit = (postId: number) => {
+  const handleCommentSubmit = async (postId: string) => {
     const commentText = commentInputs[postId];
     if (commentText?.trim() && user) {
-      const newComment: Comment = {
-        id: Date.now(),
-        author: user.name,
-        avatar: user.name.charAt(0).toUpperCase(),
-        content: commentText,
-        time: "এখনই",
-        profilePicture: user.profilePicture
-      };
-      
-      setPosts(posts.map(post => 
-        post.id === postId 
-          ? { ...post, comments: [...post.comments, newComment] }
-          : post
-      ));
-      
-      setCommentInputs({ ...commentInputs, [postId]: "" });
+      try {
+        await addComment(postId, commentText);
+        setCommentInputs({ ...commentInputs, [postId]: "" });
+      } catch (error) {
+        console.error('Error adding comment:', error);
+      }
     }
   };
 
-  const toggleComments = (postId: number) => {
+  const toggleComments = (postId: string) => {
     setShowComments({ ...showComments, [postId]: !showComments[postId] });
   };
+
+  const formatTime = (createdAt: string) => {
+    const now = new Date();
+    const postTime = new Date(createdAt);
+    const diffInMinutes = Math.floor((now.getTime() - postTime.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "এখনই";
+    if (diffInMinutes < 60) return `${diffInMinutes} মিনিট আগে`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} ঘন্টা আগে`;
+    return `${Math.floor(diffInMinutes / 1440)} দিন আগে`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">লোড হচ্ছে...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -166,10 +118,17 @@ export const PostFeed = () => {
                 </div>
                 <Button 
                   onClick={handlePostSubmit}
-                  disabled={!newPost.trim()}
+                  disabled={!newPost.trim() || isPosting}
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  পোস্ট করুন
+                  {isPosting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      পোস্ট করা হচ্ছে...
+                    </>
+                  ) : (
+                    "পোস্ট করুন"
+                  )}
                 </Button>
               </div>
               <div className="text-xs text-gray-500">
@@ -197,7 +156,7 @@ export const PostFeed = () => {
                   <h4 className="font-medium text-gray-800">{post.author}</h4>
                   <p className="text-sm text-gray-500 flex items-center">
                     <Clock className="mr-1 h-3 w-3" />
-                    {post.time}
+                    {formatTime(post.createdAt)}
                   </p>
                 </div>
                 <Button variant="ghost" size="sm">
@@ -226,9 +185,15 @@ export const PostFeed = () => {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => handleLike(post.id)}
-                  className="text-gray-600 hover:text-red-500"
+                  className={`text-gray-600 ${
+                    user && post.likedBy.includes(user.id) 
+                      ? 'text-red-500 hover:text-red-600' 
+                      : 'hover:text-red-500'
+                  }`}
                 >
-                  <Heart className="mr-2 h-4 w-4" />
+                  <Heart className={`mr-2 h-4 w-4 ${
+                    user && post.likedBy.includes(user.id) ? 'fill-current' : ''
+                  }`} />
                   {post.likes}
                 </Button>
                 <Button 
