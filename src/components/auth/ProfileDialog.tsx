@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +7,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
-import { User, Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export const ProfileDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface ProfileDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const ProfileDialog = ({ isOpen, onOpenChange }: ProfileDialogProps) => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
@@ -28,7 +31,6 @@ export const ProfileDialog = () => {
       setUsername(user.username);
       setPhone(user.phone || "");
     }
-    setIsOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +45,7 @@ export const ProfileDialog = () => {
           title: language === 'bn' ? "সফল!" : "Success!",
           description: language === 'bn' ? "প্রোফাইল আপডেট হয়েছে" : "Profile updated successfully",
         });
-        setIsOpen(false);
+        onOpenChange(false);
       } else {
         toast({
           title: language === 'bn' ? "ত্রুটি!" : "Error!",
@@ -122,13 +124,10 @@ export const ProfileDialog = () => {
   if (!user) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" onClick={handleOpen}>
-          <User className="h-4 w-4 mr-2" />
-          {t("editProfile", language)}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={(open) => { 
+      if (open) handleOpen();
+      onOpenChange(open);
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{t("editProfile", language)}</DialogTitle>

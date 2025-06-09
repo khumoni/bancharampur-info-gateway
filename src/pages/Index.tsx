@@ -1,10 +1,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { EmergencyNotices } from "@/components/home/EmergencyNotices";
 import { PostFeed } from "@/components/social/PostFeed";
 import { QuickAccess } from "@/components/home/QuickAccess";
 import { LocalInfo } from "@/components/home/LocalInfo";
@@ -28,19 +27,6 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8">
             {t("tagline", language)}
           </p>
-        </div>
-      </section>
-
-      {/* Emergency Notices */}
-      <section className="py-8 px-4 bg-red-50 dark:bg-red-900/20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center mb-6">
-            <Bell className="h-6 w-6 text-red-600 mr-3" />
-            <h2 className="text-2xl font-bold text-red-800 dark:text-red-400">
-              {t("emergencyNotices", language)}
-            </h2>
-          </div>
-          <EmergencyNotices />
         </div>
       </section>
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MoreHorizontal, Menu, X, Settings, Globe, Moon, Shield, LogOut, Phone } from "lucide-react";
+import { MoreHorizontal, Menu, X, Settings, Globe, Moon, Shield, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,7 @@ import {
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { language, toggleLanguage, isDarkMode, toggleDarkMode } = useApp();
   const { user, logout } = useAuth();
 
@@ -34,13 +35,6 @@ export const Header = () => {
     { label: t("jobs", language), href: "/jobs" },
   ];
 
-  const emergencyNumbers = [
-    { name: "পুলিশ", number: "999" },
-    { name: "ফায়ার সার্ভিস", number: "199" },
-    { name: "অ্যাম্বুলেন্স", number: "11333" },
-    { name: "জাতীয় হেল্পলাইন", number: "333" },
-  ];
-
   return (
     <header className="bg-background/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-green-100 dark:border-green-800">
       <div className="max-w-7xl mx-auto px-4">
@@ -49,12 +43,17 @@ export const Header = () => {
           <div className="flex items-center space-x-3">
             {user ? (
               <div className="flex items-center space-x-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={user.profilePicture} />
-                  <AvatarFallback>
-                    {user.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div 
+                  className="cursor-pointer"
+                  onClick={() => setIsProfileDialogOpen(true)}
+                >
+                  <Avatar className="w-8 h-8 hover:ring-2 hover:ring-green-500 transition-all">
+                    <AvatarImage src={user.profilePicture} />
+                    <AvatarFallback>
+                      {user.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 <div className="hidden md:block">
                   <span className="text-sm font-medium">{user.username}</span>
                   {!user.emailVerified && (
@@ -63,7 +62,10 @@ export const Header = () => {
                     </div>
                   )}
                 </div>
-                <ProfileDialog />
+                <ProfileDialog 
+                  isOpen={isProfileDialogOpen} 
+                  onOpenChange={setIsProfileDialogOpen}
+                />
               </div>
             ) : (
               <Link to="/" className="flex items-center space-x-3">
@@ -142,21 +144,6 @@ export const Header = () => {
                     onCheckedChange={toggleDarkMode}
                   />
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                
-                {/* Emergency Numbers */}
-                <DropdownMenuLabel className="flex items-center">
-                  <Phone className="h-4 w-4 mr-2" />
-                  {language === 'bn' ? 'জরুরি নম্বর' : 'Emergency Numbers'}
-                </DropdownMenuLabel>
-                {emergencyNumbers.map((emergency) => (
-                  <DropdownMenuItem key={emergency.number} asChild>
-                    <a href={`tel:${emergency.number}`} className="flex items-center justify-between">
-                      <span>{emergency.name}</span>
-                      <span className="text-green-600 font-medium">{emergency.number}</span>
-                    </a>
-                  </DropdownMenuItem>
-                ))}
                 
                 <DropdownMenuSeparator />
                 {user?.role === 'admin' && (
