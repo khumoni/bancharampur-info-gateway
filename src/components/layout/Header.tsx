@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Menu, X, Settings, Globe, Moon, Shield, LogOut } from "lucide-react";
+import { MoreHorizontal, Menu, X, Settings, Globe, Moon, Shield, LogOut, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,27 +29,69 @@ export const Header = () => {
   const menuItems = [
     { label: t("home", language), href: "/" },
     { label: t("notices", language), href: "/notices" },
-    { label: t("map", language), href: "/map" },
     { label: t("social", language), href: "/social" },
     { label: t("qa", language), href: "/qa" },
     { label: t("jobs", language), href: "/jobs" },
+  ];
+
+  const emergencyNumbers = [
+    { name: "পুলিশ", number: "999" },
+    { name: "ফায়ার সার্ভিস", number: "199" },
+    { name: "অ্যাম্বুলেন্স", number: "11333" },
+    { name: "জাতীয় হেল্পলাইন", number: "333" },
   ];
 
   return (
     <header className="bg-background/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-green-100 dark:border-green-800">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">বি</span>
-            </div>
-            <div className="hidden md:block">
-              <h1 className="text-xl font-bold text-green-800 dark:text-green-400">
-                {t("siteName", language)}
-              </h1>
-            </div>
-          </Link>
+          {/* Left Side - Profile (when logged in) */}
+          <div className="flex items-center space-x-3">
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.profilePicture} />
+                  <AvatarFallback>
+                    {user.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden md:block">
+                  <span className="text-sm font-medium">{user.username}</span>
+                  {!user.emailVerified && (
+                    <div className="text-xs text-orange-600">
+                      {language === 'bn' ? "ইমেইল যাচাই করুন" : "Verify email"}
+                    </div>
+                  )}
+                </div>
+                <ProfileDialog />
+              </div>
+            ) : (
+              <Link to="/" className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">বি</span>
+                </div>
+                <div className="hidden md:block">
+                  <h1 className="text-xl font-bold text-green-800 dark:text-green-400">
+                    {t("siteName", language)}
+                  </h1>
+                </div>
+              </Link>
+            )}
+          </div>
+
+          {/* Center - Logo (when user is logged in) or Navigation */}
+          {user && (
+            <Link to="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">বি</span>
+              </div>
+              <div className="hidden md:block">
+                <h1 className="text-xl font-bold text-green-800 dark:text-green-400">
+                  {t("siteName", language)}
+                </h1>
+              </div>
+            </Link>
+          )}
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
@@ -66,11 +108,11 @@ export const Header = () => {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
-            {/* Settings Dropdown */}
+            {/* Settings Dropdown (3 dots menu) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
-                  <Settings className="h-5 w-5" />
+                  <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -101,6 +143,22 @@ export const Header = () => {
                   />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                
+                {/* Emergency Numbers */}
+                <DropdownMenuLabel className="flex items-center">
+                  <Phone className="h-4 w-4 mr-2" />
+                  {language === 'bn' ? 'জরুরি নম্বর' : 'Emergency Numbers'}
+                </DropdownMenuLabel>
+                {emergencyNumbers.map((emergency) => (
+                  <DropdownMenuItem key={emergency.number} asChild>
+                    <a href={`tel:${emergency.number}`} className="flex items-center justify-between">
+                      <span>{emergency.name}</span>
+                      <span className="text-green-600 font-medium">{emergency.number}</span>
+                    </a>
+                  </DropdownMenuItem>
+                ))}
+                
+                <DropdownMenuSeparator />
                 {user?.role === 'admin' && (
                   <DropdownMenuItem asChild>
                     <Link to="/admin" className="flex items-center">
@@ -121,36 +179,8 @@ export const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Notification Bell */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-xs">
-                3
-              </Badge>
-            </Button>
-
-            {/* Auth Buttons */}
-            {user ? (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.profilePicture} />
-                    <AvatarFallback>
-                      {user.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden md:block">
-                    <span className="text-sm font-medium">{user.username}</span>
-                    {!user.emailVerified && (
-                      <div className="text-xs text-orange-600">
-                        {language === 'bn' ? "ইমেইল যাচাই করুন" : "Verify email"}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <ProfileDialog />
-              </div>
-            ) : (
+            {/* Auth Buttons (only when not logged in) */}
+            {!user && (
               <div className="hidden md:flex items-center space-x-2">
                 <LoginDialog />
                 <RegisterDialog />

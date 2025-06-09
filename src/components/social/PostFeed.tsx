@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send, Loader2 } from "lucide-react";
+import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send, Loader2, Copy, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { useSocial } from "@/contexts/SocialContext";
@@ -16,6 +17,7 @@ export const PostFeed = () => {
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
   const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
   const [isPosting, setIsPosting] = useState(false);
+  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
   const { user } = useAuth();
   const { language } = useApp();
   const { posts, addPost, addComment, likePost, loading } = useSocial();
@@ -68,6 +70,31 @@ export const PostFeed = () => {
     setShowComments({ ...showComments, [postId]: !showComments[postId] });
   };
 
+  const handleShare = async (postId: string, content: string, author: string) => {
+    try {
+      const postUrl = `${window.location.origin}?post=${postId}`;
+      const shareText = `"${content}" - ${author}\n\n${postUrl}`;
+      
+      await navigator.clipboard.writeText(shareText);
+      setCopiedPostId(postId);
+      
+      toast({
+        title: language === 'bn' ? "কপি হয়েছে!" : "Copied!",
+        description: language === 'bn' ? "পোস্টের লিংক কপি হয়েছে" : "Post link copied to clipboard",
+      });
+
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopiedPostId(null), 2000);
+    } catch (error) {
+      console.error('Error sharing post:', error);
+      toast({
+        title: language === 'bn' ? "ত্রুটি!" : "Error!",
+        description: language === 'bn' ? "লিংক কপি করতে ব্যর্থ" : "Failed to copy link",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatTime = (createdAt: string) => {
     const now = new Date();
     const postTime = new Date(createdAt);
@@ -104,7 +131,7 @@ export const PostFeed = () => {
                 </Avatar>
                 <div className="flex-1">
                   <Textarea
-                    placeholder="আপনার মতামত শেয়ার করুন... #বাঁচারামপুর ট্যাগ ব্যবহার করুন"
+                    placeholder="আপনার মতামত শেয়ার করুন... #বাঞ্ছারামপুর ট্যাগ ব্যবহার করুন"
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                     className="min-h-[80px] resize-none"
@@ -205,9 +232,18 @@ export const PostFeed = () => {
                   <MessageSquare className="mr-2 h-4 w-4" />
                   {post.comments.length}
                 </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-green-500">
-                  <Share className="mr-2 h-4 w-4" />
-                  {post.shares}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-600 hover:text-green-500"
+                  onClick={() => handleShare(post.id, post.content, post.author)}
+                >
+                  {copiedPostId === post.id ? (
+                    <Check className="mr-2 h-4 w-4 text-green-500" />
+                  ) : (
+                    <Share className="mr-2 h-4 w-4" />
+                  )}
+                  {copiedPostId === post.id ? 'কপি হয়েছে' : 'শেয়ার'}
                 </Button>
               </div>
 

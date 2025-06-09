@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Users, MessageSquare } from "lucide-react";
+import { Bell, MessageSquare } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { EmergencyNotices } from "@/components/home/EmergencyNotices";
@@ -28,16 +28,6 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8">
             {t("tagline", language)}
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700">
-              <Users className="mr-2 h-5 w-5" />
-              {t("joinUs", language)}
-            </Button>
-            <Button size="lg" variant="outline">
-              <MapPin className="mr-2 h-5 w-5" />
-              {t("viewMap", language)}
-            </Button>
-          </div>
         </div>
       </section>
 
