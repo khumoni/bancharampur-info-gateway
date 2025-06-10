@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, Globe, Moon, Shield, LogOut, Home, ShoppingCart } from "lucide-react";
+import { Menu, Globe, Moon, Shield, LogOut, Home, ShoppingCart, User, Camera, Images } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +12,7 @@ import { t } from "@/lib/translations";
 import { LoginDialog } from "@/components/auth/LoginDialog";
 import { RegisterDialog } from "@/components/auth/RegisterDialog";
 import { ProfileDialog } from "@/components/auth/ProfileDialog";
+import { ProfilePicturesDialog } from "@/components/auth/ProfilePicturesDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,7 @@ import {
 
 export const Header = () => {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [isPicturesDialogOpen, setIsPicturesDialogOpen] = useState(false);
   const { language, toggleLanguage, isDarkMode, toggleDarkMode } = useApp();
   const { user, logout } = useAuth();
 
@@ -34,18 +36,37 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                {/* Profile Avatar - Always Visible */}
-                <div 
-                  className="cursor-pointer"
-                  onClick={() => setIsProfileDialogOpen(true)}
-                >
-                  <Avatar className="w-10 h-10 hover:ring-2 hover:ring-green-500 transition-all border-2 border-green-200 dark:border-green-700">
-                    <AvatarImage src={user.profilePicture} />
-                    <AvatarFallback className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 font-semibold">
-                      {user.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
+                {/* Profile Avatar with Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="cursor-pointer">
+                      <Avatar className="w-10 h-10 hover:ring-2 hover:ring-green-500 transition-all border-2 border-green-200 dark:border-green-700">
+                        <AvatarImage src={user.profilePicture} />
+                        <AvatarFallback className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 font-semibold">
+                          {user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56 bg-background border-green-200 dark:border-green-700">
+                    <DropdownMenuLabel className="text-foreground">{user.name}</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
+                    <DropdownMenuItem 
+                      onClick={() => setIsProfileDialogOpen(true)}
+                      className="flex items-center text-foreground hover:bg-green-50 dark:hover:bg-green-900 cursor-pointer"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      {language === 'bn' ? 'প্রোফাইল সম্পাদনা' : 'Edit Profile'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setIsPicturesDialogOpen(true)}
+                      className="flex items-center text-foreground hover:bg-green-50 dark:hover:bg-green-900 cursor-pointer"
+                    >
+                      <Images className="h-4 w-4 mr-2" />
+                      {language === 'bn' ? 'ছবি দেখুন' : 'View Pictures'}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 {/* Home Option */}
                 <Link 
@@ -70,6 +91,10 @@ export const Header = () => {
                 <ProfileDialog 
                   isOpen={isProfileDialogOpen} 
                   onOpenChange={setIsProfileDialogOpen}
+                />
+                <ProfilePicturesDialog 
+                  isOpen={isPicturesDialogOpen} 
+                  onOpenChange={setIsPicturesDialogOpen}
                 />
               </>
             ) : (
