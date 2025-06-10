@@ -34,14 +34,14 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                {/* Profile Avatar */}
+                {/* Profile Avatar - Always Visible */}
                 <div 
                   className="cursor-pointer"
                   onClick={() => setIsProfileDialogOpen(true)}
                 >
-                  <Avatar className="w-8 h-8 hover:ring-2 hover:ring-green-500 transition-all">
+                  <Avatar className="w-10 h-10 hover:ring-2 hover:ring-green-500 transition-all border-2 border-green-200 dark:border-green-700">
                     <AvatarImage src={user.profilePicture} />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 font-semibold">
                       {user.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -113,14 +113,14 @@ export const Header = () => {
             {/* Hamburger Menu (Settings) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-foreground hover:text-green-600 dark:hover:text-green-400">
                   <Menu className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{t("settings", language)}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center justify-between">
+              <DropdownMenuContent align="end" className="w-56 bg-background border-green-200 dark:border-green-700">
+                <DropdownMenuLabel className="text-foreground">{t("settings", language)}</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
+                <DropdownMenuItem className="flex items-center justify-between text-foreground hover:bg-green-50 dark:hover:bg-green-900">
                   <div className="flex items-center">
                     <Globe className="h-4 w-4 mr-2" />
                     {t("language", language)}
@@ -134,7 +134,7 @@ export const Header = () => {
                     {language === 'bn' ? 'EN' : 'বাং'}
                   </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center justify-between">
+                <DropdownMenuItem className="flex items-center justify-between text-foreground hover:bg-green-50 dark:hover:bg-green-900">
                   <div className="flex items-center">
                     <Moon className="h-4 w-4 mr-2" />
                     {t("darkMode", language)}
@@ -147,9 +147,9 @@ export const Header = () => {
                 
                 {user?.role === 'admin' && (
                   <>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
                     <DropdownMenuItem asChild>
-                      <Link to="/admin" className="flex items-center">
+                      <Link to="/admin" className="flex items-center text-foreground hover:bg-green-50 dark:hover:bg-green-900">
                         <Shield className="h-4 w-4 mr-2" />
                         {t("admin", language)}
                       </Link>
@@ -158,8 +158,8 @@ export const Header = () => {
                 )}
                 {user && (
                   <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="flex items-center text-red-600">
+                    <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
+                    <DropdownMenuItem onClick={logout} className="flex items-center text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
                       <LogOut className="h-4 w-4 mr-2" />
                       {t("logout", language)}
                     </DropdownMenuItem>
@@ -169,7 +169,7 @@ export const Header = () => {
                 {/* Auth options for mobile when not logged in */}
                 {!user && (
                   <>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
                     <div className="md:hidden p-2 space-y-2">
                       <LoginDialog />
                       <RegisterDialog />
