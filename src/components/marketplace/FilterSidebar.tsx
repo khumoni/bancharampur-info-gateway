@@ -137,7 +137,7 @@ export const FilterSidebar = ({ language }: FilterSidebarProps) => {
                   id={`location-${location}`}
                   checked={selectedLocation === location}
                   onCheckedChange={(checked) => 
-                    setSelectedLocation(checked ? location : "")
+                    setSelectedLocation(checked === true ? location : "")
                   }
                 />
                 <Label htmlFor={`location-${location}`} className="text-sm">
@@ -162,7 +162,7 @@ export const FilterSidebar = ({ language }: FilterSidebarProps) => {
                   id={`condition-${condition.value}`}
                   checked={selectedConditions.includes(condition.value)}
                   onCheckedChange={(checked) => 
-                    handleConditionChange(condition.value, checked as boolean)
+                    handleConditionChange(condition.value, checked === true)
                   }
                 />
                 <Label htmlFor={`condition-${condition.value}`} className="text-sm">
@@ -188,7 +188,7 @@ export const FilterSidebar = ({ language }: FilterSidebarProps) => {
                   id={`rating-${rating}`}
                   checked={minRating === rating}
                   onCheckedChange={(checked) => 
-                    setMinRating(checked ? rating : 0)
+                    setMinRating(checked === true ? rating : 0)
                   }
                 />
                 <Label htmlFor={`rating-${rating}`} className="flex items-center text-sm">
@@ -211,7 +211,7 @@ export const FilterSidebar = ({ language }: FilterSidebarProps) => {
           <Checkbox
             id="verified-only"
             checked={verifiedOnly}
-            onCheckedChange={setVerifiedOnly}
+            onCheckedChange={(checked) => setVerifiedOnly(checked === true)}
           />
           <Label htmlFor="verified-only" className="flex items-center text-sm">
             <Shield className="mr-2 h-4 w-4 text-green-500" />
@@ -234,7 +234,7 @@ export const FilterSidebar = ({ language }: FilterSidebarProps) => {
                   id={`time-${filter.value}`}
                   checked={postedWithin === filter.value}
                   onCheckedChange={(checked) => 
-                    setPostedWithin(checked ? filter.value : "")
+                    setPostedWithin(checked === true ? filter.value : "")
                   }
                 />
                 <Label htmlFor={`time-${filter.value}`} className="text-sm">
