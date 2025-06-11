@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
-import { Camera, Loader2, Upload } from "lucide-react";
+import { Camera, Loader2, Upload, Image, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProfilePicturesDialogProps {
@@ -15,6 +15,7 @@ interface ProfilePicturesDialogProps {
 
 export const ProfilePicturesDialog = ({ isOpen, onOpenChange }: ProfilePicturesDialogProps) => {
   const [uploading, setUploading] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const { user, uploadProfilePicture } = useAuth();
   const { language } = useApp();
   const { toast } = useToast();
@@ -75,11 +76,43 @@ export const ProfilePicturesDialog = ({ isOpen, onOpenChange }: ProfilePicturesD
     }
   };
 
+  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Validate files
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "শুধুমাত্র ছবি ফাইল আপলোড করুন" : "Please upload image files only",
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "ছবির সাইজ ৫ এমবি এর বেশি হতে পারবে না" : "Image size must be less than 5MB",
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+
+    setSelectedImages(prev => [...prev, ...validFiles]);
+    e.target.value = ''; // Reset input
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   if (!user) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {language === 'bn' ? 'প্রোফাইল ছবি' : 'Profile Pictures'}
@@ -108,7 +141,7 @@ export const ProfilePicturesDialog = ({ isOpen, onOpenChange }: ProfilePicturesD
               {language === 'bn' ? 'নতুন ছবি আপলোড করুন' : 'Upload New Picture'}
             </h3>
             
-            <div className="flex justify-center">
+            <div className="flex justify-center space-x-4">
               <div className="relative">
                 <input
                   type="file"
@@ -123,12 +156,29 @@ export const ProfilePicturesDialog = ({ isOpen, onOpenChange }: ProfilePicturesD
                     {uploading ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
-                      <Upload className="h-4 w-4 mr-2" />
+                      <Camera className="h-4 w-4 mr-2" />
                     )}
                     {uploading 
                       ? (language === 'bn' ? "আপলোড হচ্ছে..." : "Uploading...")
-                      : (language === 'bn' ? "ছবি নির্বাচন করুন" : "Choose Picture")
+                      : (language === 'bn' ? "প্রোফাইল ছবি" : "Profile Picture")
                     }
+                  </label>
+                </Button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleGalleryUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="gallery-upload"
+                />
+                <Button variant="outline" asChild>
+                  <label htmlFor="gallery-upload" className="cursor-pointer">
+                    <Image className="h-4 w-4 mr-2" />
+                    {language === 'bn' ? "গ্যালারি ছবি" : "Gallery Images"}
                   </label>
                 </Button>
               </div>
@@ -141,6 +191,34 @@ export const ProfilePicturesDialog = ({ isOpen, onOpenChange }: ProfilePicturesD
               }
             </p>
           </div>
+
+          {/* Gallery Preview */}
+          {selectedImages.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-center">
+                {language === 'bn' ? 'নির্বাচিত ছবি' : 'Selected Images'}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {selectedImages.map((file, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0"
+                      onClick={() => removeImage(index)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

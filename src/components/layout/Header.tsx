@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, Globe, Moon, Shield, LogOut, Home, ShoppingCart, User, Camera, Images } from "lucide-react";
+import { Menu, Globe, Moon, Shield, LogOut, Home, ShoppingCart, User, Camera, Images, Bell, Edit3, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +12,7 @@ import { LoginDialog } from "@/components/auth/LoginDialog";
 import { RegisterDialog } from "@/components/auth/RegisterDialog";
 import { ProfileDialog } from "@/components/auth/ProfileDialog";
 import { ProfilePicturesDialog } from "@/components/auth/ProfilePicturesDialog";
+import { CreatePostDialog } from "@/components/social/CreatePostDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,7 @@ import {
 export const Header = () => {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isPicturesDialogOpen, setIsPicturesDialogOpen] = useState(false);
+  const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] = useState(false);
   const { language, toggleLanguage, isDarkMode, toggleDarkMode } = useApp();
   const { user, logout } = useAuth();
 
@@ -65,6 +66,13 @@ export const Header = () => {
                       <Images className="h-4 w-4 mr-2" />
                       {language === 'bn' ? 'ছবি দেখুন' : 'View Pictures'}
                     </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setIsCreatePostDialogOpen(true)}
+                      className="flex items-center text-foreground hover:bg-green-50 dark:hover:bg-green-900 cursor-pointer"
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      {language === 'bn' ? 'পোস্ট লিখুন' : 'Write Post'}
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
@@ -95,6 +103,10 @@ export const Header = () => {
                 <ProfilePicturesDialog 
                   isOpen={isPicturesDialogOpen} 
                   onOpenChange={setIsPicturesDialogOpen}
+                />
+                <CreatePostDialog 
+                  isOpen={isCreatePostDialogOpen} 
+                  onOpenChange={setIsCreatePostDialogOpen}
                 />
               </>
             ) : (
@@ -127,6 +139,16 @@ export const Header = () => {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
+            {/* Notifications (only when logged in) */}
+            {user && (
+              <Button variant="ghost" size="sm" className="relative text-foreground hover:text-green-600 dark:hover:text-green-400">
+                <Bell className="h-5 w-5" />
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500 text-white">
+                  3
+                </Badge>
+              </Button>
+            )}
+
             {/* Auth Buttons (only when not logged in) */}
             {!user && (
               <div className="hidden md:flex items-center space-x-2">
@@ -145,6 +167,21 @@ export const Header = () => {
               <DropdownMenuContent align="end" className="w-56 bg-background border-green-200 dark:border-green-700">
                 <DropdownMenuLabel className="text-foreground">{t("settings", language)}</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
+                
+                {/* Quick Actions for logged in users */}
+                {user && (
+                  <>
+                    <DropdownMenuItem 
+                      onClick={() => setIsCreatePostDialogOpen(true)}
+                      className="flex items-center text-foreground hover:bg-green-50 dark:hover:bg-green-900 cursor-pointer"
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      {language === 'bn' ? 'পোস্ট লিখুন' : 'Write Post'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-green-200 dark:bg-green-700" />
+                  </>
+                )}
+                
                 <DropdownMenuItem className="flex items-center justify-between text-foreground hover:bg-green-50 dark:hover:bg-green-900">
                   <div className="flex items-center">
                     <Globe className="h-4 w-4 mr-2" />
