@@ -15,7 +15,6 @@ export const RegisterDialog = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const { register, isLoading } = useAuth();
   const { language } = useApp();
@@ -34,7 +33,7 @@ export const RegisterDialog = () => {
       return;
     }
 
-    const success = await register(email, password, name, username, phone);
+    const success = await register(email, password, name, phone);
     
     if (success) {
       toast({
@@ -45,7 +44,6 @@ export const RegisterDialog = () => {
       setEmail("");
       setPassword("");
       setName("");
-      setUsername("");
       setPhone("");
     } else {
       toast({
@@ -80,19 +78,6 @@ export const RegisterDialog = () => {
               onChange={(e) => setName(e.target.value)}
               required
               placeholder={language === 'bn' ? "আপনার নাম লিখুন" : "Enter your name"}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="username">
-              {t("username", language)}
-            </Label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder={language === 'bn' ? "ব্যবহারকারীর নাম লিখুন" : "Enter username"}
             />
           </div>
           <div className="space-y-2">

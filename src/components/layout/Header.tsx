@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/components/ui/theme-provider"
@@ -43,10 +44,10 @@ const MobileNav = () => {
         {t("home", language)}
       </Link>
       <Link to="/local-info" className="block py-2 text-lg font-medium hover:text-foreground">
-        {t("localInfo", language)}
+        {language === 'bn' ? 'স্থানীয় তথ্য' : 'Local Info'}
       </Link>
       <Link to="/marketplace" className="block py-2 text-lg font-medium hover:text-foreground">
-        {t("marketplace", language)}
+        {language === 'bn' ? 'বাজার' : 'Marketplace'}
       </Link>
       <Button variant="outline" onClick={logout}>
         <LogOut className="mr-2 h-4 w-4" />
@@ -60,10 +61,8 @@ export const Header = () => {
   const { language, setLanguage } = useApp();
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
-  const [loginOpen, setLoginOpen] = useState(false);
-  const [registerOpen, setRegisterOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -92,13 +91,13 @@ export const Header = () => {
             to="/local-info" 
             className="text-foreground/60 hover:text-foreground transition-colors"
           >
-            {t("localInfo", language)}
+            {language === 'bn' ? 'স্থানীয় তথ্য' : 'Local Info'}
           </Link>
           <Link 
             to="/marketplace" 
             className="text-foreground/60 hover:text-foreground transition-colors"
           >
-            {t("marketplace", language)}
+            {language === 'bn' ? 'বাজার' : 'Marketplace'}
           </Link>
           {user?.isAdmin && (
             <Link 
@@ -193,12 +192,8 @@ export const Header = () => {
             </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" onClick={() => setLoginOpen(true)}>
-                {t("login", language)}
-              </Button>
-              <Button size="sm" onClick={() => setRegisterOpen(true)}>
-                {t("register", language)}
-              </Button>
+              <LoginDialog />
+              <RegisterDialog />
             </div>
           )}
 
@@ -220,9 +215,7 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Dialogs */}
-      <LoginDialog isOpen={loginOpen} onOpenChange={setLoginOpen} />
-      <RegisterDialog isOpen={registerOpen} onOpenChange={setRegisterOpen} />
+      {/* Profile Dialog */}
       <ProfileDialog isOpen={profileOpen} onOpenChange={setProfileOpen} />
     </header>
   );

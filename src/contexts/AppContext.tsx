@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AppContextType {
   language: 'bn' | 'en';
+  setLanguage: (language: 'bn' | 'en') => void;
   toggleLanguage: () => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
@@ -37,10 +38,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  const toggleLanguage = () => {
-    const newLanguage = language === 'bn' ? 'en' : 'bn';
+  const handleSetLanguage = (newLanguage: 'bn' | 'en') => {
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);
+  };
+
+  const toggleLanguage = () => {
+    const newLanguage = language === 'bn' ? 'en' : 'bn';
+    handleSetLanguage(newLanguage);
   };
 
   const toggleDarkMode = () => {
@@ -56,7 +61,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ language, toggleLanguage, isDarkMode, toggleDarkMode }}>
+    <AppContext.Provider value={{ 
+      language, 
+      setLanguage: handleSetLanguage, 
+      toggleLanguage, 
+      isDarkMode, 
+      toggleDarkMode 
+    }}>
       {children}
     </AppContext.Provider>
   );
