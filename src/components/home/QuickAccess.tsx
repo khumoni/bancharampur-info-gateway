@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, FileText, Users, MessageSquare, Briefcase, DollarSign, Building, Phone } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
+import { Link } from "react-router-dom";
 
 export const QuickAccess = () => {
   const { language } = useApp();
@@ -52,10 +53,10 @@ export const QuickAccess = () => {
     },
     { 
       icon: Building, 
-      label: language === 'bn' ? "সরকারি অফিস" : "Government Offices", 
+      label: language === 'bn' ? "উপজেলা তথ্য" : "Local Information", 
       color: "from-indigo-500 to-blue-600", 
       shadowColor: "shadow-indigo-500/25",
-      href: "/offices" 
+      href: "/local-info" 
     },
     { 
       icon: Phone, 
@@ -71,23 +72,24 @@ export const QuickAccess = () => {
       {services.map((service, index) => {
         const IconComponent = service.icon;
         return (
-          <Card 
-            key={service.label} 
-            className={`group hover:shadow-2xl transition-all duration-500 hover:scale-110 cursor-pointer border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl overflow-hidden animate-fade-in hover:${service.shadowColor}`}
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <CardContent className="p-6 text-center relative">
-              {/* Hover gradient background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl`}></div>
-              
-              <div className={`bg-gradient-to-br ${service.color} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
-                <IconComponent className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-300 leading-tight">
-                {service.label}
-              </h3>
-            </CardContent>
-          </Card>
+          <Link key={service.label} to={service.href}>
+            <Card 
+              className={`group hover:shadow-2xl transition-all duration-500 hover:scale-110 cursor-pointer border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl overflow-hidden animate-fade-in hover:${service.shadowColor}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <CardContent className="p-6 text-center relative">
+                {/* Hover gradient background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl`}></div>
+                
+                <div className={`bg-gradient-to-br ${service.color} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
+                  <IconComponent className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-300 leading-tight">
+                  {service.label}
+                </h3>
+              </CardContent>
+            </Card>
+          </Link>
         );
       })}
     </div>

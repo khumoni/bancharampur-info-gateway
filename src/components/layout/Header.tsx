@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, Globe, Moon, Shield, LogOut, Home, ShoppingCart, User, Camera, Images, Bell, Edit3, Upload } from "lucide-react";
+import { Menu, Globe, Moon, Shield, LogOut, Home, ShoppingCart, User, Camera, Images, Bell, Edit3, Upload, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,7 +34,7 @@ export const Header = () => {
     <header className="bg-background/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-green-100 dark:border-green-800">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Left Side - Profile, Home, Marketplace */}
+          {/* Left Side - Profile, Home, Marketplace, Local Info */}
           <div className="flex items-center space-x-4">
             {user ? (
               <>
@@ -93,6 +94,17 @@ export const Header = () => {
                   <ShoppingCart className="h-5 w-5" />
                   <span className="hidden md:block font-medium">
                     {language === 'bn' ? 'বাজার' : 'Marketplace'}
+                  </span>
+                </Link>
+
+                {/* Local Information Option */}
+                <Link 
+                  to="/local-info" 
+                  className="flex items-center space-x-2 text-foreground hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                >
+                  <Building className="h-5 w-5" />
+                  <span className="hidden md:block font-medium">
+                    {language === 'bn' ? 'উপজেলা তথ্য' : 'Local Info'}
                   </span>
                 </Link>
                 
