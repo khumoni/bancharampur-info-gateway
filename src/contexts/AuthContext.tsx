@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            const isAdmin = userData.isAdmin || firebaseUser.email === 'mdaytullaalkhumoni@gmail.com';
+            const isAdmin = userData.isAdmin || firebaseUser.email === 'admin@banchorampur.com';
             setUser({
               id: firebaseUser.uid,
               name: userData.name || firebaseUser.displayName || 'Anonymous',
@@ -63,19 +63,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
               isVerified: userData.isVerified || false,
               isAdmin,
-              role: isAdmin ? 'admin' : 'user',
+              role: isAdmin ? 'admin' as const : 'user' as const,
               createdAt: userData.createdAt || firebaseUser.metadata.creationTime
             });
           } else {
             // Create user document if it doesn't exist
-            const isAdmin = firebaseUser.email === 'mdaytullaalkhumoni@gmail.com';
+            const isAdmin = firebaseUser.email === 'admin@banchorampur.com';
             const newUser = {
               id: firebaseUser.uid,
               name: firebaseUser.displayName || 'Anonymous',
               email: firebaseUser.email || '',
               isVerified: false,
               isAdmin,
-              role: isAdmin ? 'admin' : 'user',
+              role: isAdmin ? 'admin' as const : 'user' as const,
               createdAt: new Date().toISOString()
             };
             await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      const isAdmin = email === 'mdaytullaalkhumoni@gmail.com';
+      const isAdmin = email === 'admin@banchorampur.com';
       const userData = {
         name,
         email,
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profilePicture: '',
         isVerified: false,
         isAdmin,
-        role: isAdmin ? 'admin' : 'user',
+        role: isAdmin ? 'admin' as const : 'user' as const,
         createdAt: new Date().toISOString()
       };
 
