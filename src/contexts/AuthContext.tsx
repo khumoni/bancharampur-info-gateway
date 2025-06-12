@@ -2,35 +2,31 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+  createUserWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
-  sendEmailVerification,
   User as FirebaseUser
 } from 'firebase/auth';
-import { auth, db, storage } from '@/lib/firebase';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db } from '@/lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface User {
   id: string;
-  email: string;
   name: string;
-  username: string;
-  role: 'admin' | 'user';
-  profilePicture?: string;
+  email: string;
   phone?: string;
-  emailVerified: boolean;
+  profilePicture?: string;
+  isVerified?: boolean;
+  isAdmin?: boolean;
+  createdAt?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string, username: string, phone?: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string, phone?: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<boolean>;
-  uploadProfilePicture: (file: File) => Promise<boolean>;
-  isLoading: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,124 +41,85 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
-        console.log('User authenticated:', firebaseUser.email);
-        // Get user data from Firestore
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUser({
-            id: firebaseUser.uid,
-            email: firebaseUser.email!,
-            name: userData.name,
-            username: userData.username,
-            role: userData.role || 'user',
-            profilePicture: userData.profilePicture,
-            phone: userData.phone,
-            emailVerified: firebaseUser.emailVerified
-          });
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUser({
+              id: firebaseUser.uid,
+              name: userData.name || firebaseUser.displayName || 'Anonymous',
+              email: firebaseUser.email || '',
+              phone: userData.phone || '',
+              profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
+              isVerified: userData.isVerified || false,
+              isAdmin: userData.isAdmin || false,
+              createdAt: userData.createdAt || firebaseUser.metadata.creationTime
+            });
+          } else {
+            // Create user document if it doesn't exist
+            const newUser = {
+              id: firebaseUser.uid,
+              name: firebaseUser.displayName || 'Anonymous',
+              email: firebaseUser.email || '',
+              isVerified: false,
+              isAdmin: false,
+              createdAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+            setUser(newUser);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
         }
       } else {
-        console.log('User not authenticated');
         setUser(null);
       }
-      setIsLoading(false);
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      console.log('Attempting login for:', email);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      return true;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
+  const login = async (email: string, password: string) => {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log('User logged in:', userCredential.user.email);
   };
 
-  const register = async (email: string, password: string, name: string, username: string, phone?: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      console.log('Attempting registration for:', email);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Send email verification
-      await sendEmailVerification(userCredential.user);
-      
-      // Save user data to Firestore
-      const isAdmin = email === 'mdaytullaalkhumoni@gmail.com';
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
-        name,
-        username,
-        email,
-        phone,
-        role: isAdmin ? 'admin' : 'user',
-        createdAt: new Date(),
-        emailVerified: false
-      });
-      
-      return true;
-    } catch (error) {
-      console.error('Registration error:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateProfile = async (data: Partial<User>): Promise<boolean> => {
-    if (!user) return false;
+  const register = async (email: string, password: string, name: string, phone?: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
-    try {
-      const userDocRef = doc(db, 'users', user.id);
-      await updateDoc(userDocRef, data);
-      
-      setUser(prev => prev ? { ...prev, ...data } : null);
-      return true;
-    } catch (error) {
-      console.error('Profile update error:', error);
-      return false;
-    }
+    const userData = {
+      name,
+      email,
+      phone: phone || '',
+      profilePicture: '',
+      isVerified: false,
+      isAdmin: email === 'admin@banchorampur.com', // Admin email check
+      createdAt: new Date().toISOString()
+    };
+
+    await setDoc(doc(db, 'users', userCredential.user.uid), userData);
+    console.log('User registered:', userCredential.user.email);
   };
 
-  const uploadProfilePicture = async (file: File): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      const storageRef = ref(storage, `profile-pictures/${user.id}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      await updateProfile({ profilePicture: downloadURL });
-      return true;
-    } catch (error) {
-      console.error('Profile picture upload error:', error);
-      return false;
-    }
-  };
-
-  const logout = async (): Promise<void> => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const logout = async () => {
+    await signOut(auth);
+    console.log('User logged out');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, uploadProfilePicture, isLoading }}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      register,
+      logout,
+      loading
+    }}>
       {children}
     </AuthContext.Provider>
   );

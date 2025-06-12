@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send, Loader2, C
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { useSocial } from "@/contexts/SocialContext";
+import { ReportDialog } from "@/components/auth/ReportDialog";
 import { t } from "@/lib/translations";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,10 +18,18 @@ export const PostFeed = () => {
   const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
   const [isPosting, setIsPosting] = useState(false);
   const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
+  const [reportDialog, setReportDialog] = useState<{ isOpen: boolean; postId: string; postAuthor: string }>({
+    isOpen: false,
+    postId: "",
+    postAuthor: ""
+  });
   const { user } = useAuth();
   const { language } = useApp();
   const { posts, addPost, addComment, likePost, loading } = useSocial();
   const { toast } = useToast();
+
+  // Filter out current user's posts from the feed
+  const filteredPosts = posts.filter(post => post.authorId !== user?.id);
 
   const handlePostSubmit = async () => {
     if (newPost.trim() && user) {
@@ -83,7 +91,6 @@ export const PostFeed = () => {
         description: language === 'bn' ? "পোস্টের লিংক কপি হয়েছে" : "Post link copied to clipboard",
       });
 
-      // Reset the copied state after 2 seconds
       setTimeout(() => setCopiedPostId(null), 2000);
     } catch (error) {
       console.error('Error sharing post:', error);
@@ -93,6 +100,14 @@ export const PostFeed = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleReport = (postId: string, postAuthor: string) => {
+    setReportDialog({
+      isOpen: true,
+      postId,
+      postAuthor
+    });
   };
 
   const formatTime = (createdAt: string) => {
@@ -166,142 +181,167 @@ export const PostFeed = () => {
         </Card>
       )}
 
-      {/* Posts */}
+      {/* Posts - Only showing other users' posts */}
       <div className="space-y-4">
-        {posts.map((post) => (
-          <Card key={post.id} className="border-gray-200 hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              {/* Post Header */}
-              <div className="flex items-center space-x-3 mb-4">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={post.profilePicture} />
-                  <AvatarFallback className="bg-green-600 text-white">
-                    {post.avatar}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-800">{post.author}</h4>
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Clock className="mr-1 h-3 w-3" />
-                    {formatTime(post.createdAt)}
-                  </p>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <Flag className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Post Content */}
-              <div className="mb-4">
-                <p className="text-gray-700 leading-relaxed">{post.content}</p>
-                {post.hashtags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {post.hashtags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        <Hash className="h-3 w-3 mr-1" />
-                        {tag.replace('#', '')}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Post Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleLike(post.id)}
-                  className={`text-gray-600 ${
-                    user && post.likedBy.includes(user.id) 
-                      ? 'text-red-500 hover:text-red-600' 
-                      : 'hover:text-red-500'
-                  }`}
-                >
-                  <Heart className={`mr-2 h-4 w-4 ${
-                    user && post.likedBy.includes(user.id) ? 'fill-current' : ''
-                  }`} />
-                  {post.likes}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-gray-600 hover:text-blue-500"
-                  onClick={() => toggleComments(post.id)}
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  {post.comments.length}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-gray-600 hover:text-green-500"
-                  onClick={() => handleShare(post.id, post.content, post.author)}
-                >
-                  {copiedPostId === post.id ? (
-                    <Check className="mr-2 h-4 w-4 text-green-500" />
-                  ) : (
-                    <Share className="mr-2 h-4 w-4" />
-                  )}
-                  {copiedPostId === post.id ? 'কপি হয়েছে' : 'শেয়ার'}
-                </Button>
-              </div>
-
-              {/* Comments Section */}
-              {showComments[post.id] && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  {/* Existing Comments */}
-                  {post.comments.map((comment) => (
-                    <div key={comment.id} className="flex items-start space-x-3 mb-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={comment.profilePicture} />
-                        <AvatarFallback className="bg-blue-600 text-white text-sm">
-                          {comment.avatar}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="bg-gray-100 rounded-lg p-3">
-                          <p className="font-medium text-sm text-gray-800">{comment.author}</p>
-                          <p className="text-gray-700 text-sm">{comment.content}</p>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">{comment.time}</p>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Comment Input */}
-                  {user && (
-                    <div className="flex items-start space-x-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={user.profilePicture} />
-                        <AvatarFallback className="bg-green-600 text-white text-sm">
-                          {user.name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 flex space-x-2">
-                        <Textarea
-                          placeholder={t("comments", language)}
-                          value={commentInputs[post.id] || ""}
-                          onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
-                          className="min-h-[60px] resize-none"
-                        />
-                        <Button 
-                          size="sm"
-                          onClick={() => handleCommentSubmit(post.id)}
-                          disabled={!commentInputs[post.id]?.trim()}
-                          className="self-end"
-                        >
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+        {filteredPosts.length === 0 ? (
+          <Card className="border-gray-200">
+            <CardContent className="p-8 text-center">
+              <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-500">
+                {language === 'bn' ? 'এখনো কোন পোস্ট নেই' : 'No posts yet'}
+              </p>
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          filteredPosts.map((post) => (
+            <Card key={post.id} className="border-gray-200 hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                {/* Post Header */}
+                <div className="flex items-center space-x-3 mb-4">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={post.profilePicture} />
+                    <AvatarFallback className="bg-green-600 text-white">
+                      {post.avatar}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800">{post.author}</h4>
+                    <p className="text-sm text-gray-500 flex items-center">
+                      <Clock className="mr-1 h-3 w-3" />
+                      {formatTime(post.createdAt)}
+                    </p>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleReport(post.id, post.author)}
+                    className="text-gray-500 hover:text-red-500"
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Post Content */}
+                <div className="mb-4">
+                  <p className="text-gray-700 leading-relaxed">{post.content}</p>
+                  {post.hashtags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {post.hashtags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          <Hash className="h-3 w-3 mr-1" />
+                          {tag.replace('#', '')}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Post Actions */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleLike(post.id)}
+                    className={`text-gray-600 ${
+                      user && post.likedBy.includes(user.id) 
+                        ? 'text-red-500 hover:text-red-600' 
+                        : 'hover:text-red-500'
+                    }`}
+                  >
+                    <Heart className={`mr-2 h-4 w-4 ${
+                      user && post.likedBy.includes(user.id) ? 'fill-current' : ''
+                    }`} />
+                    {post.likes}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-600 hover:text-blue-500"
+                    onClick={() => toggleComments(post.id)}
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    {post.comments.length}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-600 hover:text-green-500"
+                    onClick={() => handleShare(post.id, post.content, post.author)}
+                  >
+                    {copiedPostId === post.id ? (
+                      <Check className="mr-2 h-4 w-4 text-green-500" />
+                    ) : (
+                      <Share className="mr-2 h-4 w-4" />
+                    )}
+                    {copiedPostId === post.id ? 'কপি হয়েছে' : 'শেয়ার'}
+                  </Button>
+                </div>
+
+                {/* Comments Section */}
+                {showComments[post.id] && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    {/* Existing Comments */}
+                    {post.comments.map((comment) => (
+                      <div key={comment.id} className="flex items-start space-x-3 mb-3">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={comment.profilePicture} />
+                          <AvatarFallback className="bg-blue-600 text-white text-sm">
+                            {comment.avatar}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="bg-gray-100 rounded-lg p-3">
+                            <p className="font-medium text-sm text-gray-800">{comment.author}</p>
+                            <p className="text-gray-700 text-sm">{comment.content}</p>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">{comment.time}</p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Comment Input */}
+                    {user && (
+                      <div className="flex items-start space-x-3">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={user.profilePicture} />
+                          <AvatarFallback className="bg-green-600 text-white text-sm">
+                            {user.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 flex space-x-2">
+                          <Textarea
+                            placeholder={t("comments", language)}
+                            value={commentInputs[post.id] || ""}
+                            onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
+                            className="min-h-[60px] resize-none"
+                          />
+                          <Button 
+                            size="sm"
+                            onClick={() => handleCommentSubmit(post.id)}
+                            disabled={!commentInputs[post.id]?.trim()}
+                            className="self-end"
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
+
+      {/* Report Dialog */}
+      <ReportDialog
+        isOpen={reportDialog.isOpen}
+        onOpenChange={(open) => setReportDialog({ ...reportDialog, isOpen: open })}
+        reportType="post"
+        targetId={reportDialog.postId}
+        targetName={reportDialog.postAuthor}
+      />
     </div>
   );
 };
