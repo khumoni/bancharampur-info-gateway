@@ -44,6 +44,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useApp } from "@/contexts/AppContext";
 import { useData } from "@/contexts/DataContext";
+import { MarketRates } from "@/components/home/MarketRates";
 
 const LocalInfo = () => {
   const { language } = useApp();
@@ -175,7 +176,9 @@ const LocalInfo = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-8">
-                      {itemsForCategory.length > 0 ? (
+                      {category.id === 'market' ? (
+                        <MarketRates />
+                      ) : itemsForCategory.length > 0 ? (
                         <div className="grid md:grid-cols-2 gap-6">
                           {itemsForCategory.map((item, index) => {
                             const ItemIcon = icons[item.icon as keyof typeof icons] || AlertTriangle;
