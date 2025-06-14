@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   collection, 
@@ -30,13 +31,78 @@ export interface MarketRate {
   lastUpdated: string;
 }
 
-export interface LocalInfoItem {
+// New Local Info Types
+export interface BaseInfoItem {
   id: string;
-  categoryId: string; // e.g., 'education', 'health'
-  icon: string; // lucide-react icon name
-  title: string;
-  description: string;
+  categoryId: string;
+  icon: string;
 }
+
+export interface EducationInfo extends BaseInfoItem {
+  categoryId: 'education';
+  institutionName: string;
+  type: 'school' | 'college' | 'university' | 'madrasha';
+  address: string;
+  contact: string;
+}
+
+export interface HealthInfo extends BaseInfoItem {
+  categoryId: 'health';
+  name: string;
+  type: 'hospital' | 'clinic' | 'diagnostic' | 'pharmacy';
+  address: string;
+  phone: string;
+  services: string;
+}
+
+export interface TransportInfo extends BaseInfoItem {
+  categoryId: 'transport';
+  routeName: string;
+  type: 'bus' | 'train' | 'auto-rickshaw';
+  schedule: string;
+  fare: string;
+}
+
+export interface AdministrativeInfo extends BaseInfoItem {
+  categoryId: 'admin';
+  officeName: string;
+  officerName: string;
+  designation: string;
+  contact: string;
+}
+
+export interface UtilitiesInfo extends BaseInfoItem {
+  categoryId: 'utilities';
+  serviceType: 'electricity' | 'gas' | 'water';
+  officeAddress: string;
+  complaintNumber: string;
+}
+
+export interface WeatherInfo extends BaseInfoItem {
+  categoryId: 'weather';
+  area: string;
+  temperature: string;
+  humidity: string;
+  alert: string;
+}
+
+export interface ProjectInfo extends BaseInfoItem {
+  categoryId: 'projects';
+  projectName: string;
+  implementingAgency: string;
+  budget: string;
+  status: 'ongoing' | 'completed' | 'planned';
+}
+
+export interface AnnouncementInfo extends BaseInfoItem {
+  categoryId: 'announcements';
+  title: string;
+  details: string;
+  date: string;
+}
+
+export type LocalInfoItem = EducationInfo | HealthInfo | TransportInfo | AdministrativeInfo | UtilitiesInfo | WeatherInfo | ProjectInfo | AnnouncementInfo;
+
 
 interface DataContextType {
   notices: Notice[];
@@ -47,7 +113,7 @@ interface DataContextType {
   addMarketRate: (rate: Omit<MarketRate, 'id' | 'lastUpdated'>) => Promise<void>;
   deleteMarketRate: (id: string) => Promise<void>;
   addLocalInfoItem: (item: Omit<LocalInfoItem, 'id'>) => Promise<void>;
-  updateLocalInfoItem: (id: string, item: Partial<Omit<LocalInfoItem, 'id' | 'categoryId'>>) => Promise<void>;
+  updateLocalInfoItem: (id: string, item: Partial<LocalInfoItem>) => Promise<void>;
   deleteLocalInfoItem: (id: string) => Promise<void>;
   loading: boolean;
 }
@@ -192,11 +258,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateLocalInfoItem = async (id: string, itemData: Partial<Omit<LocalInfoItem, 'id' | 'categoryId'>>) => {
+  const updateLocalInfoItem = async (id: string, itemData: Partial<LocalInfoItem>) => {
     try {
       console.log('Updating local info item:', id, itemData);
       const itemRef = doc(db, 'localInfoItems', id);
-      await updateDoc(itemRef, itemData);
+      await updateDoc(itemRef, itemData as Record<string, any>);
     } catch (error) {
       console.error('Error updating local info item:', error);
       throw error;
