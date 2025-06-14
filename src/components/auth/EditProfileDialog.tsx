@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -39,7 +39,7 @@ export const EditProfileDialog = ({ isOpen, onOpenChange }: EditProfileDialogPro
     if (success) {
       toast({
         title: language === 'bn' ? 'সফল' : 'Success',
-        description: language === 'bn' ? 'আপনার প্রোফাইল আপডেট করা হয়েছে।' : 'Your profile has been updated.',
+        description: language === 'bn' ? 'আপনার প্রোফাইল আপডেট করা হয়েছে।' : 'Your profile has been updated.',
       });
       onOpenChange(false);
     } else {
