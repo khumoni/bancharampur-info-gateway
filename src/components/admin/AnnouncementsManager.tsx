@@ -53,13 +53,14 @@ export const AnnouncementsManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<AnnouncementInfo, 'id'> = {
         categoryId,
         title: values.title,
         details: values.details,
         date: values.date,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

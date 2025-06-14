@@ -56,7 +56,7 @@ export const HealthManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<HealthInfo, 'id'> = {
         categoryId,
         name: values.name,
         type: values.type,
@@ -64,7 +64,8 @@ export const HealthManager = () => {
         phone: values.phone,
         services: values.services,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

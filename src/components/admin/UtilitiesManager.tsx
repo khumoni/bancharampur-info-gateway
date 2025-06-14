@@ -52,13 +52,14 @@ export const UtilitiesManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<UtilitiesInfo, 'id'> = {
         categoryId,
         serviceType: values.serviceType,
         officeAddress: values.officeAddress,
         complaintNumber: values.complaintNumber,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

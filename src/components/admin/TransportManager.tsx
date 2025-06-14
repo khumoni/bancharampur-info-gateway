@@ -53,14 +53,15 @@ export const TransportManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<TransportInfo, 'id'> = {
         categoryId,
         routeName: values.routeName,
         type: values.type,
         schedule: values.schedule,
         fare: values.fare,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

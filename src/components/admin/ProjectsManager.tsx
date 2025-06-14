@@ -53,14 +53,15 @@ export const ProjectsManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<ProjectInfo, 'id'> = {
         categoryId,
         projectName: values.projectName,
         implementingAgency: values.implementingAgency,
         budget: values.budget,
         status: values.status,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

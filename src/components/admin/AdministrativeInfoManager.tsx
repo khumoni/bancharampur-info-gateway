@@ -53,14 +53,15 @@ export const AdministrativeInfoManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<AdministrativeInfo, 'id'> = {
         categoryId,
         officeName: values.officeName,
         officerName: values.officerName,
         designation: values.designation,
         contact: values.contact,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

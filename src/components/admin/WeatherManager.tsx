@@ -54,14 +54,15 @@ export const WeatherManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<WeatherInfo, 'id'> = {
         categoryId,
         area: values.area,
         temperature: values.temperature,
         humidity: values.humidity,
         alert: values.alert,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };

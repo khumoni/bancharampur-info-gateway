@@ -54,14 +54,15 @@ export const EducationManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({
+      const newItem: Omit<EducationInfo, 'id'> = {
         categoryId,
         institutionName: values.institutionName,
         type: values.type,
         address: values.address,
         contact: values.contact,
         icon: values.icon,
-      });
+      };
+      addLocalInfoItem(newItem);
     }
     handleCancel();
   };
