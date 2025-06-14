@@ -35,22 +35,30 @@ import {
   Newspaper,
   ShoppingCart,
   MapPin,
+  Bell,
+  PlusCircle,
 } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginDialog } from "@/components/auth/LoginDialog";
 import { RegisterDialog } from "@/components/auth/RegisterDialog";
 import { ProfileDialog } from "@/components/auth/ProfileDialog";
+import { CreatePostDialog } from "@/components/social/CreatePostDialog";
 import { t } from "@/lib/translations";
+
+// MobileNav Component Props
+interface MobileNavProps {
+  setMobileMenuOpen: (open: boolean) => void;
+  openProfileDialog: () => void;
+  openCreatePostDialog: () => void;
+}
 
 // MobileNav Component (for Hamburger Menu Content)
 const MobileNav = ({ 
   setMobileMenuOpen,
-  openProfileDialog 
-} : { 
-  setMobileMenuOpen: (open: boolean) => void;
-  openProfileDialog: () => void;
-}) => {
+  openProfileDialog,
+  openCreatePostDialog
+} : MobileNavProps) => {
   const { language, setLanguage } = useApp();
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
@@ -76,6 +84,11 @@ const MobileNav = ({
         <Link to="/" onClick={closeMenu} className="block py-2 px-3 rounded-md text-base font-medium hover:bg-accent hover:text-accent-foreground">{t("home", language)}</Link>
         <Link to="/local-info" onClick={closeMenu} className="block py-2 px-3 rounded-md text-base font-medium hover:bg-accent hover:text-accent-foreground">{language === 'bn' ? 'স্থানীয় তথ্য' : 'Local Info'}</Link>
         <Link to="/marketplace" onClick={closeMenu} className="block py-2 px-3 rounded-md text-base font-medium hover:bg-accent hover:text-accent-foreground">{language === 'bn' ? 'বাজার' : 'Marketplace'}</Link>
+        {user && (
+          <Button variant="ghost" className="w-full justify-start py-2 px-3 text-base font-medium" onClick={() => { openCreatePostDialog(); closeMenu(); }}>
+            <PlusCircle className="mr-2 h-5 w-5" /> {language === 'bn' ? 'নতুন পোস্ট করুন' : 'Create Post'}
+          </Button>
+        )}
         {user?.isAdmin && (
           <Link to="/admin" onClick={closeMenu} className="flex items-center py-2 px-3 rounded-md text-base font-medium hover:bg-accent hover:text-accent-foreground">
             <Shield className="mr-2 h-5 w-5" />
@@ -95,8 +108,8 @@ const MobileNav = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-[calc(100%-2rem)] ml-4">
-            <DropdownMenuItem onClick={() => { setLanguage('bn'); /* closeMenu(); // Optional */ }}>বাংলা</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { setLanguage('en'); /* closeMenu(); // Optional */ }}>English</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { setLanguage('bn'); }}>বাংলা</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { setLanguage('en'); }}>English</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -139,11 +152,12 @@ const MobileNav = ({
 };
 
 export const Header = () => {
-  const { language, setLanguage: setAppLanguage } = useApp(); // Renamed to avoid conflict with setTheme
+  const { language, setLanguage: setAppLanguage } = useApp();
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [createPostOpen, setCreatePostOpen] = useState(false);
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -230,6 +244,34 @@ export const Header = () => {
               </TooltipContent>
             </Tooltip>
 
+            {/* Notification Icon - New */}
+            {user && ( // Only show if user is logged in
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10"> {/* Add onClick for notification action later */}
+                    <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{language === 'bn' ? "নোটিফিকেশন" : "Notifications"}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+
+            {/* Create Post Icon - New (Desktop/Tablet) */}
+            {user && ( // Only show if user is logged in
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hidden md:inline-flex h-9 w-9 sm:h-10 sm:w-10" onClick={() => setCreatePostOpen(true)}>
+                    <PlusCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{language === 'bn' ? "নতুন পোস্ট" : "Create Post"}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+
             {/* Admin Icon (if user is admin) */}
             {user?.isAdmin && (
               <Tooltip>
@@ -248,13 +290,15 @@ export const Header = () => {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center ml-auto space-x-2 md:space-x-4"> {/* Adjusted spacing for responsiveness */}
+          <div className="flex items-center ml-auto"> {/* Removed space-x for more granular control */}
             {/* Language Toggle - Visible on md and up */}
-            <div className="hidden md:block">
+            {/* This is now handled within MobileNav for mobile, and can be removed from here if only in hamburger */}
+            {/* Keeping it for desktop for now as per previous design, but can be moved to user dropdown */}
+            <div className="hidden md:block mr-2"> {/* Added margin for spacing */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
-                    <Globe className="h-4 w-4 mr-2" />
+                    <Globe className="h-4 w-4 mr-1" /> {/* Reduced margin */}
                     {language === 'bn' ? 'বাং' : 'EN'}
                   </Button>
                 </DropdownMenuTrigger>
@@ -270,25 +314,30 @@ export const Header = () => {
             </div>
 
             {/* Theme Toggle - Visible on md and up */}
-            <div className="hidden md:block">
+            {/* Similar to Language toggle, handled in MobileNav, keeping for desktop */}
+            <div className="hidden md:block mr-2"> {/* Added margin for spacing */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon" // Made it icon only for consistency
+                className="h-9 w-9" // Standardized size
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
               >
-                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>
               </Button>
             </div>
-
-            {/* User Actions - Visible on md and up */}
-            <div className="hidden md:flex items-center space-x-2">
+            
+            {/* User Actions (Profile Dropdown / Login/Register) - Visible on md and up */}
+            {/* This is now part of the icon navigation for profile, and login/register are dialogs triggered by profile icon if not logged in */}
+            {/* The explicit Login/Register buttons for desktop are removed as profile icon handles this */}
+            {/* The User Dropdown Menu for desktop is still useful */}
+             <div className="hidden md:block">
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
+                    <Button variant="ghost" className="relative h-9 w-9 rounded-full"> {/* Standardized size */}
+                      <Avatar className="h-9 w-9"> {/* Standardized size */}
                         <AvatarImage src={user.profilePicture} alt={user.name} />
                         <AvatarFallback>
                           {user.name.charAt(0).toUpperCase()}
@@ -333,36 +382,63 @@ export const Header = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <>
-                  <LoginDialog />
-                  <RegisterDialog />
-                </>
+                // Login/Register buttons for desktop are handled by Profile Icon which opens LoginDialog
+                null 
               )}
             </div>
 
+
             {/* Mobile menu button - Visible on screens smaller than md */}
-            <div className="md:hidden">
+            <div className="md:hidden ml-2"> {/* Added margin for spacing */}
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="px-2 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0" /* Adjusted padding */
+                    size="icon" // Made it icon only
+                    className="h-9 w-9" // Standardized size
                   >
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">Toggle Menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="pr-0 w-[300px] sm:w-[340px]"> {/* Adjusted width */}
-                  <MobileNav setMobileMenuOpen={setMobileMenuOpen} openProfileDialog={() => setProfileOpen(true)} />
+                <SheetContent side="left" className="pr-0 w-[300px] sm:w-[340px]">
+                  <MobileNav 
+                    setMobileMenuOpen={setMobileMenuOpen} 
+                    openProfileDialog={() => setProfileOpen(true)}
+                    openCreatePostDialog={() => { setCreatePostOpen(true); /* setMobileMenuOpen(false); // Already handled by closeMenu in MobileNav */ }} // Pass handler
+                  />
                 </SheetContent>
               </Sheet>
             </div>
           </div>
         </div>
-
-        {/* Profile Dialog - managed at Header level */}
-        <ProfileDialog isOpen={profileOpen} onOpenChange={setProfileOpen} />
       </header>
+
+      {/* Profile Dialog - managed at Header level */}
+      <ProfileDialog isOpen={profileOpen} onOpenChange={setProfileOpen} />
+      {/* Create Post Dialog - managed at Header level */}
+      <CreatePostDialog isOpen={createPostOpen} onOpenChange={setCreatePostOpen} />
+
+      {/* FAB for Create Post - Mobile Only */}
+      {user && (
+          <div className="md:hidden fixed bottom-6 right-6 z-[100]"> {/* Ensure FAB is above other content */}
+              <Tooltip>
+                  <TooltipTrigger asChild>
+                      <Button
+                          size="lg"
+                          className="rounded-full h-14 w-14 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+                          onClick={() => setCreatePostOpen(true)}
+                      >
+                          <PlusCircle className="h-7 w-7" />
+                          <span className="sr-only">{language === 'bn' ? "নতুন পোস্ট করুন" : "Create New Post"}</span>
+                      </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="mr-2 mb-1"> {/* Adjust position if needed */}
+                      <p>{language === 'bn' ? "নতুন পোস্ট করুন" : "Create New Post"}</p>
+                  </TooltipContent>
+              </Tooltip>
+          </div>
+      )}
     </TooltipProvider>
   );
 };
