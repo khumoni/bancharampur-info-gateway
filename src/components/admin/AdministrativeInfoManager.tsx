@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,7 +53,14 @@ export const AdministrativeInfoManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({ ...values, categoryId });
+      addLocalInfoItem({
+        categoryId,
+        officeName: values.officeName,
+        officerName: values.officerName,
+        designation: values.designation,
+        contact: values.contact,
+        icon: values.icon,
+      });
     }
     handleCancel();
   };

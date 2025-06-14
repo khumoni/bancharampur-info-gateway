@@ -43,8 +43,52 @@ import {
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useApp } from "@/contexts/AppContext";
-import { useData } from "@/contexts/DataContext";
+import { useData, LocalInfoItem } from "@/contexts/DataContext";
 import { MarketRates } from "@/components/home/MarketRates";
+
+const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
+  const typeTranslations = {
+    school: lang === 'bn' ? 'স্কুল' : 'School',
+    college: lang === 'bn' ? 'কলেজ' : 'College',
+    university: lang === 'bn' ? 'বিশ্ববিদ্যালয়' : 'University',
+    madrasha: lang === 'bn' ? 'মাদ্রাসা' : 'Madrasha',
+    hospital: lang === 'bn' ? 'হাসপাতাল' : 'Hospital',
+    clinic: lang === 'bn' ? 'ক্লিনিক' : 'Clinic',
+    diagnostic: lang === 'bn' ? 'ডায়াগনস্টিক' : 'Diagnostic',
+    pharmacy: lang === 'bn' ? 'ফার্মেসি' : 'Pharmacy',
+    bus: lang === 'bn' ? 'বাস' : 'Bus',
+    train: lang === 'bn' ? 'ট্রেন' : 'Train',
+    'auto-rickshaw': lang === 'bn' ? 'অটো-রিকশা' : 'Auto Rickshaw',
+    electricity: lang === 'bn' ? 'বিদ্যুৎ' : 'Electricity',
+    gas: lang === 'bn' ? 'গ্যাস' : 'Gas',
+    water: lang === 'bn' ? 'পানি' : 'Water',
+    ongoing: lang === 'bn' ? 'চলমান' : 'Ongoing',
+    completed: lang === 'bn' ? 'সম্পন্ন' : 'Completed',
+    planned: lang === 'bn' ? 'পরিকল্পনাধীন' : 'Planned',
+  };
+
+  switch (item.categoryId) {
+    case 'education':
+      return { title: item.institutionName, description: `${typeTranslations[item.type]} | ${item.address} | ${item.contact}` };
+    case 'health':
+      return { title: item.name, description: `${typeTranslations[item.type]} | ${item.address} | ${item.phone}` };
+    case 'transport':
+      return { title: item.routeName, description: `${lang === 'bn' ? 'ধরন' : 'Type'}: ${typeTranslations[item.type]}, ${lang === 'bn' ? 'ভাড়া' : 'Fare'}: ${item.fare}, ${lang === 'bn' ? 'সময়সূচী' : 'Schedule'}: ${item.schedule}` };
+    case 'admin':
+      return { title: item.officeName, description: `${item.officerName} (${item.designation}) | ${item.contact}` };
+    case 'utilities':
+      return { title: `${typeTranslations[item.serviceType]} ${lang === 'bn' ? 'অফিস' : 'Office'}`, description: `${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.officeAddress}, ${lang === 'bn' ? 'অভিযোগ' : 'Complaint'}: ${item.complaintNumber}` };
+    case 'weather':
+      return { title: item.area, description: `${lang === 'bn' ? 'তাপমাত্রা' : 'Temp'}: ${item.temperature}, ${lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}: ${item.humidity}. ${lang === 'bn' ? 'সতর্কবার্তা' : 'Alert'}: ${item.alert || (lang === 'bn' ? 'নেই' : 'None')}` };
+    case 'projects':
+      return { title: item.projectName, description: `${lang === 'bn' ? 'সংস্থা' : 'Agency'}: ${item.implementingAgency}, ${lang === 'bn' ? 'বাজেট' : 'Budget'}: ${item.budget}, ${lang === 'bn' ? 'অবস্থা' : 'Status'}: ${typeTranslations[item.status]}` };
+    case 'announcements':
+      return { title: item.title, description: `${item.details} (${item.date})` };
+    default:
+      const exhaustiveCheck: never = item;
+      return { title: 'Unknown Item', description: 'No details available.' };
+  }
+};
 
 const LocalInfo = () => {
   const { language } = useApp();
@@ -180,13 +224,13 @@ const LocalInfo = () => {
                         <MarketRates />
                       ) : itemsForCategory.length > 0 ? (
                         <div className="grid md:grid-cols-2 gap-6">
-                          {itemsForCategory.map((item, index) => {
+                          {itemsForCategory.map((item) => {
                             const ItemIcon = icons[item.icon as keyof typeof icons] || AlertTriangle;
+                            const { title, description } = getItemContent(item, language);
                             return (
                               <Card 
-                                key={index} 
+                                key={item.id} 
                                 className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer border border-emerald-100/50 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/80 to-blue-50/80 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-xl"
-                                style={{ animationDelay: `${index * 0.1}s` }}
                               >
                                 <CardContent className="p-6">
                                   <div className="flex items-start space-x-4">
@@ -195,10 +239,10 @@ const LocalInfo = () => {
                                     </div>
                                     <div className="flex-1">
                                       <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                                        {item.title}
+                                        {title}
                                       </h3>
                                       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                        {item.description}
+                                        {description}
                                       </p>
                                     </div>
                                   </div>

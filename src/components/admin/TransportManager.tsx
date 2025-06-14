@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +17,8 @@ const iconNames = Object.keys(icons);
 const formSchema = z.object({
   routeName: z.string().min(1, "রুটের নাম আবশ্যক"),
   type: z.enum(['bus', 'train', 'auto-rickshaw']),
-  schedule: z.string().min(1, "সময়সূচী আবশ্যক"),
-  fare: z.string().min(1, "ভাড়া আবশ্যক"),
+  schedule: z.string().min(1, "সময়সূচী আবশ্যক"),
+  fare: z.string().min(1, "ভাড়া আবশ্যক"),
   icon: z.string().min(1, "আইকন আবশ্যক"),
 });
 
@@ -54,7 +53,14 @@ export const TransportManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({ ...values, categoryId });
+      addLocalInfoItem({
+        categoryId,
+        routeName: values.routeName,
+        type: values.type,
+        schedule: values.schedule,
+        fare: values.fare,
+        icon: values.icon,
+      });
     }
     handleCancel();
   };
@@ -102,8 +108,8 @@ export const TransportManager = () => {
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="schedule" render={({ field }) => (<FormItem><FormLabel>সময়সূচী</FormLabel><FormControl><Input placeholder="যেমন: সকাল ৮টা - রাত ১০টা" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="fare" render={({ field }) => (<FormItem><FormLabel>ভাড়া</FormLabel><FormControl><Input placeholder="ভাড়ার পরিমাণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="schedule" render={({ field }) => (<FormItem><FormLabel>সময়সূচী</FormLabel><FormControl><Input placeholder="যেমন: সকাল ৮টা - রাত ১০টা" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="fare" render={({ field }) => (<FormItem><FormLabel>ভাড়া</FormLabel><FormControl><Input placeholder="ভাড়ার পরিমাণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="icon" render={({ field }) => (<FormItem><FormLabel>আইকন</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="আইকন নির্বাচন করুন" /></SelectTrigger></FormControl><SelectContent><ScrollArea className="h-72">{iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}><div className="flex items-center space-x-2">{renderIcon(iconName)}<span>{iconName}</span></div></SelectItem>))}</ScrollArea></SelectContent></Select><FormMessage /></FormItem>)} />
                 <div className="flex space-x-2">
                   <Button type="submit" className="bg-green-600 hover:bg-green-700"><Save className="mr-2 h-4 w-4" />সংরক্ষণ করুন</Button>
@@ -119,7 +125,7 @@ export const TransportManager = () => {
         <CardHeader><CardTitle>বর্তমান {categoryName} তথ্য</CardTitle></CardHeader>
         <CardContent>
           <Table>
-            <TableHeader><TableRow><TableHead>আইকন</TableHead><TableHead>রুট</TableHead><TableHead>ধরন</TableHead><TableHead>সময়সূচী</TableHead><TableHead>ভাড়া</TableHead><TableHead>কার্যক্রম</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>আইকন</TableHead><TableHead>রুট</TableHead><TableHead>ধরন</TableHead><TableHead>সময়সূচী</TableHead><TableHead>ভাড়া</TableHead><TableHead>কার্যক্রম</TableHead></TableRow></TableHeader>
             <TableBody>
               {categoryItems.map((item) => (
                 <TableRow key={item.id}>

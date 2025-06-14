@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +56,15 @@ export const HealthManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({ ...values, categoryId });
+      addLocalInfoItem({
+        categoryId,
+        name: values.name,
+        type: values.type,
+        address: values.address,
+        phone: values.phone,
+        services: values.services,
+        icon: values.icon,
+      });
     }
     handleCancel();
   };
@@ -99,7 +106,7 @@ export const HealthManager = () => {
                       <SelectContent>
                         <SelectItem value="hospital">হাসপাতাল</SelectItem>
                         <SelectItem value="clinic">ক্লিনিক</SelectItem>
-                        <SelectItem value="diagnostic">ডায়াগনস্টিক সেন্টার</SelectItem>
+                        <SelectItem value="diagnostic">ডায়াগনস্টিক সেন্টার</SelectItem>
                         <SelectItem value="pharmacy">ফার্মেসি</SelectItem>
                       </SelectContent>
                     </Select>
@@ -108,7 +115,7 @@ export const HealthManager = () => {
                 )} />
                 <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>ঠিকানা</FormLabel><FormControl><Input placeholder="ঠিকানা" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>ফোন</FormLabel><FormControl><Input placeholder="ফোন নম্বর" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="services" render={({ field }) => (<FormItem><FormLabel>সেবাসমূহ</FormLabel><FormControl><Textarea placeholder="এখানে কি কি সেবা পাওয়া যায় তার বিবরণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="services" render={({ field }) => (<FormItem><FormLabel>সেবাসমূহ</FormLabel><FormControl><Textarea placeholder="এখানে কি কি সেবা পাওয়া যায় তার বিবরণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="icon" render={({ field }) => (<FormItem><FormLabel>আইকন</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="আইকন নির্বাচন করুন" /></SelectTrigger></FormControl><SelectContent><ScrollArea className="h-72">{iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}><div className="flex items-center space-x-2">{renderIcon(iconName)}<span>{iconName}</span></div></SelectItem>))}</ScrollArea></SelectContent></Select><FormMessage /></FormItem>)} />
                 <div className="flex space-x-2">
                   <Button type="submit" className="bg-green-600 hover:bg-green-700"><Save className="mr-2 h-4 w-4" />সংরক্ষণ করুন</Button>

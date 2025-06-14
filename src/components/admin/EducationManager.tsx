@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,7 +54,14 @@ export const EducationManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({ ...values, categoryId });
+      addLocalInfoItem({
+        categoryId,
+        institutionName: values.institutionName,
+        type: values.type,
+        address: values.address,
+        contact: values.contact,
+        icon: values.icon,
+      });
     }
     handleCancel();
   };
@@ -103,7 +109,7 @@ export const EducationManager = () => {
                       <SelectContent>
                         <SelectItem value="school">স্কুল</SelectItem>
                         <SelectItem value="college">কলেজ</SelectItem>
-                        <SelectItem value="university">বিশ্ববিদ্যালয়</SelectItem>
+                        <SelectItem value="university">বিশ্ববিদ্যালয়</SelectItem>
                         <SelectItem value="madrasha">মাদ্রাসা</SelectItem>
                       </SelectContent>
                     </Select>

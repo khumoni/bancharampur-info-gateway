@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +16,7 @@ const iconNames = Object.keys(icons);
 
 const formSchema = z.object({
   projectName: z.string().min(1, "প্রকল্পের নাম আবশ্যক"),
-  implementingAgency: z.string().min(1, "বাস্তবায়নকারী সংস্থা আবশ্যক"),
+  implementingAgency: z.string().min(1, "বাস্তবায়নকারী সংস্থা আবশ্যক"),
   budget: z.string().min(1, "বাজেট আবশ্যক"),
   status: z.enum(['ongoing', 'completed', 'planned']),
   icon: z.string().min(1, "আইকন আবশ্যক"),
@@ -54,7 +53,14 @@ export const ProjectsManager = () => {
     if (editingItem) {
       updateLocalInfoItem(editingItem.id, values);
     } else {
-      addLocalInfoItem({ ...values, categoryId });
+      addLocalInfoItem({
+        categoryId,
+        projectName: values.projectName,
+        implementingAgency: values.implementingAgency,
+        budget: values.budget,
+        status: values.status,
+        icon: values.icon,
+      });
     }
     handleCancel();
   };
@@ -88,7 +94,7 @@ export const ProjectsManager = () => {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField control={form.control} name="projectName" render={({ field }) => (<FormItem><FormLabel>প্রকল্পের নাম</FormLabel><FormControl><Input placeholder="প্রকল্পের নাম" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="implementingAgency" render={({ field }) => (<FormItem><FormLabel>বাস্তবায়নকারী সংস্থা</FormLabel><FormControl><Input placeholder="সংস্থার নাম" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="implementingAgency" render={({ field }) => (<FormItem><FormLabel>বাস্তবায়নকারী সংস্থা</FormLabel><FormControl><Input placeholder="সংস্থার নাম" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="budget" render={({ field }) => (<FormItem><FormLabel>বাজেট</FormLabel><FormControl><Input placeholder="বাজেটের পরিমাণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="status" render={({ field }) => (
                   <FormItem>
