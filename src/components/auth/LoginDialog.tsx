@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,11 @@ import { t } from "@/lib/translations";
 import { LogIn, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export const LoginDialog = () => {
+interface LoginDialogProps {
+  triggerComponent?: React.ReactNode;
+}
+
+export const LoginDialog: React.FC<LoginDialogProps> = ({ triggerComponent }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,13 +42,17 @@ export const LoginDialog = () => {
     }
   };
 
+  const defaultTrigger = (
+    <Button variant="ghost" size="sm">
+      <LogIn className="h-4 w-4 mr-2" />
+      {t("login", language)}
+    </Button>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <LogIn className="h-4 w-4 mr-2" />
-          {t("login", language)}
-        </Button>
+        {triggerComponent || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -78,8 +85,8 @@ export const LoginDialog = () => {
               placeholder={language === 'bn' ? "আপনার পাসওয়ার্ড লিখুন" : "Enter your password"}
             />
           </div>
-          <div className="text-sm text-gray-600">
-            {language === 'bn' ? "ডেমো - অ্যাডমিন: mdaytullaalkhumoni@gmail.com / admin123" : "Demo - Admin: mdaytullaalkhumoni@gmail.com / admin123"}
+          <div className="text-sm text-muted-foreground">
+            {language === 'bn' ? "ডেমো - অ্যাডমিন: mohammdaytullah@gmail.com / Khumoni123@@@" : "Demo - Admin: mohammdaytullah@gmail.com / Khumoni123@@@"}
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

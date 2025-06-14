@@ -29,7 +29,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   loading: boolean;
   isLoading: boolean;
-  uploadProfilePicture: (file: File) => Promise<boolean>;
+  uploadProfilePicture: (file: File) => Promise<boolean>; // Assuming this was intended to be kept
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,7 +45,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingLocally, setIsLoadingLocally] = useState(false); // Renamed to avoid conflict if context provides 'isLoading'
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            const isAdmin = userData.isAdmin || firebaseUser.email === 'admin@banchorampur.com';
+            const isAdmin = userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com'; // Updated admin email
             setUser({
               id: firebaseUser.uid,
               name: userData.name || firebaseUser.displayName || 'Anonymous',
@@ -63,19 +63,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
               isVerified: userData.isVerified || false,
               isAdmin,
-              role: isAdmin ? 'admin' as const : 'user' as const,
+              role: isAdmin ? 'admin' : 'user',
               createdAt: userData.createdAt || firebaseUser.metadata.creationTime
             });
           } else {
             // Create user document if it doesn't exist
-            const isAdmin = firebaseUser.email === 'admin@banchorampur.com';
-            const newUser = {
+            const isAdmin = firebaseUser.email === 'mohammdaytullah@gmail.com'; // Updated admin email
+            const newUser: User = { // Explicitly type newUser
               id: firebaseUser.uid,
               name: firebaseUser.displayName || 'Anonymous',
               email: firebaseUser.email || '',
               isVerified: false,
               isAdmin,
-              role: isAdmin ? 'admin' as const : 'user' as const,
+              role: isAdmin ? 'admin' : 'user',
               createdAt: new Date().toISOString()
             };
             await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      setIsLoading(true);
+      setIsLoadingLocally(true);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('User logged in:', userCredential.user.email);
       return true;
@@ -103,24 +103,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Login error:', error);
       return false;
     } finally {
-      setIsLoading(false);
+      setIsLoadingLocally(false);
     }
   };
 
   const register = async (email: string, password: string, name: string, phone?: string): Promise<boolean> => {
     try {
-      setIsLoading(true);
+      setIsLoadingLocally(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      const isAdmin = email === 'admin@banchorampur.com';
-      const userData = {
+      const isAdmin = email === 'mohammdaytullah@gmail.com'; // Updated admin email
+      const userData: Omit<User, 'id'> = { // Ensure userData matches User type excluding id
         name,
         email,
         phone: phone || '',
         profilePicture: '',
         isVerified: false,
         isAdmin,
-        role: isAdmin ? 'admin' as const : 'user' as const,
+        role: isAdmin ? 'admin' : 'user',
         createdAt: new Date().toISOString()
       };
 
@@ -131,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Registration error:', error);
       return false;
     } finally {
-      setIsLoading(false);
+      setIsLoadingLocally(false);
     }
   };
 
@@ -161,10 +161,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       register,
       logout,
       loading,
-      isLoading,
+      isLoading: isLoadingLocally, // Provide the renamed state
       uploadProfilePicture
     }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
