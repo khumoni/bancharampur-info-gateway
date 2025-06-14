@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,34 +12,21 @@ import {
   Shield,
   Eye
 } from "lucide-react";
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  condition: string;
-  category: string;
-  location: string;
-  images: string[];
-  description: string;
-  seller: {
-    name: string;
-    rating: number;
-    verified: boolean;
-  };
-  postedAt: string;
-  views: number;
-  likes: number;
-}
+import { Product } from "@/lib/marketplace/types";
+import { useSocial } from "@/contexts/SocialContext";
+import { useToast } from "@/hooks/use-toast";
+import { useApp } from "@/contexts/AppContext";
 
 interface ProductCardProps {
   product: Product;
-  language: 'bn' | 'en';
 }
 
-export const ProductCard = ({ product, language }: ProductCardProps) => {
+export const ProductCard = ({ product }: ProductCardProps) => {
+  const { language } = useApp();
   const [isLiked, setIsLiked] = useState(false);
   const [showSellerInfo, setShowSellerInfo] = useState(false);
+  const { shareProductAsPost } = useSocial();
+  const { toast } = useToast();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('bn-BD').format(price);
@@ -68,20 +54,25 @@ export const ProductCard = ({ product, language }: ProductCardProps) => {
     return colors[condition as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: product.title,
-          text: `${product.title} - ৳${formatPrice(product.price)}`,
-          url: window.location.href
-        });
-      } catch (error) {
-        console.log('Share failed:', error);
-      }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
+  const handleShareToFeed = async () => {
+    try {
+      const comment = language === 'bn' 
+        ? `এই পণ্যটি দেখুন: ${product.title}`
+        : `Check out this item: ${product.title}`;
+        
+      await shareProductAsPost(product, comment);
+      
+      toast({
+        title: language === 'bn' ? "ফিডে শেয়ার হয়েছে!" : "Shared to feed!",
+        description: language === 'bn' ? "পণ্যটি কমিউনিটি ফিডে পোস্ট করা হয়েছে।" : "The product has been posted to the community feed.",
+      });
+    } catch (error) {
+      console.error('Error sharing product to feed:', error);
+      toast({
+        title: language === 'bn' ? "ত্রুটি" : "Error",
+        description: language === 'bn' ? "পণ্যটি শেয়ার করা যায়নি।" : "Could not share product to feed.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,7 +109,7 @@ export const ProductCard = ({ product, language }: ProductCardProps) => {
             className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
             onClick={(e) => {
               e.stopPropagation();
-              handleShare();
+              handleShareToFeed();
             }}
           >
             <Share2 className="h-4 w-4" />

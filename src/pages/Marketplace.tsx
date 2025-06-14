@@ -24,6 +24,7 @@ import { useApp } from "@/contexts/AppContext";
 import { CreateListingDialog } from "@/components/marketplace/CreateListingDialog";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
+import { Product } from "@/lib/marketplace/types";
 
 const Marketplace = () => {
   const { language } = useApp();
@@ -33,7 +34,7 @@ const Marketplace = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   // Sample product data
-  const sampleProducts = [
+  const sampleProducts: Product[] = [
     {
       id: "1",
       title: "iPhone 14 Pro Max",

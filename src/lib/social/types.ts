@@ -1,5 +1,6 @@
 
 import { Timestamp } from 'firebase/firestore';
+import { Product as MarketplaceProduct } from './marketplace/types';
 
 export interface Comment {
   id: string;
@@ -33,6 +34,8 @@ export interface Post {
     reason: string;
     previousStatus: 'active' | 'hidden';
   };
+  postType?: 'social' | 'marketplace-share';
+  sharedProduct?: MarketplaceProduct;
 }
 
 export interface SocialContextType {
@@ -41,5 +44,6 @@ export interface SocialContextType {
   addComment: (postId: string, content: string) => Promise<void>;
   likePost: (postId: string) => Promise<void>;
   moderatePost: (postId: string, newStatus: 'active' | 'hidden' | 'deleted', reason: string) => Promise<void>;
+  shareProductAsPost: (product: MarketplaceProduct, comment: string) => Promise<void>;
   loading: boolean;
 }

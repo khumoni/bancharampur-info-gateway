@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   collection, 
@@ -14,6 +13,7 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuth } from './AuthContext';
 import { Post, Comment, SocialContextType } from '@/lib/social/types';
+import { Product as MarketplaceProduct } from '@/lib/marketplace/types';
 
 const SocialContext = createContext<SocialContextType | undefined>(undefined);
 
@@ -97,6 +97,45 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.log("Post added successfully with ID:", docRef.id);
     } catch (error) {
       console.error('Error adding post to Firestore:', error);
+      throw error;
+    }
+  };
+
+  const shareProductAsPost = async (product: MarketplaceProduct, comment: string) => {
+    if (!user) {
+      console.error("User not authenticated. Cannot share post.");
+      throw new Error("User not authenticated.");
+    }
+
+    try {
+      console.log(`Sharing product as post for user: ${user.id} (${user.name})`);
+      const hashtags = comment.match(/#\w+/g) || [];
+
+      // Create a plain object from product to ensure it's serializable
+      const serializableProduct = JSON.parse(JSON.stringify(product));
+
+      const newPostData = {
+        author: user.name,
+        authorId: user.id,
+        avatar: user.name.charAt(0).toUpperCase(),
+        content: comment,
+        likes: 0,
+        likedBy: [],
+        comments: [],
+        shares: 0,
+        hashtags,
+        profilePicture: user.profilePicture || '',
+        status: 'active' as const,
+        createdAt: Timestamp.now(),
+        postType: 'marketplace-share' as const,
+        sharedProduct: serializableProduct,
+      };
+
+      console.log("Submitting new shared post data:", newPostData);
+      const docRef = await addDoc(collection(db, 'posts'), newPostData);
+      console.log("Shared post added successfully with ID:", docRef.id);
+    } catch (error) {
+      console.error('Error sharing product as post to Firestore:', error);
       throw error;
     }
   };
@@ -190,6 +229,7 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     <SocialContext.Provider value={{
       posts,
       addPost,
+      shareProductAsPost,
       addComment,
       likePost,
       moderatePost,
