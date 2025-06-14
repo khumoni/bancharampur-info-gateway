@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, Sparkles, ArrowRight } from "lucide-react";
+import { MessageSquare, Sparkles } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PostFeed } from "@/components/social/PostFeed";
@@ -43,15 +42,6 @@ const Index = () => {
             <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
               {t("tagline", language)}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-lift">
-                {language === 'bn' ? 'শুরু করুন' : 'Get Started'}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="border-2 border-emerald-400 hover:border-emerald-500 text-emerald-700 hover:text-emerald-800 dark:border-emerald-600 dark:hover:border-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-lg hover-lift">
-                {language === 'bn' ? 'আরো জানুন' : 'Learn More'}
-              </Button>
-            </div>
           </div>
         </div>
       </section>
