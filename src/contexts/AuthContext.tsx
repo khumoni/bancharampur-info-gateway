@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   signInWithEmailAndPassword, 
@@ -27,9 +26,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string, phone?: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  loading: boolean;
-  isLoading: boolean;
-  uploadProfilePicture: (file: File) => Promise<boolean>; // Assuming this was intended to be kept
+  loading: boolean; // For initial auth state check
+  isLoading: boolean; // For login, register, upload operations
+  uploadProfilePicture: (file: File) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,8 +43,8 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isLoadingLocally, setIsLoadingLocally] = useState(false); // Renamed to avoid conflict if context provides 'isLoading'
+  const [loading, setLoading] = useState(true); // For initial auth state check
+  const [isLoadingLocally, setIsLoadingLocally] = useState(false); // For operations like login, register, upload
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -54,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            const isAdmin = userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com'; // Updated admin email
+            const isAdmin = userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com';
             setUser({
               id: firebaseUser.uid,
               name: userData.name || firebaseUser.displayName || 'Anonymous',
@@ -68,14 +67,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
           } else {
             // Create user document if it doesn't exist
-            const isAdmin = firebaseUser.email === 'mohammdaytullah@gmail.com'; // Updated admin email
-            const newUser: User = { // Explicitly type newUser
+            const isAdmin = firebaseUser.email === 'mohammdaytullah@gmail.com';
+            const newUser: User = {
               id: firebaseUser.uid,
               name: firebaseUser.displayName || 'Anonymous',
               email: firebaseUser.email || '',
               isVerified: false,
               isAdmin,
-              role: isAdmin ? 'admin' : 'user',
+              role: isAdmin ? 'admin' : 'user', // Ensure role is correctly typed
               createdAt: new Date().toISOString()
             };
             await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -112,8 +111,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoadingLocally(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      const isAdmin = email === 'mohammdaytullah@gmail.com'; // Updated admin email
-      const userData: Omit<User, 'id'> = { // Ensure userData matches User type excluding id
+      const isAdmin = email === 'mohammdaytullah@gmail.com';
+      const userData: Omit<User, 'id'> = { 
         name,
         email,
         phone: phone || '',
@@ -137,20 +136,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await signOut(auth);
+    setUser(null); // Also clear local user state on logout
     console.log('User logged out');
   };
 
   const uploadProfilePicture = async (file: File): Promise<boolean> => {
     try {
-      setIsLoading(true);
+      setIsLoadingLocally(true); // Corrected: Was setIsLoading
       // For now, just return success - actual upload would require Firebase Storage
       console.log('Profile picture upload:', file.name);
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 1000)); 
+      // In a real app, you'd update the user's profilePicture URL here and in Firestore
       return true;
     } catch (error) {
       console.error('Upload error:', error);
       return false;
     } finally {
-      setIsLoading(false);
+      setIsLoadingLocally(false); // Corrected: Was setIsLoading
     }
   };
 
@@ -160,12 +163,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login,
       register,
       logout,
-      loading,
-      isLoading: isLoadingLocally, // Provide the renamed state
+      loading, // For initial auth state (app load)
+      isLoading: isLoadingLocally, // For user-initiated actions like login, register, upload
       uploadProfilePicture
     }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
