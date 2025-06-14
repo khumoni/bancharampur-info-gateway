@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,13 +10,16 @@ import {
   LogOut, 
   Shield, 
   Calendar,
-  Flag
+  Flag,
+  Camera
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { ProfileStatsCard } from "./ProfileStatsCard";
 import { UserContentTabs } from "./UserContentTabs";
 import { ReportDialog } from "./ReportDialog";
+import { EditProfileDialog } from "./EditProfileDialog";
+import { ProfilePicturesDialog } from "./ProfilePicturesDialog";
 
 interface ProfileDialogProps {
   isOpen: boolean;
@@ -29,6 +31,8 @@ export const ProfileDialog = ({ isOpen, onOpenChange, userId }: ProfileDialogPro
   const { user, logout } = useAuth();
   const { language } = useApp();
   const [reportDialog, setReportDialog] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [picturesOpen, setPicturesOpen] = useState(false);
 
   // If userId is provided, we're viewing another user's profile
   const isOwnProfile = !userId || userId === user?.id;
@@ -39,8 +43,15 @@ export const ProfileDialog = ({ isOpen, onOpenChange, userId }: ProfileDialogPro
     onOpenChange(false);
   };
 
-  const formatJoinDate = (date: string) => {
-    return new Date(date).toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US', {
+  const formatJoinDate = (dateString?: string) => {
+    if (!dateString) {
+      return language === 'bn' ? 'অজানা' : 'Unknown';
+    }
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return language === 'bn' ? 'অবৈধ তারিখ' : 'Invalid Date';
+    }
+    return date.toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US', {
       year: 'numeric',
       month: 'long'
     });
@@ -59,12 +70,23 @@ export const ProfileDialog = ({ isOpen, onOpenChange, userId }: ProfileDialogPro
             
             {/* User Info Header */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4 p-6 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
-              <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-700 shadow-lg">
-                <AvatarImage src={targetUser.profilePicture} />
-                <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-500 text-white text-2xl font-bold">
-                  {targetUser.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative group">
+                <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-700 shadow-lg">
+                  <AvatarImage src={targetUser.profilePicture} />
+                  <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-500 text-white text-2xl font-bold">
+                    {targetUser.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                {isOwnProfile && (
+                  <button 
+                    className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    onClick={() => setPicturesOpen(true)}
+                    aria-label="Change profile picture"
+                  >
+                    <Camera className="h-6 w-6 text-white" />
+                  </button>
+                )}
+              </div>
               
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2">
@@ -85,7 +107,7 @@ export const ProfileDialog = ({ isOpen, onOpenChange, userId }: ProfileDialogPro
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>
                     {language === 'bn' ? 'যোগদান ' : 'Joined '} 
-                    {formatJoinDate(targetUser.createdAt || new Date().toISOString())}
+                    {formatJoinDate(targetUser.createdAt)}
                   </span>
                 </div>
               </div>
@@ -102,7 +124,7 @@ export const ProfileDialog = ({ isOpen, onOpenChange, userId }: ProfileDialogPro
             <div className="flex flex-wrap gap-3">
               {isOwnProfile ? (
                 <>
-                  <Button variant="outline" className="flex-1 sm:flex-none">
+                  <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => setEditProfileOpen(true)}>
                     <Edit3 className="h-4 w-4 mr-2" />
                     {language === 'bn' ? 'প্রোফাইল সম্পাদনা' : 'Edit Profile'}
                   </Button>
@@ -138,6 +160,14 @@ export const ProfileDialog = ({ isOpen, onOpenChange, userId }: ProfileDialogPro
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Dialogs for profile actions */}
+      {isOwnProfile && (
+        <>
+          <EditProfileDialog isOpen={editProfileOpen} onOpenChange={setEditProfileOpen} />
+          <ProfilePicturesDialog isOpen={picturesOpen} onOpenChange={setPicturesOpen} />
+        </>
+      )}
 
       {/* Report Dialog for other users */}
       {!isOwnProfile && (

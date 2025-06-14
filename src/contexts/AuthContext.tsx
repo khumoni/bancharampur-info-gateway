@@ -6,8 +6,9 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db, storage } from '@/lib/firebase';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface User {
   id: string;
@@ -29,6 +30,7 @@ interface AuthContextType {
   loading: boolean; // For initial auth state check
   isLoading: boolean; // For login, register, upload operations
   uploadProfilePicture: (file: File) => Promise<boolean>;
+  updateUserProfile: (data: Partial<Pick<User, 'name' | 'phone'>>) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -140,20 +142,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('User logged out');
   };
 
-  const uploadProfilePicture = async (file: File): Promise<boolean> => {
+  const updateUserProfile = async (data: Partial<Pick<User, 'name' | 'phone'>>): Promise<boolean> => {
+    if (!user) return false;
     try {
-      setIsLoadingLocally(true); // Corrected: Was setIsLoading
-      // For now, just return success - actual upload would require Firebase Storage
-      console.log('Profile picture upload:', file.name);
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000)); 
-      // In a real app, you'd update the user's profilePicture URL here and in Firestore
+      setIsLoadingLocally(true);
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, data);
+      
+      const updatedUser = { ...user, ...data } as User;
+      setUser(updatedUser);
+
+      console.log('User profile updated:', data);
+      return true;
+    } catch (error) {
+      console.error('User profile update error:', error);
+      return false;
+    } finally {
+      setIsLoadingLocally(false);
+    }
+  };
+
+  const uploadProfilePicture = async (file: File): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      setIsLoadingLocally(true);
+      
+      const filePath = `profile-pictures/${user.id}/${file.name}`;
+      const fileRef = storageRef(storage, filePath);
+
+      await uploadBytes(fileRef, file);
+      const photoURL = await getDownloadURL(fileRef);
+
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, { profilePicture: photoURL });
+
+      setUser(prevUser => prevUser ? { ...prevUser, profilePicture: photoURL } : null);
+
+      console.log('Profile picture uploaded successfully');
       return true;
     } catch (error) {
       console.error('Upload error:', error);
       return false;
     } finally {
-      setIsLoadingLocally(false); // Corrected: Was setIsLoading
+      setIsLoadingLocally(false);
     }
   };
 
@@ -165,7 +196,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       loading, // For initial auth state (app load)
       isLoading: isLoadingLocally, // For user-initiated actions like login, register, upload
-      uploadProfilePicture
+      uploadProfilePicture,
+      updateUserProfile,
     }}>
       {children}
     </AuthContext.Provider>
