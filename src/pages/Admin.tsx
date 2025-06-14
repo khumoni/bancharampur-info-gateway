@@ -12,8 +12,17 @@ import { PostManager } from "@/components/admin/PostManager";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
-import { PlusCircle, BarChart, AlertTriangle, FileText, Users, Shield, Info } from "lucide-react";
+import { PlusCircle, BarChart, AlertTriangle, FileText, Users, Shield, Info, GraduationCap, Heart, Bolt, CloudSun, HardHat, UserCog, Megaphone, Bus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+import { EducationManager } from "@/components/admin/EducationManager";
+import { HealthManager } from "@/components/admin/HealthManager";
+import { UtilitiesManager } from "@/components/admin/UtilitiesManager";
+import { WeatherManager } from "@/components/admin/WeatherManager";
+import { ProjectsManager } from "@/components/admin/ProjectsManager";
+import { AdministrativeInfoManager } from "@/components/admin/AdministrativeInfoManager";
+import { AnnouncementsManager } from "@/components/admin/AnnouncementsManager";
+import { TransportManager } from "@/components/admin/TransportManager";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -49,7 +58,14 @@ const Admin = () => {
     { id: "post-management", label: "পোস্ট ব্যবস্থাপনা", icon: Shield },
     { id: "notices", label: "বিজ্ঞপ্তি", icon: AlertTriangle },
     { id: "market", label: "বাজার দর", icon: FileText },
-    { id: "local-info", label: "স্থানীয় তথ্য", icon: Info },
+    { id: "education", label: "শিক্ষা", icon: GraduationCap },
+    { id: "health", label: "স্বাস্থ্য", icon: Heart },
+    { id: "utilities", label: "বিদ্যুৎ ও গ্যাস", icon: Bolt },
+    { id: "weather", label: "আবহাওয়া", icon: CloudSun },
+    { id: "projects", label: "সরকারি প্রকল্প", icon: HardHat },
+    { id: "admin-info", label: "প্রশাসনিক তথ্য", icon: UserCog },
+    { id: "announcements", label: "ঘোষণা", icon: Megaphone },
+    { id: "transport", label: "যাতায়াত", icon: Bus },
     { id: "users", label: "ব্যবহারকারী", icon: Users },
   ];
 
@@ -230,7 +246,14 @@ const Admin = () => {
 
           {activeTab === "market" && <MarketRateManager />}
 
-          {activeTab === "local-info" && <LocalInfoManager />}
+          {activeTab === "education" && <EducationManager />}
+          {activeTab === "health" && <HealthManager />}
+          {activeTab === "utilities" && <UtilitiesManager />}
+          {activeTab === "weather" && <WeatherManager />}
+          {activeTab === "projects" && <ProjectsManager />}
+          {activeTab === "admin-info" && <AdministrativeInfoManager />}
+          {activeTab === "announcements" && <AnnouncementsManager />}
+          {activeTab === "transport" && <TransportManager />}
 
           {activeTab === "users" && (
             <div className="space-y-6">
