@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Sparkles, ArrowRight } from "lucide-react";
@@ -6,8 +5,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PostFeed } from "@/components/social/PostFeed";
 import { QuickAccess } from "@/components/home/QuickAccess";
-import { LocalInfo } from "@/components/home/LocalInfo";
-import { MarketRates } from "@/components/home/MarketRates";
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
 
@@ -54,7 +51,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Enhanced Quick Access */}
+      {/* Enhanced Quick Access section */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 animate-fade-in">
@@ -67,36 +64,23 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Enhanced Main Content Grid */}
+      {/* Community Feed Section */}
       <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
-          {/* Left Column - Enhanced Local Info & Market Rates */}
-          <div className="lg:col-span-1 space-y-8">
-            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <LocalInfo />
-            </div>
-            <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <MarketRates />
-            </div>
-          </div>
-
-          {/* Right Column - Enhanced Social Feed */}
-          <div className="lg:col-span-3">
-            <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              <Card className="shadow-2xl border-0 glass-morphism rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-700/20 dark:to-blue-700/20 border-b border-emerald-100/50 dark:border-emerald-800/50">
-                  <CardTitle className="flex items-center text-emerald-800 dark:text-emerald-300 text-xl font-semibold">
-                    <div className="p-2 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg mr-3 shadow-md">
-                      <MessageSquare className="h-5 w-5 text-white" />
-                    </div>
-                    {t("communityFeed", language)}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <PostFeed />
-                </CardContent>
-              </Card>
-            </div>
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <Card className="shadow-2xl border-0 glass-morphism rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-700/20 dark:to-blue-700/20 border-b border-emerald-100/50 dark:border-emerald-800/50">
+                <CardTitle className="flex items-center text-emerald-800 dark:text-emerald-300 text-xl font-semibold">
+                  <div className="p-2 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg mr-3 shadow-md">
+                    <MessageSquare className="h-5 w-5 text-white" />
+                  </div>
+                  {t("communityFeed", language)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <PostFeed />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
