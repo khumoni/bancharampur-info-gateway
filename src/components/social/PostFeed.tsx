@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send, Loader2, Copy, Check } from "lucide-react";
+import { Heart, MessageSquare, Share, Flag, Clock, Image, Hash, Send, Loader2, Copy, Check, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { useSocial } from "@/contexts/SocialContext";
@@ -28,8 +28,11 @@ export const PostFeed = () => {
   const { posts, addPost, addComment, likePost, loading } = useSocial();
   const { toast } = useToast();
 
-  // Filter out current user's posts from the feed
-  const filteredPosts = posts.filter(post => post.authorId !== user?.id);
+  // Show posts that are 'active', or 'hidden' if the current user is the author.
+  const postsToDisplay = posts.filter(post => 
+    post.status === 'active' || 
+    (post.status === 'hidden' && post.authorId === user?.id)
+  );
 
   const handlePostSubmit = async () => {
     if (newPost.trim() && user) {
@@ -183,7 +186,7 @@ export const PostFeed = () => {
 
       {/* Posts - Only showing other users' posts */}
       <div className="space-y-4">
-        {filteredPosts.length === 0 ? (
+        {postsToDisplay.length === 0 && !loading ? (
           <Card className="border-gray-200">
             <CardContent className="p-8 text-center">
               <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
@@ -193,7 +196,7 @@ export const PostFeed = () => {
             </CardContent>
           </Card>
         ) : (
-          filteredPosts.map((post) => (
+          postsToDisplay.map((post) => (
             <Card key={post.id} className="border-gray-200 hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 {/* Post Header */}
@@ -211,14 +214,22 @@ export const PostFeed = () => {
                       {formatTime(post.createdAt)}
                     </p>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleReport(post.id, post.author)}
-                    className="text-gray-500 hover:text-red-500"
-                  >
-                    <Flag className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    {post.status === 'hidden' && post.authorId === user?.id && (
+                      <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        লুকানো
+                      </Badge>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleReport(post.id, post.author)}
+                      className="text-gray-500 hover:text-red-500"
+                    >
+                      <Flag className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Post Content */}

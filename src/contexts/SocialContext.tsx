@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   collection, 
@@ -8,7 +7,9 @@ import {
   onSnapshot, 
   orderBy, 
   query,
-  Timestamp 
+  Timestamp,
+  where,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from './AuthContext';
@@ -38,6 +39,13 @@ interface Post {
   hashtags: string[];
   profilePicture?: string;
   createdAt: string;
+  status: 'active' | 'hidden' | 'deleted';
+  moderationDetails?: {
+    moderatedBy: string;
+    moderatedAt: string;
+    reason: string;
+    previousStatus: 'active' | 'hidden';
+  };
 }
 
 interface SocialContextType {
@@ -45,6 +53,7 @@ interface SocialContextType {
   addPost: (content: string) => Promise<void>;
   addComment: (postId: string, content: string) => Promise<void>;
   likePost: (postId: string) => Promise<void>;
+  moderatePost: (postId: string, newStatus: 'active' | 'hidden' | 'deleted', reason: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -68,6 +77,7 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     const postsQuery = query(
       collection(db, 'posts'), 
+      where('status', 'in', ['active', 'hidden']),
       orderBy('createdAt', 'desc')
     );
     
@@ -111,6 +121,7 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         shares: 0,
         hashtags,
         profilePicture: user.profilePicture || '',
+        status: 'active',
         createdAt: Timestamp.now()
       });
     } catch (error) {
@@ -172,12 +183,45 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const moderatePost = async (postId: string, newStatus: 'active' | 'hidden' | 'deleted', reason: string) => {
+    if (!user || user.role !== 'admin') {
+      console.error("Permission denied: Not an admin.");
+      throw new Error("Permission denied: Not an admin.");
+    }
+
+    try {
+      const postRef = doc(db, 'posts', postId);
+      const postSnap = await getDoc(postRef);
+
+      if (!postSnap.exists()) {
+        throw new Error("Post not found");
+      }
+
+      const currentStatus = postSnap.data().status;
+
+      await updateDoc(postRef, {
+        status: newStatus,
+        moderationDetails: {
+          moderatedBy: user.id,
+          moderatedAt: new Date().toISOString(),
+          reason: reason,
+          previousStatus: currentStatus,
+        }
+      });
+      console.log(`Post ${postId} status changed to ${newStatus}`);
+    } catch (error) {
+      console.error('Error moderating post:', error);
+      throw error;
+    }
+  };
+
   return (
     <SocialContext.Provider value={{
       posts,
       addPost,
       addComment,
       likePost,
+      moderatePost,
       loading
     }}>
       {children}

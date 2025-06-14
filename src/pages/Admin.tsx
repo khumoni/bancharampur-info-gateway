@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Header } from "@/components/layout/Header";
 import { MarketRateManager } from "@/components/admin/MarketRateManager";
 import { LocalInfoManager } from "@/components/admin/LocalInfoManager";
+import { PostManager } from "@/components/admin/PostManager";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
@@ -45,6 +46,7 @@ const Admin = () => {
 
   const adminTabs = [
     { id: "dashboard", label: "ড্যাশবোর্ড", icon: BarChart },
+    { id: "post-management", label: "পোস্ট ব্যবস্থাপনা", icon: Shield },
     { id: "notices", label: "বিজ্ঞপ্তি", icon: AlertTriangle },
     { id: "market", label: "বাজার দর", icon: FileText },
     { id: "local-info", label: "স্থানীয় তথ্য", icon: Info },
@@ -153,6 +155,8 @@ const Admin = () => {
               </Card>
             </div>
           )}
+
+          {activeTab === "post-management" && <PostManager />}
 
           {activeTab === "notices" && (
             <div className="space-y-6">
