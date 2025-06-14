@@ -5,11 +5,16 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PostFeed } from "@/components/social/PostFeed";
 import { QuickAccess } from "@/components/home/QuickAccess";
+import { EmergencyNotices } from "@/components/home/EmergencyNotices";
 import { useApp } from "@/contexts/AppContext";
+import { useData } from "@/contexts/DataContext";
 import { t } from "@/lib/translations";
 
 const Index = () => {
   const { language } = useApp();
+  const { notices } = useData();
+
+  const activeNotices = notices.filter(notice => notice.isActive);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/70 via-sky-50/70 via-indigo-50/70 to-purple-50/70 dark:from-gray-900/90 dark:via-emerald-900/20 dark:via-blue-900/20 dark:to-purple-900/20 font-sans">
@@ -50,6 +55,15 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Emergency Notices Section */}
+      {activeNotices.length > 0 && (
+        <section className="py-12 px-4">
+          <div className="max-w-4xl mx-auto animate-fade-in">
+            <EmergencyNotices />
+          </div>
+        </section>
+      )}
 
       {/* Enhanced Quick Access section */}
       <section className="py-16 px-4">
