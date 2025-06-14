@@ -36,14 +36,18 @@ import {
   MessageSquare,
   Speaker,
   Clock,
-  Route
+  Route,
+  Info,
+  icons
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useApp } from "@/contexts/AppContext";
+import { useData } from "@/contexts/DataContext";
 
 const LocalInfo = () => {
   const { language } = useApp();
+  const { localInfoItems } = useData();
   const [activeTab, setActiveTab] = useState("education");
 
   const categories = [
@@ -52,196 +56,56 @@ const LocalInfo = () => {
       icon: GraduationCap,
       title: language === 'bn' ? "শিক্ষা" : "Education",
       color: "from-blue-500 to-blue-600",
-      items: [
-        {
-          icon: Award,
-          title: language === 'bn' ? "বৃত্তির তথ্য" : "Scholarship Information",
-          description: language === 'bn' ? "সরকারি ও বেসরকারি বৃত্তির তথ্য" : "Government and private scholarship information"
-        },
-        {
-          icon: School,
-          title: language === 'bn' ? "স্কুল ও কলেজের তালিকা" : "Schools and Colleges List",
-          description: language === 'bn' ? "সরকারি/বেসরকারি শিক্ষা প্রতিষ্ঠানের তালিকা" : "List of government/private educational institutions"
-        },
-        {
-          icon: Bell,
-          title: language === 'bn' ? "ভর্তির নোটিশ" : "Admission Notices",
-          description: language === 'bn' ? "সকল শিক্ষা প্রতিষ্ঠানের ভর্তি বিজ্ঞপ্তি" : "Admission notifications from all educational institutions"
-        },
-        {
-          icon: Users,
-          title: language === 'bn' ? "কোচিং সেন্টার ও মাদ্রাসা" : "Coaching Centers and Madrasas",
-          description: language === 'bn' ? "স্থানীয় কোচিং ও ধর্মীয় শিক্ষা প্রতিষ্ঠান" : "Local coaching and religious educational institutions"
-        }
-      ]
     },
     {
       id: "health",
       icon: Heart,
       title: language === 'bn' ? "স্বাস্থ্য" : "Health",
       color: "from-red-500 to-pink-600",
-      items: [
-        {
-          icon: Hospital,
-          title: language === 'bn' ? "উপজেলা স্বাস্থ্য কমপ্লেক্স" : "Upazila Health Complex",
-          description: language === 'bn' ? "উপজেলা স্বাস্থ্য কমপ্লেক্সের সম্পূর্ণ তথ্য" : "Complete information about Upazila Health Complex"
-        },
-        {
-          icon: Stethoscope,
-          title: language === 'bn' ? "ক্লিনিক ও ডাক্তারের তালিকা" : "Clinics and Doctors List",
-          description: language === 'bn' ? "স্থানীয় ক্লিনিক ও ডাক্তারদের তথ্য" : "Information about local clinics and doctors"
-        },
-        {
-          icon: Pill,
-          title: language === 'bn' ? "ফার্মেসি" : "Pharmacy Services",
-          description: language === 'bn' ? "ওষুধের দোকান ও ফার্মেসির তথ্য" : "Information about medicine shops and pharmacies"
-        },
-        {
-          icon: Ambulance,
-          title: language === 'bn' ? "অ্যাম্বুলেন্স সেবা" : "Ambulance Services",
-          description: language === 'bn' ? "জরুরি অ্যাম্বুলেন্স সেবার তথ্য" : "Emergency ambulance service information"
-        }
-      ]
     },
     {
       id: "utilities",
       icon: Bolt,
       title: language === 'bn' ? "বিদ্যুৎ ও গ্যাস" : "Electricity and Gas",
       color: "from-yellow-500 to-orange-600",
-      items: [
-        {
-          icon: LightbulbOff,
-          title: language === 'bn' ? "লোডশেডিং আপডেট" : "Loadshedding Updates",
-          description: language === 'bn' ? "দৈনিক লোডশেডিং সময়সূচী" : "Daily loadshedding schedule"
-        },
-        {
-          icon: CreditCard,
-          title: language === 'bn' ? "বিলিং সেন্টার" : "Billing Center",
-          description: language === 'bn' ? "বিদ্যুৎ ও গ্যাস বিল জমার কেন্দ্র" : "Electricity and gas bill payment centers"
-        },
-        {
-          icon: Phone,
-          title: language === 'bn' ? "অভিযোগ লিংক/নম্বর" : "Complaint Link/Number",
-          description: language === 'bn' ? "বিদ্যুৎ ও গ্যাস সংক্রান্ত অভিযোগ" : "Electricity and gas related complaints"
-        }
-      ]
     },
     {
       id: "weather",
       icon: CloudSun,
       title: language === 'bn' ? "আবহাওয়া ও দুর্যোগ" : "Weather and Disasters",
       color: "from-cyan-500 to-blue-600",
-      items: [
-        {
-          icon: Sun,
-          title: language === 'bn' ? "দৈনিক আবহাওয়া" : "Daily Weather Forecast",
-          description: language === 'bn' ? "আজকের এবং আগামীকালের আবহাওয়ার পূর্বাভাস" : "Today's and tomorrow's weather forecast"
-        },
-        {
-          icon: AlertTriangle,
-          title: language === 'bn' ? "বন্যা/ঘূর্ণিঝড় সতর্কতা" : "Flood/Cyclone Alerts",
-          description: language === 'bn' ? "প্রাকৃতিক দুর্যোগের সতর্কবার্তা" : "Natural disaster warning alerts"
-        },
-        {
-          icon: Shield,
-          title: language === 'bn' ? "দুর্যোগ ব্যবস্থাপনা টিপস" : "Disaster Management Tips",
-          description: language === 'bn' ? "দুর্যোগকালীন করণীয় ও পরামর্শ" : "Disaster preparedness and management advice"
-        }
-      ]
     },
     {
       id: "market",
       icon: ShoppingCart,
       title: language === 'bn' ? "স্থানীয় বাজারদর" : "Local Market Prices",
       color: "from-green-500 to-emerald-600",
-      items: [
-        {
-          icon: Fish,
-          title: language === 'bn' ? "চাল, ডাল, সবজি, মাছ, মাংস" : "Rice, Pulses, Vegetables, Fish, Meat",
-          description: language === 'bn' ? "দৈনিক বাজারদরের হালনাগাদ তথ্য" : "Daily updated market price information"
-        },
-        {
-          icon: Calendar,
-          title: language === 'bn' ? "সাপ্তাহিক বাজার তথ্য" : "Weekly Market Information",
-          description: language === 'bn' ? "সাপ্তাহিক হাট-বাজারের দিন ও সময়" : "Weekly market days and timings"
-        }
-      ]
     },
     {
       id: "projects",
       icon: HardHat,
       title: language === 'bn' ? "সরকারি প্রকল্প ও কাজ" : "Government Projects",
       color: "from-purple-500 to-violet-600",
-      items: [
-        {
-          icon: Hammer,
-          title: language === 'bn' ? "চলমান নির্মাণ কাজ" : "Ongoing Construction",
-          description: language === 'bn' ? "রাস্তা/সেতু/স্কুল নির্মাণের তথ্য" : "Road/bridge/school construction information"
-        },
-        {
-          icon: UserCheck,
-          title: language === 'bn' ? "প্রকল্পের অগ্রগতি" : "Project Progress",
-          description: language === 'bn' ? "প্রকল্পের অগ্রগতি ও দায়িত্বপ্রাপ্ত কর্মকর্তা" : "Project progress and responsible officer"
-        }
-      ]
     },
     {
       id: "admin",
       icon: UserCog,
       title: language === 'bn' ? "প্রশাসনিক তথ্য" : "Administrative Information",
       color: "from-indigo-500 to-blue-600",
-      items: [
-        {
-          icon: Building,
-          title: language === 'bn' ? "চেয়ারম্যান/ইউপি সদস্য/ইউএনও" : "Chairman/UP Member/UNO",
-          description: language === 'bn' ? "স্থানীয় প্রশাসনিক কর্মকর্তাদের অফিস তথ্য" : "Local administrative officers' office information"
-        },
-        {
-          icon: MessageSquare,
-          title: language === 'bn' ? "অভিযোগ ও পরামর্শ" : "Complaints and Suggestions",
-          description: language === 'bn' ? "অভিযোগ ও পরামর্শ জানানোর পদ্ধতি" : "Method for lodging complaints and suggestions"
-        }
-      ]
     },
     {
       id: "announcements",
       icon: Megaphone,
       title: language === 'bn' ? "ঘোষণা ও নোটিশ" : "Announcements",
       color: "from-red-500 to-pink-600",
-      items: [
-        {
-          icon: Speaker,
-          title: language === 'bn' ? "স্থানীয় অফিসের নোটিশ" : "Local Office Notices",
-          description: language === 'bn' ? "স্থানীয় সরকারি অফিসের গুরুত্বপূর্ণ নোটিশ" : "Important notices from local government offices"
-        },
-        {
-          icon: Clock,
-          title: language === 'bn' ? "জরুরি সেবা তথ্য" : "Emergency Service Information",
-          description: language === 'bn' ? "পানি/বিদ্যুৎ/গ্যাস বন্ধের সময়সূচী" : "Water/electricity/gas shutdown schedule"
-        }
-      ]
     },
     {
       id: "transport",
       icon: Bus,
       title: language === 'bn' ? "যাতায়াত ও পরিবহন" : "Transport",
       color: "from-teal-500 to-cyan-600",
-      items: [
-        {
-          icon: Bus,
-          title: language === 'bn' ? "বাস ও নৌকা সেবা" : "Bus and Boat Services",
-          description: language === 'bn' ? "বাস ও নৌকার সময়সূচী ও ভাড়া" : "Bus and boat schedule and fares"
-        },
-        {
-          icon: Route,
-          title: language === 'bn' ? "নতুন রুট তথ্য" : "New Route Information",
-          description: language === 'bn' ? "নতুন পরিবহন রুট ও যাতায়াত তথ্য" : "New transportation routes and travel information"
-        }
-      ]
     }
   ];
-
-  const currentCategory = categories.find(cat => cat.id === activeTab);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-sky-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-emerald-900/10 dark:via-blue-900/10 dark:to-purple-900/10">
@@ -296,7 +160,9 @@ const LocalInfo = () => {
             </TabsList>
 
             {/* Category Content */}
-            {categories.map((category) => (
+            {categories.map((category) => {
+              const itemsForCategory = localInfoItems.filter(item => item.categoryId === category.id);
+              return (
               <TabsContent key={category.id} value={category.id} className="mt-8">
                 <div className="animate-fade-in">
                   <Card className="shadow-2xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl overflow-hidden mb-8">
@@ -309,42 +175,47 @@ const LocalInfo = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-8">
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {category.items.map((item, index) => {
-                          const ItemIcon = item.icon;
-                          return (
-                            <Card 
-                              key={index} 
-                              className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer border border-emerald-100/50 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/80 to-blue-50/80 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-xl"
-                              style={{ animationDelay: `${index * 0.1}s` }}
-                            >
-                              <CardContent className="p-6">
-                                <div className="flex items-start space-x-4">
-                                  <div className={`p-3 bg-gradient-to-r ${category.color} rounded-lg shrink-0`}>
-                                    <ItemIcon className="h-5 w-5 text-white" />
+                      {itemsForCategory.length > 0 ? (
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {itemsForCategory.map((item, index) => {
+                            const ItemIcon = icons[item.icon as keyof typeof icons] || AlertTriangle;
+                            return (
+                              <Card 
+                                key={index} 
+                                className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer border border-emerald-100/50 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/80 to-blue-50/80 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-xl"
+                                style={{ animationDelay: `${index * 0.1}s` }}
+                              >
+                                <CardContent className="p-6">
+                                  <div className="flex items-start space-x-4">
+                                    <div className={`p-3 bg-gradient-to-r ${category.color} rounded-lg shrink-0`}>
+                                      <ItemIcon className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                                        {item.title}
+                                      </h3>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                        {item.description}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div className="flex-1">
-                                    <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                                      {item.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                      {item.description}
-                                    </p>
-                                    <Badge variant="secondary" className="mt-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
-                                      {language === 'bn' ? 'বিস্তারিত দেখুন' : 'View Details'}
-                                    </Badge>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 text-gray-500">
+                          <Info className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                          <h3 className="text-xl font-semibold">কোনো তথ্য পাওয়া যায়নি</h3>
+                          <p className="mt-2">এই ক্যাটেগরিতে এখনো কোনো তথ্য যোগ করা হয়নি।</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
               </TabsContent>
-            ))}
+            )})}
           </Tabs>
         </div>
       </section>

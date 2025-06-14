@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Header } from "@/components/layout/Header";
 import { MarketRateManager } from "@/components/admin/MarketRateManager";
+import { LocalInfoManager } from "@/components/admin/LocalInfoManager";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
-import { PlusCircle, BarChart, AlertTriangle, FileText, Users, Shield } from "lucide-react";
+import { PlusCircle, BarChart, AlertTriangle, FileText, Users, Shield, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Admin = () => {
@@ -47,6 +47,7 @@ const Admin = () => {
     { id: "dashboard", label: "ড্যাশবোর্ড", icon: BarChart },
     { id: "notices", label: "বিজ্ঞপ্তি", icon: AlertTriangle },
     { id: "market", label: "বাজার দর", icon: FileText },
+    { id: "local-info", label: "স্থানীয় তথ্য", icon: Info },
     { id: "users", label: "ব্যবহারকারী", icon: Users },
   ];
 
@@ -224,6 +225,8 @@ const Admin = () => {
           )}
 
           {activeTab === "market" && <MarketRateManager />}
+
+          {activeTab === "local-info" && <LocalInfoManager />}
 
           {activeTab === "users" && (
             <div className="space-y-6">
