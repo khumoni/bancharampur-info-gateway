@@ -86,7 +86,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ triggerComponent }) =>
             />
           </div>
           <div className="text-sm text-muted-foreground">
-            {language === 'bn' ? "ডেমো - অ্যাডমিন: mohammdaytullah@gmail.com / Khumoni123@@@" : "Demo - Admin: mohammdaytullah@gmail.com / Khumoni123@@@"}
+            {language === 'bn' ? "ডেমো: demo@example.com / password" : "Demo: demo@example.com / password"}
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

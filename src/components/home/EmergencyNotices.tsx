@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,9 @@ import { useData } from "@/contexts/DataContext";
 
 export const EmergencyNotices = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { notices } = useData();
+  const { notices: allNotices } = useData();
+
+  const notices = allNotices.filter(notice => notice.isActive);
 
   const getIcon = (type: string) => {
     switch (type) {
