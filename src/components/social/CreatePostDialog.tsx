@@ -58,6 +58,15 @@ export const CreatePostDialog = ({ isOpen, onOpenChange }: CreatePostDialogProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!user) {
+      toast({
+        title: language === 'bn' ? "প্রয়োজন!" : "Required!",
+        description: language === 'bn' ? "পোস্ট করার জন্য আপনাকে লগইন করতে হবে।" : "You need to be logged in to post.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!content.trim()) {
       toast({
         title: language === 'bn' ? "ত্রুটি!" : "Error!",
@@ -74,7 +83,7 @@ export const CreatePostDialog = ({ isOpen, onOpenChange }: CreatePostDialogProps
       
       toast({
         title: language === 'bn' ? "সফল!" : "Success!",
-        description: language === 'bn' ? "পোস্ট প্রকাশ হয়েছে" : "Post published successfully",
+        description: language === 'bn' ? "আপনার পোস্ট সফলভাবে প্রকাশিত হয়েছে।" : "Your post has been published successfully.",
       });
       
       // Reset form
@@ -83,9 +92,10 @@ export const CreatePostDialog = ({ isOpen, onOpenChange }: CreatePostDialogProps
       onOpenChange(false);
     } catch (error) {
       console.error('Post creation error:', error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       toast({
         title: language === 'bn' ? "ত্রুটি!" : "Error!",
-        description: language === 'bn' ? "পোস্ট প্রকাশ ব্যর্থ" : "Failed to publish post",
+        description: (language === 'bn' ? "পোস্ট প্রকাশ করতে ব্যর্থ হয়েছে: " : "Failed to publish post: ") + errorMessage,
         variant: "destructive",
       });
     } finally {

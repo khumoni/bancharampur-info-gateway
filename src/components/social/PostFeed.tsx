@@ -35,7 +35,16 @@ export const PostFeed = () => {
   );
 
   const handlePostSubmit = async () => {
-    if (newPost.trim() && user) {
+    if (!user) {
+        toast({
+          title: language === 'bn' ? "প্রয়োজন!" : "Required!",
+          description: language === 'bn' ? "পোস্ট করার জন্য আপনাকে লগইন করতে হবে।" : "You need to be logged in to post.",
+          variant: "destructive",
+        });
+        return;
+    }
+
+    if (newPost.trim()) {
       setIsPosting(true);
       try {
         await addPost(newPost);
@@ -46,9 +55,10 @@ export const PostFeed = () => {
         });
       } catch (error) {
         console.error('Error posting:', error);
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
         toast({
           title: language === 'bn' ? "ত্রুটি!" : "Error!",
-          description: language === 'bn' ? "পোস্ট প্রকাশে ব্যর্থ" : "Failed to publish post",
+          description: (language === 'bn' ? "পোস্ট প্রকাশে ব্যর্থ: " : "Failed to publish post: ") + errorMessage,
           variant: "destructive",
         });
       } finally {

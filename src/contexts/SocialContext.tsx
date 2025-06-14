@@ -75,13 +75,15 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     console.log('Setting up posts listener...');
     
+    // The previous query required a composite index in Firestore which is not available.
+    // By removing the 'where' clause and filtering on the client, we avoid this requirement.
     const postsQuery = query(
       collection(db, 'posts'), 
-      where('status', 'in', ['active', 'hidden']),
       orderBy('createdAt', 'desc')
     );
     
     const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
+      console.log(`Fetched ${snapshot.docs.length} total posts from Firestore.`);
       const postsData = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
@@ -91,8 +93,9 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           comments: data.comments || [],
           likedBy: data.likedBy || []
         } as Post;
-      });
-      console.log('Posts updated:', postsData);
+      }).filter(post => post.status === 'active' || post.status === 'hidden'); // Client-side filtering
+      
+      console.log(`Displaying ${postsData.length} posts after filtering.`);
       setPosts(postsData);
       setLoading(false);
     }, (error) => {
@@ -100,17 +103,23 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('Cleaning up posts listener.');
+      unsubscribe();
+    };
   }, []);
 
   const addPost = async (content: string) => {
-    if (!user) return;
+    if (!user) {
+      console.error("User not authenticated. Cannot add post.");
+      throw new Error("User not authenticated. Please log in to post.");
+    }
     
     try {
-      console.log('Adding post:', content);
+      console.log(`Adding post for user: ${user.id} (${user.name})`);
       const hashtags = content.match(/#\w+/g) || [];
       
-      await addDoc(collection(db, 'posts'), {
+      const newPostData = {
         author: user.name,
         authorId: user.id,
         avatar: user.name.charAt(0).toUpperCase(),
@@ -121,11 +130,15 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         shares: 0,
         hashtags,
         profilePicture: user.profilePicture || '',
-        status: 'active',
+        status: 'active' as const,
         createdAt: Timestamp.now()
-      });
+      };
+
+      console.log("Submitting new post data:", newPostData);
+      const docRef = await addDoc(collection(db, 'posts'), newPostData);
+      console.log("Post added successfully with ID:", docRef.id);
     } catch (error) {
-      console.error('Error adding post:', error);
+      console.error('Error adding post to Firestore:', error);
       throw error;
     }
   };
