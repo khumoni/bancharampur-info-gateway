@@ -1,6 +1,6 @@
 
 import { Timestamp } from 'firebase/firestore';
-import { Product as MarketplaceProduct } from './marketplace/types';
+import { Product as MarketplaceProduct } from '../marketplace/types';
 
 export interface Comment {
   id: string;
