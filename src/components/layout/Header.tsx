@@ -167,7 +167,7 @@ export const Header = () => {
           <div className="mr-4">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">বা</span>
+                <User className="h-5 w-5 text-white" />
               </div>
               <span className="hidden sm:inline-block font-bold text-lg bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
                 {t("siteName", language)}

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   GraduationCap, 
   Heart, 
-  Zap, 
-  CloudRain, 
+  Bolt, 
+  CloudSun, 
   ShoppingCart, 
   HardHat, 
   UserCog, 
@@ -106,7 +105,7 @@ const LocalInfo = () => {
     },
     {
       id: "utilities",
-      icon: Zap,
+      icon: Bolt,
       title: language === 'bn' ? "বিদ্যুৎ ও গ্যাস" : "Electricity and Gas",
       color: "from-yellow-500 to-orange-600",
       items: [
@@ -129,7 +128,7 @@ const LocalInfo = () => {
     },
     {
       id: "weather",
-      icon: CloudRain,
+      icon: CloudSun,
       title: language === 'bn' ? "আবহাওয়া ও দুর্যোগ" : "Weather and Disasters",
       color: "from-cyan-500 to-blue-600",
       items: [

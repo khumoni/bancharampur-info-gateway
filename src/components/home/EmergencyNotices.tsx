@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -69,7 +68,7 @@ export const EmergencyNotices = () => {
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-4 flex-1">
-              <div className={`p-3 rounded-lg ${getSeverityColor(currentNotice.severity)} text-white`}>
+              <div className={`p-3 rounded-lg ${getSeverityColor(currentNotice.severity)} text-white ${currentNotice.severity === 'high' ? 'animate-pulse' : ''}`}>
                 <IconComponent className="h-6 w-6" />
               </div>
               <div className="flex-1">
