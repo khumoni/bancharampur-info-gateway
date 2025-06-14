@@ -1,12 +1,11 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin, TrendingUp, Newspaper, Star } from "lucide-react";
-import { useApp } from "@/contexts/AppContext"; // Added useApp for language
-import { t } from "@/lib/translations"; // Added t for translations
+import { useApp } from "@/contexts/AppContext";
+import { t } from "@/lib/translations";
 
 export const LocalInfo = () => {
-  const { language } = useApp(); // Get current language
+  const { language } = useApp();
 
   const marketPrices = [
     { item: t("riceMiniket", language), price: language === 'bn' ? "৫৮-৬২" : "58-62", unit: t("kg", language), trend: "up" },
@@ -18,19 +17,19 @@ export const LocalInfo = () => {
   const localNews = [
     {
       title: t("newHealthComplexInaugurated", language),
-      time: t("hoursAgo", language, { count: 2 }),
+      time: t("twoHoursAgo", language), // Updated
       category: t("health", language),
       priority: "high"
     },
     {
       title: t("farmerTrainingProgramOrganized", language),
-      time: t("hoursAgo", language, { count: 5 }),
+      time: t("fiveHoursAgo", language), // Updated
       category: t("agriculture", language),
       priority: "medium"
     },
     {
       title: t("digitalCenterNewServiceLaunched", language),
-      time: t("daysAgo", language, { count: 1 }),
+      time: t("oneDayAgo", language), // Updated
       category: t("technology", language),
       priority: "low"
     }
@@ -208,4 +207,3 @@ export const LocalInfo = () => {
     </div>
   );
 };
-

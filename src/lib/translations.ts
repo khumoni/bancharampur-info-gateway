@@ -29,7 +29,34 @@ export const translations = {
     username: "ব্যবহারকারীর নাম",
     phone: "ফোন নম্বর",
     uploadPhoto: "ছবি আপলোড করুন",
-    comments: "মন্তব্য"
+    comments: "মন্তব্য",
+    // New keys for LocalInfo and MarketRates
+    riceMiniket: "মিনিকেট চাল",
+    onion: "পেঁয়াজ",
+    egg: "ডিম",
+    broilerChicken: "ব্রয়লার মুরগি",
+    kg: "কেজি",
+    dozen: "ডজন",
+    newHealthComplexInaugurated: "নতুন স্বাস্থ্য কমপ্লেক্স উদ্বোধন",
+    twoHoursAgo: "২ ঘন্টা আগে",
+    fiveHoursAgo: "৫ ঘন্টা আগে",
+    oneDayAgo: "১ দিন আগে",
+    health: "স্বাস্থ্য",
+    farmerTrainingProgramOrganized: "কৃষক প্রশিক্ষণ কর্মসূচী অনুষ্ঠিত",
+    agriculture: "কৃষি",
+    digitalCenterNewServiceLaunched: "ডিজিটাল সেন্টারে নতুন সেবা চালু",
+    technology: "প্রযুক্তি",
+    liberationDayEvent: "মুক্তিযুদ্ধ দিবস অনুষ্ঠান",
+    december16: "ডিসেম্বর ১৬",
+    upazilaParishad: "উপজেলা পরিষদ",
+    agriculturalFair: "কৃষি মেলা",
+    december20: "ডিসেম্বর ২০",
+    centralField: "কেন্দ্রীয় মাঠ",
+    todaysMarketPrice: "আজকের বাজার দর",
+    localNews: "স্থানীয় সংবাদ",
+    upcomingEvents: "আসন্ন ঘটনাবলী",
+    loading: "লোড হচ্ছে...",
+    noMarketRatesFound: "কোন বাজার দর পাওয়া যায়নি",
   },
   en: {
     siteName: "Bancharampur Digital Infogate",
@@ -60,10 +87,40 @@ export const translations = {
     username: "Username",
     phone: "Phone Number",
     uploadPhoto: "Upload Photo",
-    comments: "Comments"
+    comments: "Comments",
+    // New keys for LocalInfo and MarketRates
+    riceMiniket: "Miniket Rice",
+    onion: "Onion",
+    egg: "Egg",
+    broilerChicken: "Broiler Chicken",
+    kg: "kg",
+    dozen: "dozen",
+    newHealthComplexInaugurated: "New Health Complex Inaugurated",
+    twoHoursAgo: "2 hours ago",
+    fiveHoursAgo: "5 hours ago",
+    oneDayAgo: "1 day ago",
+    health: "Health",
+    farmerTrainingProgramOrganized: "Farmer Training Program Organized",
+    agriculture: "Agriculture",
+    digitalCenterNewServiceLaunched: "New Service Launched at Digital Center",
+    technology: "Technology",
+    liberationDayEvent: "Liberation Day Event",
+    december16: "December 16",
+    upazilaParishad: "Upazila Parishad",
+    agriculturalFair: "Agricultural Fair",
+    december20: "December 20",
+    centralField: "Central Field",
+    todaysMarketPrice: "Today's Market Price",
+    localNews: "Local News",
+    upcomingEvents: "Upcoming Events",
+    loading: "Loading...",
+    noMarketRatesFound: "No market rates found",
   }
 };
 
-export const t = (key: keyof typeof translations.bn, language: 'bn' | 'en' = 'bn') => {
+export type TranslationKey = keyof typeof translations.bn;
+
+export const t = (key: TranslationKey, language: 'bn' | 'en' = 'bn') => {
   return translations[language][key] || translations.bn[key];
 };
+
