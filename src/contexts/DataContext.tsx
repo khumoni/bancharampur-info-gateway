@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-interface Notice {
+export interface Notice {
   id: string;
   type: 'electricity' | 'weather' | 'gas' | 'emergency';
   title: string;
@@ -22,7 +22,7 @@ interface Notice {
   isActive: boolean;
 }
 
-interface MarketRate {
+export interface MarketRate {
   id: string;
   item: string;
   price: string;
@@ -30,7 +30,7 @@ interface MarketRate {
   lastUpdated: string;
 }
 
-interface LocalInfoItem {
+export interface LocalInfoItem {
   id: string;
   categoryId: string; // e.g., 'education', 'health'
   icon: string; // lucide-react icon name
