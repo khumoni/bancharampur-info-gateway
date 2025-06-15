@@ -1,3 +1,4 @@
+
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
@@ -6,6 +7,7 @@ import { getAnalytics } from 'firebase/analytics';
 import { getMessaging } from 'firebase/messaging';
 import { getDatabase } from 'firebase/database';
 
+// Updated Firebase configuration as provided
 const firebaseConfig = {
   apiKey: "AIzaSyCjykrq-gEwdzuCkbi-T0V0U5xrY9mH3P4",
   authDomain: "bancharampur-digital-infoguide.firebaseapp.com",
@@ -13,13 +15,13 @@ const firebaseConfig = {
   projectId: "bancharampur-digital-infoguide",
   storageBucket: "bancharampur-digital-infoguide.firebasestorage.app",
   messagingSenderId: "342061327201",
-  appId: "1:342061327201:web:4afbeb2e98d7527f0fdb20",
-  measurementId: "G-930S3VS499"
+  appId: "1:342061327201:web:f20dbc964b54760d0fdb20",
+  measurementId: "G-98H12Y6M5F"
 };
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const realtimeDb = getDatabase(app); // Realtime Database যোগ করলাম
+export const realtimeDb = getDatabase(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const analytics = getAnalytics(app);
