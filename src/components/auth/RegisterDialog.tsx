@@ -9,6 +9,7 @@ import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
 import { UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export const RegisterDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,7 +70,7 @@ export const RegisterDialog = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">
-              {language === 'bn' ? "নাম" : "Name"}
+              {language === 'bn' ? "ইউজারনেম" : "Username"}
             </Label>
             <Input
               id="name"
@@ -77,7 +78,7 @@ export const RegisterDialog = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder={language === 'bn' ? "আপনার নাম লিখুন" : "Enter your name"}
+              placeholder={language === 'bn' ? "আপনার ইউজারনেম লিখুন" : "Enter your username"}
             />
           </div>
           <div className="space-y-2">
@@ -123,6 +124,17 @@ export const RegisterDialog = () => {
             {t("register", language)}
           </Button>
         </form>
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              {language === 'bn' ? 'অথবা' : 'Or'}
+            </span>
+          </div>
+        </div>
+        <GoogleSignInButton onSuccess={() => setIsOpen(false)} />
       </DialogContent>
     </Dialog>
   );

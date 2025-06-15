@@ -4,7 +4,9 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User as FirebaseUser
+  User as FirebaseUser,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth, db, storage } from '@/lib/firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
@@ -31,6 +33,7 @@ interface AuthContextType {
   isLoading: boolean; // For login, register, upload operations
   uploadProfilePicture: (file: File) => Promise<boolean>;
   updateUserProfile: (data: Partial<Pick<User, 'name' | 'phone'>>) => Promise<boolean>;
+  googleSignIn: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -142,6 +145,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('User logged out');
   };
 
+  const googleSignIn = async (): Promise<boolean> => {
+    try {
+      setIsLoadingLocally(true);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        const isAdmin = user.email === 'mohammdaytullah@gmail.com';
+        const newUser: Omit<User, 'id'> = {
+          name: user.displayName || 'Anonymous',
+          email: user.email || '',
+          profilePicture: user.photoURL || '',
+          isVerified: true, // Google accounts are considered verified
+          isAdmin,
+          role: isAdmin ? 'admin' : 'user',
+          createdAt: new Date().toISOString(),
+        };
+        await setDoc(userDocRef, newUser);
+      }
+      
+      console.log('User signed in with Google:', user.email);
+      return true;
+    } catch (error) {
+      console.error('Google Sign-In error:', error);
+      return false;
+    } finally {
+      setIsLoadingLocally(false);
+    }
+  };
+
   const updateUserProfile = async (data: Partial<Pick<User, 'name' | 'phone'>>): Promise<boolean> => {
     if (!user) return false;
     try {
@@ -198,6 +235,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isLoading: isLoadingLocally, // For user-initiated actions like login, register, upload
       uploadProfilePicture,
       updateUserProfile,
+      googleSignIn,
     }}>
       {children}
     </AuthContext.Provider>

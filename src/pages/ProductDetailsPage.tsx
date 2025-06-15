@@ -1,4 +1,3 @@
-
 import { useParams, Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
@@ -20,6 +19,7 @@ import {
 import { Product } from "@/lib/marketplace/types";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const getConditionLabel = (condition: string, language: string) => {
   const labels: { [key: string]: string } = {
@@ -85,7 +85,7 @@ const ProductDetailsPage = () => {
         <Header />
         <main className="flex-grow flex items-center justify-center text-center">
           <div>
-            <h1 className="text-4xl font-bold mb-4">{language === 'bn' ? 'পণ্য পাওয়া যায়নি' : 'Product Not Found'}</h1>
+            <h1 className="text-4xl font-bold mb-4">{language === 'bn' ? 'পণ্য পাওয়া যায়নি' : 'Product Not Found'}</h1>
             <p className="text-gray-600 dark:text-gray-400 mb-8">{language === 'bn' ? 'দুঃখিত, আপনি যে পণ্যটি খুঁজছেন তা আমরা খুঁজে পাইনি।' : 'Sorry, we couldn\'t find the product you are looking for.'}</p>
             <Button asChild>
               <Link to="/marketplace">
@@ -175,7 +175,16 @@ const ProductDetailsPage = () => {
                        <div>
                         <div className="flex items-center space-x-1 font-semibold">
                           <span>{product.seller.name}</span>
-                          {product.seller.verified && <Shield className="h-4 w-4 text-green-500" title="Verified Seller" />}
+                          {product.seller.verified && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Shield className="h-4 w-4 text-green-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{language === 'bn' ? 'যাচাইকৃত বিক্রেতা' : 'Verified Seller'}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
                         </div>
                         <div className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
