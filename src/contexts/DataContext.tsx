@@ -229,6 +229,107 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Demo/Seed data for new categories
+  const demoLocalInfoItems = [
+    {
+      id: "job_1",
+      categoryId: "jobs",
+      icon: "Briefcase",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      title: "সহকারী শিক্ষক",
+      company: "বাঞ্ছারামপুর রেসিডেন্ট স্কুল",
+      location: "বাঞ্ছারামপুর পৌরসভা",
+      deadline: "2025-07-01"
+    },
+    {
+      id: "sch_1",
+      categoryId: "scholarship",
+      icon: "Award",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      title: "উচ্চমাধ্যমিক বৃত্তি",
+      provider: "সরকারি শিক্ষা বোর্ড",
+      eligibility: "SSC পাস",
+      deadline: "2025-08-15"
+    },
+    {
+      id: "leg_1",
+      categoryId: "legal",
+      icon: "Gavel",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      serviceName: "ফ্রি লিগ্যাল কনসালটেশন",
+      provider: "ডিস্ট্রিক্ট লিগ্যাল এইড অফিস",
+      address: "জজ কোর্ট ভবন, বাঞ্ছারামপুর",
+      contact: "01799999999"
+    },
+    {
+      id: "agr_1",
+      categoryId: "agriculture",
+      icon: "Leaf",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      serviceType: "কৃষি পরামর্শ",
+      details: "আধুনিক ধান চাষ্র পরামর্শ",
+      contact: "01888888888"
+    },
+    {
+      id: "hsg_1",
+      categoryId: "housing",
+      icon: "Landmark",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      projectName: "বিআরআরডিবি আবাসন প্রকল্প",
+      details: "সাশ্রয়ী মূল্যে ৮০০ ফ্ল্যাট",
+      contact: "01977777777"
+    },
+    {
+      id: "dig_1",
+      categoryId: "digital_services",
+      icon: "Laptop",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      centerName: "বাঞ্ছারামপুর ডিজিটাল সেন্টার",
+      services: "জন্ম নিবন্ধন, নাগরিক সনদ",
+      address: "উপজেলা পরিষদ ভবন",
+      contact: "01733333333"
+    },
+    {
+      id: "cul_1",
+      categoryId: "culture",
+      icon: "Theater",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      eventName: "মুক্তিযুদ্ধ নাট্যোৎসব",
+      date: "2025-12-16",
+      location: "তালশহর কমিউনিটি হল",
+      details: "স্থানীয় নাট্যদল অংশগ্রহণ করবে"
+    },
+    {
+      id: "emg_1",
+      categoryId: "emergency_news",
+      icon: "Siren",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      title: "বন্যা পরিস্থিতির আপডেট",
+      details: "মেঘনা নদীর পানি বিপৎসীমার উপর দিয়ে প্রবাহিত হচ্ছে। সতর্ক থাকুন।",
+      date: "2025-06-20"
+    },
+    {
+      id: "ph_1",
+      categoryId: "private_health",
+      icon: "Stethoscope",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      name: "আবির ক্লিনিক",
+      type: "clinic",
+      specialty: "জেনারেল মেডিসিন",
+      address: "চরদাউদকান্দি, বাঞ্ছারামপুর",
+      contact: "01744444444"
+    }
+  ];
+
   useEffect(() => {
     console.log('Setting up Firestore listeners...');
     
@@ -295,6 +396,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })) as LocalInfoItem[];
       console.log('Local info items updated:', itemsData);
       setLocalInfoItems(itemsData);
+      // Demo: যদি localinfoitems ফাঁকা থাকে তাহলে ডেমো ডেটা দেখাও (admin/ডেমো)
+      if (localInfoItems.length === 0) {
+        setLocalInfoItems(demoLocalInfoItems as any);
+      }
       setLoading(false); // Set loading to false after all initial data is fetched
     }, (error) => {
       console.error('Error listening to local info items:', error);
