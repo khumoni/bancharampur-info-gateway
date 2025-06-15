@@ -61,6 +61,15 @@ export default function AdminPage() {
   // Collapsible debug panel state
   const [showDebug, setShowDebug] = useState(false);
 
+  // Handler to open Local Info tab (first category shown by default)
+  const handleLocalInfoClick = () => {
+    setLocalInfoTab(localInfoCategories[0]?.id || null);
+    const infoSection = document.getElementById("local-info-section");
+    if (infoSection) {
+      infoSection.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
   const { user, loading } = useAuth();
 
   return (
@@ -134,11 +143,12 @@ export default function AdminPage() {
         todaysPosts={todaysPosts}
         emergencyNotices={emergencyNotices}
         pendingPosts={pendingPosts}
+        onLocalInfoClick={handleLocalInfoClick}
       />
       <Separator className="my-4" />
 
       {/* Local Information Management Section */}
-      <section>
+      <section id="local-info-section">
         <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4">
           {language === "bn" ? "স্থানীয় তথ্য ব্যবস্থাপনা" : "Local Information Management"}
         </h2>
