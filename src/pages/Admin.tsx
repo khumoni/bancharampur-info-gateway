@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,6 +63,8 @@ const mainTabs = [
 ];
 
 const Admin = () => {
+  // Destructure 'register' from 'useAuth' (previously only 'user' was destructured)
+  const { user, register } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [localInfoTab, setLocalInfoTab] = useState<string | null>(null);
   const [localAdminForm, setLocalAdminForm] = useState({
@@ -74,7 +76,7 @@ const Admin = () => {
   });
   const [isAddingLocalAdmin, setIsAddingLocalAdmin] = useState(false);
   const [localAdmins, setLocalAdmins] = useState<any[]>([]);
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const { notices, addNotice } = useData();
   const { language } = useApp();
   const { toast } = useToast();
@@ -86,7 +88,7 @@ const Admin = () => {
   });
 
   // Sidebar collapsed, now using a card-grid nav for main categories
-  if (!user || user.role !== 'admin') {
+  if (!authUser || authUser.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-96">
