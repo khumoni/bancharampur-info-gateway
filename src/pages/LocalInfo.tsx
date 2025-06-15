@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,16 @@ import {
   Megaphone,
   Bus,
   Info,
-  icons
+  icons,
+  Award, // Scholarship
+  Gavel, // Legal Aid
+  Leaf,  // Agriculture
+  Landmark, // Housing
+  Laptop, // Digital Services
+  Theater, // Culture
+  Stethoscope, // Private Health
+  Siren, // Emergency News
+  Briefcase, // Jobs
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -66,6 +76,27 @@ const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
       return { title: item.projectName, description: `${lang === 'bn' ? 'সংস্থা' : 'Agency'}: ${item.implementingAgency}, ${lang === 'bn' ? 'বাজেট' : 'Budget'}: ${item.budget}, ${lang === 'bn' ? 'অবস্থা' : 'Status'}: ${typeTranslations[item.status]}` };
     case 'announcements':
       return { title: item.title, description: `${item.details} (${item.date})` };
+    case 'scholarship':
+      return { title: item.title, description: `${lang === 'bn' ? 'প্রদানকারী' : 'Provider'}: ${item.provider} | ${lang === 'bn' ? 'যোগ্যতা' : 'Eligibility'}: ${item.eligibility} | ${lang === 'bn' ? 'শেষ তারিখ' : 'Deadline'}: ${item.deadline}` };
+    case 'legal':
+      return { title: item.serviceName, description: `${lang === 'bn' ? 'প্রদানকারী' : 'Provider'}: ${item.provider} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
+    case 'agriculture':
+      return { title: item.serviceType, description: `${item.details} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
+    case 'housing':
+      return { title: item.projectName, description: `${item.details} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
+    case 'digital_services':
+      return { title: item.centerName, description: `${lang === 'bn' ? 'সেবা সমূহ' : 'Services'}: ${item.services} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
+    case 'culture':
+      return { title: item.eventName, description: `${lang === 'bn' ? 'স্থান' : 'Location'}: ${item.location} | ${lang === 'bn' ? 'তারিখ' : 'Date'}: ${item.date} | ${item.details}` };
+    case 'private_health':
+        const typeText = item.type === 'clinic' 
+            ? (lang === 'bn' ? 'বেসরকারি ক্লিনিক' : 'Private Clinic') 
+            : (lang === 'bn' ? 'ডায়াগনস্টিক সেন্টার' : 'Diagnostic Center');
+        return { title: item.name, description: `${typeText} | ${lang === 'bn' ? 'বিশেষত্ব' : 'Specialty'}: ${item.specialty} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
+    case 'emergency_news':
+      return { title: item.title, description: `${item.details} (${item.date})` };
+    case 'jobs':
+      return { title: item.title, description: `${lang === 'bn' ? 'প্রতিষ্ঠান' : 'Company'}: ${item.company} | ${lang === 'bn' ? 'স্থান' : 'Location'}: ${item.location} | ${lang === 'bn' ? 'শেষ তারিখ' : 'Deadline'}: ${item.deadline}` };
     default:
       const exhaustiveCheck: never = item;
       return { title: 'Unknown Item', description: 'No details available.' };
@@ -86,14 +117,29 @@ const LocalInfo = () => {
     : `${location.upazila}, ${location.district}`;
 
   const categories = useMemo(() => [
+    // Primary Services
     { id: 'education', label: language === 'bn' ? 'শিক্ষা' : 'Education', icon: GraduationCap },
     { id: 'health', label: language === 'bn' ? 'স্বাস্থ্য' : 'Health', icon: Heart },
-    { id: 'transport', label: language === 'bn' ? 'যাতায়াত' : 'Transport', icon: Bus },
+    { id: 'agriculture', label: language === 'bn' ? 'কৃষি' : 'Agriculture', icon: Leaf },
+    { id: 'private_health', label: language === 'bn' ? 'বেসরকারি স্বাস্থ্যসেবা' : 'Private Healthcare', icon: Stethoscope },
+    // Support Services
+    { id: 'scholarship', label: language === 'bn' ? 'বৃত্তি ও প্রশিক্ষণ' : 'Scholarships & Training', icon: Award },
+    { id: 'legal', label: language === 'bn' ? 'আইনি সহায়তা' : 'Legal Aid', icon: Gavel },
+    { id: 'jobs', label: language === 'bn' ? 'চাকরি' : 'Jobs', icon: Briefcase },
+    // Administrative
     { id: 'admin', label: language === 'bn' ? 'প্রশাসন' : 'Admin', icon: UserCog },
+    { id: 'digital_services', label: language === 'bn' ? 'ডিজিটাল সেবা' : 'Digital Services', icon: Laptop },
+    { id: 'housing', label: language === 'bn' ? 'আবাসন ও জমি' : 'Housing & Land', icon: Landmark },
+    // Infrastructure
+    { id: 'transport', label: language === 'bn' ? 'যাতায়াত' : 'Transport', icon: Bus },
     { id: 'utilities', label: language === 'bn' ? 'सेवा' : 'Utilities', icon: Bolt },
-    { id: 'weather', label: language === 'bn' ? 'আবহাওয়া' : 'Weather', icon: CloudSun },
     { id: 'projects', label: language === 'bn' ? 'প্রকল্প' : 'Projects', icon: HardHat },
+    // Emergency & Info
+    { id: 'weather', label: language === 'bn' ? 'আবহাওয়া' : 'Weather', icon: CloudSun },
     { id: 'announcements', label: language === 'bn' ? 'ঘোষণা' : 'Announcements', icon: Megaphone },
+    { id: 'emergency_news', label: language === 'bn' ? 'জরুরি সংবাদ' : 'Emergency News', icon: Siren },
+    // Social & Culture
+    { id: 'culture', label: language === 'bn' ? 'সংস্কৃতি ও বিনোদন' : 'Culture & Entertainment', icon: Theater },
   ], [language]);
 
   const renderIcon = (name: string) => {

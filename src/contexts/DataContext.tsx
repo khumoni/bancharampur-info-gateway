@@ -103,7 +103,95 @@ export interface AnnouncementInfo extends BaseInfoItem {
   date: string;
 }
 
-export type LocalInfoItem = EducationInfo | HealthInfo | TransportInfo | AdministrativeInfo | UtilitiesInfo | WeatherInfo | ProjectInfo | AnnouncementInfo;
+// Newly Added Info Types
+export interface ScholarshipInfo extends BaseInfoItem {
+  categoryId: 'scholarship';
+  title: string;
+  provider: string;
+  eligibility: string;
+  deadline: string;
+}
+
+export interface LegalAidInfo extends BaseInfoItem {
+  categoryId: 'legal';
+  serviceName: string;
+  provider: string;
+  address: string;
+  contact: string;
+}
+
+export interface AgricultureInfo extends BaseInfoItem {
+  categoryId: 'agriculture';
+  serviceType: string;
+  details: string;
+  contact: string;
+}
+
+export interface HousingInfo extends BaseInfoItem {
+  categoryId: 'housing';
+  projectName: string;
+  details: string;
+  contact: string;
+}
+
+export interface DigitalServiceInfo extends BaseInfoItem {
+  categoryId: 'digital_services';
+  centerName: string;
+  services: string;
+  address: string;
+  contact: string;
+}
+
+export interface CultureInfo extends BaseInfoItem {
+  categoryId: 'culture';
+  eventName: string;
+  date: string;
+  location: string;
+  details: string;
+}
+
+export interface PrivateHealthInfo extends BaseInfoItem {
+  categoryId: 'private_health';
+  name: string;
+  type: 'clinic' | 'diagnostic';
+  specialty: string;
+  address: string;
+  contact: string;
+}
+
+export interface EmergencyNewsInfo extends BaseInfoItem {
+  categoryId: 'emergency_news';
+  title: string;
+  details: string;
+  date: string;
+}
+
+export interface JobInfo extends BaseInfoItem {
+  categoryId: 'jobs';
+  title: string;
+  company: string;
+  location: string;
+  deadline: string;
+}
+
+export type LocalInfoItem = 
+  | EducationInfo 
+  | HealthInfo 
+  | TransportInfo 
+  | AdministrativeInfo 
+  | UtilitiesInfo 
+  | WeatherInfo 
+  | ProjectInfo 
+  | AnnouncementInfo
+  | ScholarshipInfo 
+  | LegalAidInfo 
+  | AgricultureInfo 
+  | HousingInfo 
+  | DigitalServiceInfo 
+  | CultureInfo 
+  | PrivateHealthInfo 
+  | EmergencyNewsInfo 
+  | JobInfo;
 
 
 interface DataContextType {
