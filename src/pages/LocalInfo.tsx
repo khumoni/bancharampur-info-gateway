@@ -87,7 +87,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("administration", language)}</CardTitle>
+            <CardTitle>{t("admin", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -189,7 +189,7 @@ export default function LocalInfo() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("legalAid", language)}</CardTitle>
+                  <CardTitle>{t("legal", language)}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[200px] w-full">
@@ -240,7 +240,7 @@ export default function LocalInfo() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("digitalServices", language)}</CardTitle>
+                  <CardTitle>{t("digital_services", language)}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[200px] w-full">
@@ -274,7 +274,7 @@ export default function LocalInfo() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("privateHealth", language)}</CardTitle>
+                  <CardTitle>{t("private_health", language)}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[200px] w-full">
@@ -291,7 +291,7 @@ export default function LocalInfo() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("emergencyNews", language)}</CardTitle>
+                  <CardTitle>{t("emergency_news", language)}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[200px] w-full">
