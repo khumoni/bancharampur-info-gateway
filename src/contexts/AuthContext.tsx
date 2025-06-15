@@ -14,6 +14,7 @@ import {
   signInWithCredential,
   PhoneAuthCredential,
   signInWithPhoneNumber,
+  ConfirmationResult,
 } from 'firebase/auth';
 import { auth, db, storage } from '@/lib/firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
@@ -42,8 +43,8 @@ interface AuthContextType {
   updateUserProfile: (data: Partial<Pick<User, 'name' | 'phone'>>) => Promise<boolean>;
   googleSignIn: () => Promise<boolean>;
   sendPasswordReset: (email: string) => Promise<boolean>;
-  verifyPhoneNumber: (phoneNumber: string, appVerifier: RecaptchaVerifier) => Promise<string | null>;
-  confirmOtp: (verificationId: string, otp: string, userData: Omit<User, 'id'>) => Promise<boolean>;
+  verifyPhoneNumber: (phoneNumber: string, appVerifier: RecaptchaVerifier) => Promise<ConfirmationResult | null>;
+  confirmOtp: (confirmationResult: ConfirmationResult, otp: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -268,11 +269,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const verifyPhoneNumber = async (phoneNumber: string, appVerifier: RecaptchaVerifier): Promise<string | null> => {
+  const verifyPhoneNumber = async (phoneNumber: string, appVerifier: RecaptchaVerifier): Promise<ConfirmationResult | null> => {
     try {
       setIsLoadingLocally(true);
-      const verificationId = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      return verificationId;
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      return confirmationResult;
     } catch (error) {
       console.error('Phone verification sending error:', error);
       return null;
@@ -281,16 +282,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const confirmOtp = async (verificationId: string, otp: string, userData: Omit<User, 'id'>): Promise<boolean> => {
+  const confirmOtp = async (confirmationResult: ConfirmationResult, otp: string): Promise<boolean> => {
     try {
       setIsLoadingLocally(true);
-      const credential = PhoneAuthProvider.credential(verificationId, otp);
-      await signInWithCredential(auth, credential);
-      
-      const userDocRef = doc(db, 'users', auth.currentUser?.uid || '');
-      await updateDoc(userDocRef, userData);
-
-      console.log('User verified with OTP:', userData.email);
+      // This will sign the user in with phone, we can grab the credential, but we don't need it.
+      // We just need to know it was successful.
+      await confirmationResult.confirm(otp);
+      // The user is now signed in with their phone. We sign them out immediately
+      // so the registration flow can proceed to create a new account with email/password.
+      await signOut(auth);
+      console.log('Phone number verified successfully.');
       return true;
     } catch (error) {
       console.error('OTP confirmation error:', error);
