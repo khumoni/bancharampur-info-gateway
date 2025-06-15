@@ -175,6 +175,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       specialty: "জেনারেল মেডিসিন",
       address: "চরদাউদকান্দি, বাঞ্ছারামপুর",
       contact: "01744444444"
+    },
+    // Cloud Function demo item(s)
+    {
+      id: "func_addComment",
+      categoryId: "cloud_functions",
+      icon: "Code2",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      functionName: "addComment",
+      description: "Adds a comment to a post. Only callable from app clients with App Check enforced.",
+      type: "callable",
+      enforceAppCheck: true,
+      status: "active",
+      lastUpdated: "2024-06-15"
+    },
+    {
+      id: "func_notifyOnLike",
+      categoryId: "cloud_functions",
+      icon: "Code2",
+      district: "Bancharampur",
+      upazila: "Bancharampur",
+      functionName: "notifyOnLike",
+      description: "Triggers notification to post owner when a post is liked.",
+      type: "trigger",
+      enforceAppCheck: false,
+      status: "active",
+      lastUpdated: "2024-06-10"
     }
   ];
 

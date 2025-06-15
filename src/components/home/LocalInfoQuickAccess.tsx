@@ -1,9 +1,8 @@
-
 import React from "react";
 import {
   Book, Heart, Bus, Cloud, Hammer, Leaf, Zap, Building2, 
   Megaphone, BadgePercent, Gavel, Home, Monitor, Palette, 
-  Stethoscope, Newspaper, Briefcase
+  Stethoscope, Newspaper, Briefcase, Code2
 } from "lucide-react";
 
 const categoryMeta: Record<
@@ -30,7 +29,8 @@ const categoryMeta: Record<
   digital_services: { icon: Monitor,      color: "from-sky-600 to-sky-400",        shadow: "shadow-sky-400/30" },
   culture:          { icon: Palette,      color: "from-pink-400 to-red-400",       shadow: "shadow-pink-300/30" },
   emergency_news:   { icon: Newspaper,    color: "from-red-500 to-red-700",        shadow: "shadow-red-400/30" },
-  jobs:             { icon: Briefcase,    color: "from-stone-400 to-emerald-600",  shadow: "shadow-stone-300/20" }
+  jobs:             { icon: Briefcase,    color: "from-stone-400 to-emerald-600",  shadow: "shadow-stone-300/20" },
+  cloud_functions:  { icon: Code2,        color: "from-purple-600 to-blue-400",    shadow: "shadow-purple-400/30" }, // NEW
 };
 
 export interface LocalInfoCategory {

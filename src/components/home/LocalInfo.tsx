@@ -26,7 +26,8 @@ const categoryList = [
   { id: "culture", i18n: "culture" },
   { id: "private_health", i18n: "privateHealth" },
   { id: "emergency_news", i18n: "emergencyNews" },
-  { id: "jobs", i18n: "jobs" }
+  { id: "jobs", i18n: "jobs" },
+  { id: "cloud_functions", i18n: "cloudFunctions" } // << NEW CATEGORY
 ] as const;
 
 type CategoryId = typeof categoryList[number]["id"];

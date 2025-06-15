@@ -1,4 +1,3 @@
-
 export interface BaseInfoItem {
   id: string;
   categoryId: string;
@@ -141,6 +140,16 @@ export interface JobInfo extends BaseInfoItem {
   deadline: string;
 }
 
+export interface CloudFunctionInfo extends BaseInfoItem {
+  categoryId: "cloud_functions";
+  functionName: string;
+  description: string;
+  type: "callable" | "http" | "trigger";
+  enforceAppCheck: boolean;
+  status: "active" | "inactive" | "error";
+  lastUpdated: string;
+}
+
 export type LocalInfoItem = 
   | EducationInfo 
   | HealthInfo 
@@ -158,4 +167,5 @@ export type LocalInfoItem =
   | CultureInfo 
   | PrivateHealthInfo 
   | EmergencyNewsInfo 
-  | JobInfo;
+  | JobInfo
+  | CloudFunctionInfo;
