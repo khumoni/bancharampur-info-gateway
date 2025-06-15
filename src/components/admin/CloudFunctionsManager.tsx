@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import type { CloudFunctionInfo } from "@/types/localInfo";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -29,6 +29,7 @@ function platformLabel(support?: Array<"ios" | "android" | "web">) {
 
 export const CloudFunctionsManager: React.FC<Props> = ({ language }) => {
   const { localInfoItems } = useLocalInfo();
+  const [showExpressExample, setShowExpressExample] = useState(false);
   const cloudFunctions = localInfoItems.filter(
     i => i.categoryId === "cloud_functions"
   ) as CloudFunctionInfo[];
@@ -116,6 +117,127 @@ export const CloudFunctionsManager: React.FC<Props> = ({ language }) => {
             )}
           </div>
         </CardContent>
+      </Card>
+
+      {/* App Check Express.js Example -- documentation aid ONLY */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-base md:text-lg">
+              {language === "bn"
+                ? "Express.js এ App Check নিরাপত্তা উদাহরণ"
+                : "App Check Security Example for Express.js"}
+            </CardTitle>
+            <button
+              type="button"
+              className="text-xs px-3 py-0.5 bg-primary/10 rounded border border-primary/30 hover:bg-primary/20 transition"
+              onClick={() => setShowExpressExample(val => !val)}
+            >
+              {showExpressExample
+                ? language === "bn" ? "লুকান" : "Hide"
+                : language === "bn" ? "দেখান" : "Show"}
+            </button>
+          </div>
+        </CardHeader>
+        {showExpressExample && (
+          <CardContent>
+            <div className="bg-neutral-900 text-green-200 rounded p-3 font-mono text-xs overflow-auto select-all relative">
+              <pre>
+{`import express from "express";
+import { initializeApp } from "firebase-admin/app";
+import { getAppCheck } from "firebase-admin/app-check";
+
+const expressApp = express();
+const firebaseApp = initializeApp();
+
+const appCheckVerification = async (req, res, next) => {
+  const appCheckToken = req.header("X-Firebase-AppCheck");
+
+  if (!appCheckToken) {
+    res.status(401);
+    return next("Unauthorized");
+  }
+
+  try {
+    const appCheckClaims = await getAppCheck().verifyToken(appCheckToken, { consume: true });
+
+    if (appCheckClaims.alreadyConsumed) {
+      res.status(401);
+      return next("Unauthorized");
+    }
+
+    // If verifyToken() succeeds and alreadyConsumed is not set, okay to continue.
+    return next();
+  } catch (err) {
+    res.status(401);
+    return next("Unauthorized");
+  }
+};
+
+expressApp.get("/yourApiEndpoint", [appCheckVerification], (req, res) => {
+  // Handle request
+});`}
+              </pre>
+              <button
+                className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/40 hover:bg-black/70 text-white text-xs"
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+`import express from "express";
+import { initializeApp } from "firebase-admin/app";
+import { getAppCheck } from "firebase-admin/app-check";
+
+const expressApp = express();
+const firebaseApp = initializeApp();
+
+const appCheckVerification = async (req, res, next) => {
+  const appCheckToken = req.header("X-Firebase-AppCheck");
+
+  if (!appCheckToken) {
+    res.status(401);
+    return next("Unauthorized");
+  }
+
+  try {
+    const appCheckClaims = await getAppCheck().verifyToken(appCheckToken, { consume: true });
+
+    if (appCheckClaims.alreadyConsumed) {
+      res.status(401);
+      return next("Unauthorized");
+    }
+
+    // If verifyToken() succeeds and alreadyConsumed is not set, okay to continue.
+    return next();
+  } catch (err) {
+    res.status(401);
+    return next("Unauthorized");
+  }
+};
+
+expressApp.get("/yourApiEndpoint", [appCheckVerification], (req, res) => {
+  // Handle request
+});`
+                  );
+                }}
+              >
+                {language === "bn" ? "কপি করুন" : "Copy"}
+              </button>
+            </div>
+            <div className="text-sm mt-3 text-gray-700">
+              {language === "bn" ? (
+                <>
+                  <b>নোট:</b> এই middleware <b>Firebase App Check</b> এর limited-use (consumeable) token ব্যবহার করলে token valido থাকা এবং পূর্বে ব্যবহৃত হয়নি তা যাচাই করে। <b>alreadyConsumed</b> true হলে token আগেই ব্যবহার হয়েছে অর্থাৎ প্রত্যাখ্যাত হবে। <br />
+                  <b>শুধুমাত্র আধুনিক ক্লায়েন্ট SDK ও production নিরাপত্তা নিশ্চিতকরণের জন্য এটি অত্যাবশ্যক।</b>
+                </>
+              ) : (
+                <>
+                  <b>Note:</b> This middleware verifies the <b>Firebase App Check</b> limited-use (consumable) token, ensuring it is valid and <b>not reused</b>. If <b>alreadyConsumed</b> is true, the token has been previously used and is rejected. <br />
+                  <b>This ensures strong protection against replay attacks for production App Check-enabled clients.</b>
+                </>
+              )}
+            </div>
+          </CardContent>
+        )}
       </Card>
     </div>
   );
