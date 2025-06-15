@@ -64,6 +64,8 @@ const MobileNav = ({
   const { language, setLanguage } = useApp();
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
+  const { location } = useLocation();
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
 
   const closeMenu = () => setMobileMenuOpen(false);
 
@@ -100,6 +102,21 @@ const MobileNav = ({
       </nav>
 
       <DropdownMenuSeparator />
+
+      <div className="space-y-3">
+        {/* লোকেশন: সাইড মেনুতে view/change area button */}
+        <button
+          className="flex items-center gap-2 px-3 py-2 text-base font-medium bg-gradient-to-r from-blue-500 via-emerald-500 to-green-400 text-white rounded-lg shadow hover:scale-105 transition"
+          onClick={() => setLocationDialogOpen(true)}
+        >
+          <span className="truncate">
+            <MapPin className="inline w-5 h-5 mr-1" />
+            {location.district}, {location.upazila}
+          </span>
+        </button>
+        {/* লোকেশন ডায়লগ মোবাইল/সাইডবার থেকে */}
+        <LocationSelectorDialog isOpen={locationDialogOpen} onOpenChange={setLocationDialogOpen} />
+      </div>
 
       <div className="space-y-1">
         <p className="text-xs font-semibold uppercase text-muted-foreground px-3 pt-2">{t("settings", language)}</p>
@@ -295,25 +312,10 @@ export const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center ml-auto">
-            {/* Location button */}
-            <div className="mr-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 text-white shadow-md font-semibold hover:scale-105 transition"
-                onClick={() => setLocationDialogOpen(true)}
-                aria-label="Change Location"
-              >
-                <MapPin className="h-4 w-4 text-white" />
-                <span>
-                  {location.district}, {location.upazila}
-                </span>
-              </Button>
-            </div>
-            {/* Language Toggle - Visible on md and up */}
-            {/* This is now handled within MobileNav for mobile, and can be removed from here if only in hamburger */}
-            {/* Keeping it for desktop for now as per previous design, but can be moved to user dropdown */}
-            <div className="hidden md:block mr-2"> {/* Added margin for spacing */}
+            {/* ---- Remove the location button from header ---- */}
+            {/* (location button code deleted) */}
+            {/* ---- Keep language/theme buttons as before ---- */}
+            <div className="hidden md:block mr-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
@@ -331,10 +333,7 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-            {/* Theme Toggle - Visible on md and up */}
-            {/* Similar to Language toggle, handled in MobileNav, keeping for desktop */}
-            <div className="hidden md:block mr-2"> {/* Added margin for spacing */}
+            <div className="hidden md:block mr-2">
               <Button
                 variant="ghost"
                 size="icon" // Made it icon only for consistency
@@ -346,11 +345,6 @@ export const Header = () => {
                 <span className="sr-only">Toggle theme</span>
               </Button>
             </div>
-            
-            {/* User Actions (Profile Dropdown / Login/Register) - Visible on md and up */}
-            {/* This is now part of the icon navigation for profile, and login/register are dialogs triggered by profile icon if not logged in */}
-            {/* The explicit Login/Register buttons for desktop are removed as profile icon handles this */}
-            {/* The User Dropdown Menu for desktop is still useful */}
              <div className="hidden md:block">
               {user ? (
                 <DropdownMenu>
@@ -406,15 +400,13 @@ export const Header = () => {
               )}
             </div>
 
-
-            {/* Mobile menu button - Visible on screens smaller than md */}
-            <div className="md:hidden ml-2"> {/* Added margin for spacing */}
+            <div className="md:hidden ml-2"> {/* Mobile menu button */}
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon" // Made it icon only
-                    className="h-9 w-9" // Standardized size
+                    size="icon"
+                    className="h-9 w-9"
                   >
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">Toggle Menu</span>
@@ -424,7 +416,7 @@ export const Header = () => {
                   <MobileNav 
                     setMobileMenuOpen={setMobileMenuOpen} 
                     openProfileDialog={() => setProfileOpen(true)}
-                    openCreatePostDialog={() => { setCreatePostOpen(true); /* setMobileMenuOpen(false); // Already handled by closeMenu in MobileNav */ }} // Pass handler
+                    openCreatePostDialog={() => { setCreatePostOpen(true);}}
                   />
                 </SheetContent>
               </Sheet>
@@ -433,9 +425,7 @@ export const Header = () => {
         </div>
       </header>
 
-      {/* Profile Dialog - managed at Header level */}
       <ProfileDialog isOpen={profileOpen} onOpenChange={setProfileOpen} />
-      {/* Create Post Dialog - managed at Header level */}
       <CreatePostDialog isOpen={createPostOpen} onOpenChange={setCreatePostOpen} />
 
       {/* FAB for Create Post - Mobile Only */}
