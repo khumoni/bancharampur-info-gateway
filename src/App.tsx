@@ -9,6 +9,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { SocialProvider } from "@/contexts/SocialContext";
+import { LocationProvider } from "@/contexts/LocationContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Marketplace from "./pages/Marketplace";
@@ -23,25 +24,27 @@ const App = () => (
     <ThemeProvider defaultTheme="system" storageKey="lovable-ui-theme">
       <AppProvider>
         <AuthProvider>
-          <DataProvider>
-            <SocialProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="/marketplace" element={<Marketplace />} />
-                    <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
-                    <Route path="/local-info" element={<LocalInfo />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </TooltipProvider>
-            </SocialProvider>
-          </DataProvider>
+          <LocationProvider>
+            <DataProvider>
+              <SocialProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/marketplace" element={<Marketplace />} />
+                      <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
+                      <Route path="/local-info" element={<LocalInfo />} />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </SocialProvider>
+            </DataProvider>
+          </LocationProvider>
         </AuthProvider>
       </AppProvider>
     </ThemeProvider>
