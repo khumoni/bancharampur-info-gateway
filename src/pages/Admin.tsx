@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { PostManager } from "@/components/admin/PostManager";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
-import { PlusCircle, BarChart, AlertTriangle, FileText, Users, Shield, Info, GraduationCap, Heart, Bolt, CloudSun, HardHat, UserCog, Megaphone, Bus } from "lucide-react";
+import { PlusCircle, BarChart, AlertTriangle, FileText, Users, Shield, Info, GraduationCap, Heart, Bolt, CloudSun, HardHat, UserCog, Megaphone, Bus, Award, Gavel, Leaf, Landmark, Laptop, Theater, Stethoscope, Siren, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import { EducationManager } from "@/components/admin/EducationManager";
@@ -23,6 +22,15 @@ import { ProjectsManager } from "@/components/admin/ProjectsManager";
 import { AdministrativeInfoManager } from "@/components/admin/AdministrativeInfoManager";
 import { AnnouncementsManager } from "@/components/admin/AnnouncementsManager";
 import { TransportManager } from "@/components/admin/TransportManager";
+import { ScholarshipManager } from "@/components/admin/ScholarshipManager";
+import { LegalAidManager } from "@/components/admin/LegalAidManager";
+import { AgricultureManager } from "@/components/admin/AgricultureManager";
+import { HousingManager } from "@/components/admin/HousingManager";
+import { DigitalServiceManager } from "@/components/admin/DigitalServiceManager";
+import { CultureInfoManager } from "@/components/admin/CultureInfoManager";
+import { PrivateHealthManager } from "@/components/admin/PrivateHealthManager";
+import { EmergencyNewsManager } from "@/components/admin/EmergencyNewsManager";
+import { JobManager } from "@/components/admin/JobManager";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -58,14 +66,30 @@ const Admin = () => {
     { id: "post-management", label: "পোস্ট ব্যবস্থাপনা", icon: Shield },
     { id: "notices", label: "বিজ্ঞপ্তি", icon: AlertTriangle },
     { id: "market", label: "বাজার দর", icon: FileText },
+    // Primary Services
     { id: "education", label: "শিক্ষা", icon: GraduationCap },
     { id: "health", label: "স্বাস্থ্য", icon: Heart },
-    { id: "utilities", label: "বিদ্যুৎ ও গ্যাস", icon: Bolt },
-    { id: "weather", label: "আবহাওয়া", icon: CloudSun },
-    { id: "projects", label: "সরকারি প্রকল্প", icon: HardHat },
+    { id: "agriculture", label: "কৃষি", icon: Leaf },
+    { id: "private-health", label: "বেসরকারি স্বাস্থ্য", icon: Stethoscope },
+    // Support Services
+    { id: "scholarship", label: "বৃত্তি ও প্রশিক্ষণ", icon: Award },
+    { id: "legal-aid", label: "আইনি সহায়তা", icon: Gavel },
+    { id: "jobs", label: "চাকরি", icon: Briefcase },
+    // Administrative
     { id: "admin-info", label: "প্রশাসনিক তথ্য", icon: UserCog },
-    { id: "announcements", label: "ঘোষণা", icon: Megaphone },
+    { id: "digital-services", label: "ডিজিটাল সেবা", icon: Laptop },
+    { id: "housing", label: "আবাসন", icon: Landmark },
+    // Infrastructure
     { id: "transport", label: "যাতায়াত", icon: Bus },
+    { id: "utilities", label: "বিদ্যুৎ ও গ্যাস", icon: Bolt },
+    { id: "projects", label: "সরকারি প্রকল্প", icon: HardHat },
+    // Emergency & Info
+    { id: "weather", label: "আবহাওয়া", icon: CloudSun },
+    { id: "announcements", label: "ঘোষণা", icon: Megaphone },
+    { id: "emergency-news", label: "জরুরি সংবাদ", icon: Siren },
+    // Social & Culture
+    { id: "culture", label: "সংস্কৃতি", icon: Theater },
+    // Other
     { id: "users", label: "ব্যবহারকারী", icon: Users },
   ];
 
@@ -246,6 +270,7 @@ const Admin = () => {
 
           {activeTab === "market" && <MarketRateManager />}
 
+          {/* Local Info Managers */}
           {activeTab === "education" && <EducationManager />}
           {activeTab === "health" && <HealthManager />}
           {activeTab === "utilities" && <UtilitiesManager />}
@@ -254,6 +279,17 @@ const Admin = () => {
           {activeTab === "admin-info" && <AdministrativeInfoManager />}
           {activeTab === "announcements" && <AnnouncementsManager />}
           {activeTab === "transport" && <TransportManager />}
+          
+          {/* Newly Added Managers */}
+          {activeTab === "scholarship" && <ScholarshipManager />}
+          {activeTab === "legal-aid" && <LegalAidManager />}
+          {activeTab === "agriculture" && <AgricultureManager />}
+          {activeTab === "housing" && <HousingManager />}
+          {activeTab === "digital-services" && <DigitalServiceManager />}
+          {activeTab === "culture" && <CultureInfoManager />}
+          {activeTab === "private-health" && <PrivateHealthManager />}
+          {activeTab === "emergency-news" && <EmergencyNewsManager />}
+          {activeTab === "jobs" && <JobManager />}
 
           {activeTab === "users" && (
             <div className="space-y-6">
