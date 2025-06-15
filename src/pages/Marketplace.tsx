@@ -10,17 +10,11 @@ import {
   ShoppingCart, 
   Plus, 
   Search, 
-  Filter, 
-  Star,
-  MapPin,
-  Clock,
-  Heart,
-  MessageSquare,
-  Share2,
-  Shield
+  Filter
 } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useData } from "@/contexts/DataContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { CreateListingDialog } from "@/components/marketplace/CreateListingDialog";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
@@ -40,8 +34,7 @@ const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const isMobile = useIsMobile();
-
-  // Sample product data removed, now using live data from context
+  const { location } = useLocation();
 
   const categories = [
     { id: "all", name: language === 'bn' ? "সব" : "All" },
@@ -53,11 +46,17 @@ const Marketplace = () => {
     { id: "others", name: language === 'bn' ? "অন্যান্য" : "Others" }
   ];
 
+  // Filter by search, category and upazila
   const filteredProducts = products.filter(product => {
+    // Match upazila if set
+    const matchesUpazila = 
+      !location?.upazila || location.upazila === "" ||
+      product.location === location.upazila ||
+      product.location?.toLowerCase()?.includes(location.upazila.toLowerCase());
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesUpazila;
   });
 
   return (
@@ -138,6 +137,11 @@ const Marketplace = () => {
                   {language === 'bn' 
                     ? `${filteredProducts.length} টি পণ্য পাওয়া গেছে` 
                     : `${filteredProducts.length} products found`}
+                  {!!location?.upazila && (
+                    <span className="ml-2 text-green-700 font-medium">
+                      ({language === 'bn' ? `${location.upazila}` : `${location.upazila}`})
+                    </span>
+                  )}
                 </p>
                 <select className="px-3 py-2 border rounded-md bg-background">
                   <option>{language === 'bn' ? 'সাজান' : 'Sort by'}</option>
