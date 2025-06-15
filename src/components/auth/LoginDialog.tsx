@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,22 +24,38 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ triggerComponent }) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, password);
-    
-    if (success) {
-      toast({
-        title: language === 'bn' ? "সফল!" : "Success!",
-        description: language === 'bn' ? "সফলভাবে লগইন হয়েছে" : "Successfully logged in",
-      });
-      setIsOpen(false);
-      setEmail("");
-      setPassword("");
-    } else {
-      toast({
-        title: language === 'bn' ? "ত্রুটি!" : "Error!",
-        description: language === 'bn' ? "ভুল ইমেইল বা পাসওয়ার্ড" : "Invalid email or password",
-        variant: "destructive",
-      });
+    try {
+      const success = await login(email, password);
+      
+      if (success) {
+        toast({
+          title: language === 'bn' ? "সফল!" : "Success!",
+          description: language === 'bn' ? "সফলভাবে লগইন হয়েছে" : "Successfully logged in",
+        });
+        setIsOpen(false);
+        setEmail("");
+        setPassword("");
+      } else {
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "ভুল ইমেইল বা পাসওয়ার্ড" : "Invalid email or password",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      if (error.message === 'EMAIL_NOT_VERIFIED') {
+        toast({
+          title: language === 'bn' ? "ইমেইল যাচাই করুন" : "Verify Your Email",
+          description: language === 'bn' ? "লগইন করার আগে আপনাকে অবশ্যই আপনার ইমেল যাচাই করতে হবে। অনুগ্রহ করে আপনার ইনবক্স চেক করুন।" : "You must verify your email before logging in. Please check your inbox.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: language === 'bn' ? "ত্রুটি!" : "Error!",
+          description: language === 'bn' ? "ভুল ইমেইল বা পাসওয়ার্ড" : "Invalid email or password",
+          variant: "destructive",
+        });
+      }
     }
   };
 

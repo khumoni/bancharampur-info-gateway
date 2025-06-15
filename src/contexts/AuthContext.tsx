@@ -7,6 +7,7 @@ import {
   User as FirebaseUser,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { auth, db, storage } from '@/lib/firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
@@ -55,9 +56,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             const userData = userDoc.data();
+
+            // Sync verification status from Firebase Auth to Firestore if different
+            if (userData.isVerified !== firebaseUser.emailVerified) {
+              await updateDoc(userDocRef, { isVerified: firebaseUser.emailVerified });
+            }
+
             const isAdmin = userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com';
             setUser({
               id: firebaseUser.uid,
@@ -65,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               email: firebaseUser.email || '',
               phone: userData.phone || '',
               profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
-              isVerified: userData.isVerified || false,
+              isVerified: firebaseUser.emailVerified, // Use source of truth from Firebase
               isAdmin,
               role: isAdmin ? 'admin' : 'user',
               createdAt: userData.createdAt || firebaseUser.metadata.creationTime
@@ -77,12 +85,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               id: firebaseUser.uid,
               name: firebaseUser.displayName || 'Anonymous',
               email: firebaseUser.email || '',
-              isVerified: false,
+              isVerified: firebaseUser.emailVerified, // Use firebase auth status
               isAdmin,
               role: isAdmin ? 'admin' : 'user', // Ensure role is correctly typed
               createdAt: new Date().toISOString()
             };
-            await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+            await setDoc(userDocRef, newUser);
             setUser(newUser);
           }
         } catch (error) {
@@ -101,9 +109,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoadingLocally(true);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      if (!userCredential.user.emailVerified) {
+        await signOut(auth); // Sign out user if email is not verified
+        throw new Error("EMAIL_NOT_VERIFIED");
+      }
+
       console.log('User logged in:', userCredential.user.email);
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'EMAIL_NOT_VERIFIED') {
+        throw error; // Re-throw to be handled by UI
+      }
       console.error('Login error:', error);
       return false;
     } finally {
@@ -116,20 +133,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoadingLocally(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
+      await sendEmailVerification(userCredential.user);
+
       const isAdmin = email === 'mohammdaytullah@gmail.com';
       const userData: Omit<User, 'id'> = { 
         name,
         email,
         phone: phone || '',
         profilePicture: '',
-        isVerified: false,
+        isVerified: false, // Initially false, user needs to verify
         isAdmin,
         role: isAdmin ? 'admin' : 'user',
         createdAt: new Date().toISOString()
       };
 
       await setDoc(doc(db, 'users', userCredential.user.uid), userData);
-      console.log('User registered:', userCredential.user.email);
+      await signOut(auth); // Sign out user after registration to force verification
+      console.log('User registered, verification email sent:', userCredential.user.email);
       return true;
     } catch (error) {
       console.error('Registration error:', error);
