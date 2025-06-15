@@ -74,7 +74,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   // Demo/Seed data for new categories
-  const demoLocalInfoItems = [
+  const demoLocalInfoItemsKey = '_demoLocalInfoItems';
+
+  const demoLocalInfoItems: LocalInfoItem[] = [
     {
       id: "job_1",
       categoryId: "jobs",

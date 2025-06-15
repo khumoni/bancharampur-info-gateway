@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import {
   EducationInfo,
   HealthInfo,
@@ -27,7 +28,7 @@ import { t } from "@/lib/translations";
 import { Link } from 'lucide-react';
 
 export default function LocalInfo() {
-  const { localInfoItems } = useData();
+  const { localInfoItems } = useLocalInfo();
   const { language } = useApp();
 
   const educationItems = localInfoItems.filter((item): item is EducationInfo => item.categoryId === 'education');

@@ -1,5 +1,7 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { useLocalInfo } from "@/contexts/LocalInfoContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,11 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, PlusCircle } from "lucide-react";
+import type { PrivateHealthInfo } from "@/types/localInfo";
 
 type PrivateHealthFormData = Omit<PrivateHealthInfo, 'id' | 'categoryId' | 'district' | 'upazila'>;
 
 export const PrivateHealthManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
+  const { location } = useLocation();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PrivateHealthInfo | null>(null);

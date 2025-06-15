@@ -1,5 +1,7 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { useLocalInfo } from "@/contexts/LocalInfoContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, PlusCircle } from "lucide-react";
+import type { CultureInfo } from "@/types/localInfo";
 
 type CultureFormData = Omit<CultureInfo, 'id' | 'categoryId' | 'district' | 'upazila'>;
 
