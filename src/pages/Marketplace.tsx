@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -10,7 +11,8 @@ import {
   ShoppingCart, 
   Plus, 
   Search, 
-  Filter
+  Filter,
+  Store
 } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useData } from "@/contexts/DataContext";
@@ -25,11 +27,15 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+// Import the shadcn/ui dialog and the shop registration form
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ShopRegistrationForm } from "@/components/marketplace/ShopRegistrationForm";
 
 const Marketplace = () => {
   const { language } = useApp();
   const { products, loading } = useData();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isShopDialogOpen, setIsShopDialogOpen] = useState(false); // NEW: For shop registration modal
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -87,6 +93,7 @@ const Marketplace = () => {
                   className="pl-10 h-12"
                 />
               </div>
+              {/* Filter, Open Shop, Post Ad buttons */}
               <Button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 variant="outline" 
@@ -94,6 +101,14 @@ const Marketplace = () => {
               >
                 <Filter className="mr-2 h-4 w-4" />
                 {language === 'bn' ? 'ফিল্টার' : 'Filters'}
+              </Button>
+              <Button
+                onClick={() => setIsShopDialogOpen(true)}
+                variant="outline"
+                className="h-12 px-6 border-green-600 text-green-700 bg-white hover:bg-green-50"
+              >
+                <Store className="mr-2 h-4 w-4" />
+                {language === "bn" ? "দোকান খোলুন" : "Open Shop"}
               </Button>
               <Button 
                 onClick={() => setIsCreateDialogOpen(true)}
@@ -106,6 +121,18 @@ const Marketplace = () => {
           </div>
         </div>
       </section>
+
+      {/* Shop Registration Dialog */}
+      <Dialog open={isShopDialogOpen} onOpenChange={setIsShopDialogOpen}>
+        <DialogContent className="max-w-xl px-0">
+          <DialogHeader>
+            <DialogTitle>
+              {language === "bn" ? "নতুন দোকান খোলার আবেদন" : "Open a New Shop"}
+            </DialogTitle>
+          </DialogHeader>
+          <ShopRegistrationForm />
+        </DialogContent>
+      </Dialog>
 
       {/* Main Content */}
       <section className="px-4 pb-12">
@@ -202,3 +229,4 @@ const Marketplace = () => {
 };
 
 export default Marketplace;
+
