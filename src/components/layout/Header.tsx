@@ -294,17 +294,17 @@ export const Header = () => {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center ml-auto"> {/* Removed space-x for more granular control */}
-            {/* Location button (always visible, left of all actions) */}
+          <div className="flex items-center ml-auto">
+            {/* Location button */}
             <div className="mr-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center px-3 py-1 rounded-full gap-2 text-xs hover:bg-accent"
+                className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 text-white shadow-md font-semibold hover:scale-105 transition"
                 onClick={() => setLocationDialogOpen(true)}
                 aria-label="Change Location"
               >
-                <MapPin className="h-4 w-4 text-primary" />
+                <MapPin className="h-4 w-4 text-white" />
                 <span>
                   {location.district}, {location.upazila}
                 </span>
