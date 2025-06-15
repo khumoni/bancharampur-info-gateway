@@ -61,9 +61,9 @@ export default function AdminPage() {
   // Collapsible debug panel state
   const [showDebug, setShowDebug] = useState(false);
 
-  // Handler to open Local Info tab (first category shown by default)
-  const handleLocalInfoClick = () => {
-    setLocalInfoTab(localInfoCategories[0]?.id || null);
+  // Handler for attractive local info cards click
+  const handleLocalInfoCategoryClick = (catId: string) => {
+    setLocalInfoTab(catId);
     const infoSection = document.getElementById("local-info-section");
     if (infoSection) {
       infoSection.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -137,13 +137,14 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Admin Dashboard */}
+      {/* Admin Dashboard with attractive local info quick actions */}
       <AdminDashboard
         totalUsers={totalUsers}
         todaysPosts={todaysPosts}
         emergencyNotices={emergencyNotices}
         pendingPosts={pendingPosts}
-        onLocalInfoClick={handleLocalInfoClick}
+        localInfoCategories={localInfoCategories}
+        onLocalInfoCategoryClick={handleLocalInfoCategoryClick}
       />
       <Separator className="my-4" />
 
