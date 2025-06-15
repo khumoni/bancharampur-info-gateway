@@ -8,6 +8,7 @@ import { Select } from "@/components/ui/select";
 import { useApp } from "@/contexts/AppContext";
 import { ShopCategory } from "@/lib/marketplace/types";
 
+// Minimal categories, adjust or translate as needed:
 const CATEGORIES: { id: ShopCategory; name: string }[] = [
   { id: 'grocery', name: 'Grocery' },
   { id: 'electronics', name: 'Electronics' },
@@ -26,13 +27,8 @@ export function ShopRegistrationForm() {
   const [form, setForm] = useState({
     name: "",
     category: "grocery" as ShopCategory,
-    description: "",
     address: "",
-    district: "Brahmanbaria",
-    upazila: "Bancharampur",
-    ownerName: "",
     ownerPhone: "",
-    ownerEmail: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -50,19 +46,20 @@ export function ShopRegistrationForm() {
     setLoading(true);
     setSuccess(false);
     try {
+      // Minimal fields for initial interest
       await addShop({
         name: form.name,
-        description: form.description,
+        description: "",
         category: form.category,
         address: form.address,
-        district: form.district,
-        upazila: form.upazila,
+        district: "Brahmanbaria",
+        upazila: "Bancharampur",
         photo: "",
         owner: {
           id: "",
-          name: form.ownerName,
+          name: "",
           phone: form.ownerPhone,
-          email: form.ownerEmail,
+          email: "",
           verified: false,
         },
       });
@@ -70,13 +67,8 @@ export function ShopRegistrationForm() {
       setForm({
         name: "",
         category: "grocery",
-        description: "",
         address: "",
-        district: "Brahmanbaria",
-        upazila: "Bancharampur",
-        ownerName: "",
         ownerPhone: "",
-        ownerEmail: "",
       });
     } catch (err) {
       alert(language === "bn" ? "দোকান রেজিস্টার করতে সমস্যা হয়েছে" : "Could not register shop");
@@ -107,39 +99,16 @@ export function ShopRegistrationForm() {
             ))}
           </Select>
           <Input
-            name="description"
-            placeholder={language === "bn" ? "বর্ণনা" : "Description"}
-            value={form.description}
-            onChange={handleChange}
-            required
-          />
-          <Input
             name="address"
             placeholder={language === "bn" ? "ঠিকানা" : "Address"}
             value={form.address}
             onChange={handleChange}
             required
           />
-          {/* Owner info */}
-          <Input
-            name="ownerName"
-            placeholder={language === "bn" ? "মালিকের নাম" : "Owner Name"}
-            value={form.ownerName}
-            onChange={handleChange}
-            required
-          />
           <Input
             name="ownerPhone"
-            placeholder={language === "bn" ? "মালিকের ফোন" : "Owner Phone"}
+            placeholder={language === "bn" ? "যোগাযোগ ফোন" : "Contact Phone"}
             value={form.ownerPhone}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="ownerEmail"
-            placeholder={language === "bn" ? "মালিকের ইমেইল" : "Owner Email"}
-            value={form.ownerEmail}
-            type="email"
             onChange={handleChange}
             required
           />
@@ -150,7 +119,7 @@ export function ShopRegistrationForm() {
           </Button>
           {success && (
             <div className="text-green-600 mt-2 text-center">
-              {language === "bn" ? "দোকান সফলভাবে নিবন্ধিত হয়েছে!" : "Shop registered successfully!"}
+              {language === "bn" ? "আপনার দোকানের আগ্রহ সফলভাবে জমা হয়েছে! এডমিন যোগাযোগ করবে।" : "Shop interest submitted successfully! An admin will contact you."}
             </div>
           )}
         </form>
