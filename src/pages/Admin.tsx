@@ -53,9 +53,27 @@ const localInfoCategories = [
   { id: "jobs", label: "চাকরি", manager: JobManager },
 ];
 
+const mainTabs = [
+  { id: "dashboard", label: "ড্যাশবোর্ড", icon: BarChart },
+  { id: "local-info", label: "স্থানীয় তথ্য ব্যবস্থাপনা", icon: FolderCog },
+  { id: "post-management", label: "পোস্ট ও ইউজার", icon: Shield },
+  { id: "notices", label: "বিজ্ঞপ্তি ও জরুরি", icon: AlertTriangle },
+  { id: "market", label: "বাজার দর", icon: FileText },
+  { id: "local-admin", label: "লোকাল অ্যাডমিন", icon: UserCog }, // নতুন ট্যাব
+];
+
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [localInfoTab, setLocalInfoTab] = useState<string | null>(null);
+  const [localAdminForm, setLocalAdminForm] = useState({
+    email: '',
+    name: '',
+    phone: '',
+    district: '',
+    upazila: ''
+  });
+  const [isAddingLocalAdmin, setIsAddingLocalAdmin] = useState(false);
+  const [localAdmins, setLocalAdmins] = useState<any[]>([]);
   const { user } = useAuth();
   const { notices, addNotice } = useData();
   const { language } = useApp();
@@ -68,15 +86,6 @@ const Admin = () => {
   });
 
   // Sidebar collapsed, now using a card-grid nav for main categories
-  const mainTabs = [
-    { id: "dashboard", label: "ড্যাশবোর্ড", icon: BarChart },
-    { id: "local-info", label: "স্থানীয় তথ্য ব্যবস্থাপনা", icon: FolderCog },
-    { id: "post-management", label: "পোস্ট ও ইউজার", icon: Shield },
-    { id: "notices", label: "বিজ্ঞপ্তি ও জরুরি", icon: AlertTriangle },
-    { id: "market", label: "বাজার দর", icon: FileText },
-  ];
-
-  // Only admin can access this panel
   if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -109,6 +118,57 @@ const Admin = () => {
     });
   };
 
+  React.useEffect(() => {
+    if (activeTab === "local-admin") {
+      (async () => {
+        // Firestore থেকে localAdmin ইউজার আনা (সরলতা ও ডেমোর জন্য, মূল ডেটা ঠিকভাবে কাস্টম কোয়েরি প্রয়োগ করলে আরও ভালো)
+        // এখানে just db.collection ব্যবহার ধরে example...
+        import('firebase/firestore').then(({ collection, getDocs, query, where }) => {
+          const { db } = require('@/lib/firebase');
+          const q = query(collection(db, 'users'), where('role', '==', 'localAdmin'));
+          getDocs(q).then(snapshot => {
+            const list: any[] = [];
+            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            setLocalAdmins(list);
+          });
+        });
+      })();
+    }
+  }, [activeTab]);
+
+  const handleLocalAdminSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAddingLocalAdmin(true);
+    // Register the user as localAdmin
+    const { email, name, phone, district, upazila } = localAdminForm;
+    if (!email || !name || !district || !upazila) {
+      toast({
+        title: "সব তথ্য দিন",
+        description: "ইমেইল, নাম, জেলা ও উপজেলা বাধ্যতামূলক",
+        variant: "destructive"
+      });
+      setIsAddingLocalAdmin(false);
+      return;
+    }
+    const success = await register(
+      email,
+      phone || Math.random().toString(36).substring(2, 10), // ডেমোর জন্য random pass
+      name,
+      phone,
+      'localAdmin',
+      [{ district, upazila }]
+    );
+    if (success) {
+      toast({ title: "সফল", description: "নতুন local admin তৈরি হয়েছে" });
+      setLocalAdminForm({ email: '', name: '', phone: '', district: '', upazila: '' });
+      setActiveTab("dashboard");
+      setTimeout(() => setActiveTab("local-admin"), 200); // Refresh
+    } else {
+      toast({ title: "ব্যর্থ", description: "লোড করতে ব্যর্থ", variant: "destructive" });
+    }
+    setIsAddingLocalAdmin(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -117,7 +177,7 @@ const Admin = () => {
       <div className="container mx-auto py-4 px-2">
         {!localInfoTab ? (
           <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8 mt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-8 mt-2">
               {mainTabs.map(tab => (
                 <button
                   key={tab.id}
@@ -304,6 +364,71 @@ const Admin = () => {
             <div>
               <h1 className="text-xl font-bold text-gray-800 mb-3">বাজারদর ব্যবস্থাপনা</h1>
               <MarketRateManager />
+            </div>
+          )}
+
+          {activeTab === "local-admin" && (
+            <div>
+              <h1 className="text-2xl font-bold mb-4 text-gray-800">লোকাল অ্যাডমিন ব্যবস্থাপনা</h1>
+              <form onSubmit={handleLocalAdminSubmit} className="p-4 bg-white mb-8 rounded-lg shadow space-y-3 max-w-xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-medium mb-1">ইমেইল <span className="text-red-500">*</span></label>
+                    <Input required value={localAdminForm.email} onChange={e => setLocalAdminForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" />
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-1">নাম <span className="text-red-500">*</span></label>
+                    <Input required value={localAdminForm.name} onChange={e => setLocalAdminForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" />
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-1">মোবাইল</label>
+                    <Input value={localAdminForm.phone} onChange={e => setLocalAdminForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone" />
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-1">জেলা <span className="text-red-500">*</span></label>
+                    <Input required value={localAdminForm.district} onChange={e => setLocalAdminForm(f => ({ ...f, district: e.target.value }))} placeholder="District" />
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-1">উপজেলা <span className="text-red-500">*</span></label>
+                    <Input required value={localAdminForm.upazila} onChange={e => setLocalAdminForm(f => ({ ...f, upazila: e.target.value }))} placeholder="Upazila" />
+                  </div>
+                </div>
+                <Button type="submit" className="bg-green-600 text-white" disabled={isAddingLocalAdmin}>
+                  {isAddingLocalAdmin ? "রেজিস্টার হচ্ছে..." : "নতুন Local Admin যোগ করুন"}
+                </Button>
+              </form>
+              <div className="bg-white rounded-lg shadow p-4">
+                <h2 className="font-semibold mb-4 text-lg">বর্তমান Local Admins</h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="p-2 text-left">নাম</th>
+                        <th className="p-2 text-left">ইমেইল</th>
+                        <th className="p-2 text-left">জেলা</th>
+                        <th className="p-2 text-left">উপজেলা</th>
+                        <th className="p-2 text-left">মোবাইল</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {localAdmins.map((x, i) => (
+                        <tr key={x.id || i} className="border-b">
+                          <td className="p-2">{x.name}</td>
+                          <td className="p-2">{x.email}</td>
+                          <td className="p-2">{x.assignedLocations?.[0]?.district || '—'}</td>
+                          <td className="p-2">{x.assignedLocations?.[0]?.upazila || '—'}</td>
+                          <td className="p-2">{x.phone}</td>
+                        </tr>
+                      ))}
+                      {localAdmins.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-gray-400">কোনো Local Admin পাওয়া যায়নি</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
         </div>
