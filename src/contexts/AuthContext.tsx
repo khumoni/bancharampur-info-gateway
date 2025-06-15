@@ -8,6 +8,11 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   sendEmailVerification,
+  sendPasswordResetEmail,
+  PhoneAuthProvider,
+  RecaptchaVerifier,
+  signInWithCredential,
+  PhoneAuthCredential,
 } from 'firebase/auth';
 import { auth, db, storage } from '@/lib/firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
@@ -35,6 +40,9 @@ interface AuthContextType {
   uploadProfilePicture: (file: File) => Promise<boolean>;
   updateUserProfile: (data: Partial<Pick<User, 'name' | 'phone'>>) => Promise<boolean>;
   googleSignIn: () => Promise<boolean>;
+  sendPasswordReset: (email: string) => Promise<boolean>;
+  verifyPhoneNumber: (phoneNumber: string, appVerifier: RecaptchaVerifier) => Promise<string | null>;
+  confirmOtp: (verificationId: string, otp: string, userData: Omit<User, 'id'>) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -165,6 +173,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('User logged out');
   };
 
+  const sendPasswordReset = async (email: string): Promise<boolean> => {
+    try {
+      setIsLoadingLocally(true);
+      await sendPasswordResetEmail(auth, email);
+      console.log('Password reset email sent to:', email);
+      return true;
+    } catch (error) {
+      console.error('Password reset error:', error);
+      return false;
+    } finally {
+      setIsLoadingLocally(false);
+    }
+  };
+
   const googleSignIn = async (): Promise<boolean> => {
     try {
       setIsLoadingLocally(true);
@@ -245,6 +267,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const verifyPhoneNumber = async (phoneNumber: string, appVerifier: RecaptchaVerifier): Promise<string | null> => {
+    try {
+      setIsLoadingLocally(true);
+      const verificationId = await PhoneAuthProvider.credential(appVerifier.getVerificationId());
+      return verificationId;
+    } catch (error) {
+      console.error('Verification error:', error);
+      return null;
+    } finally {
+      setIsLoadingLocally(false);
+    }
+  };
+
+  const confirmOtp = async (verificationId: string, otp: string, userData: Omit<User, 'id'>): Promise<boolean> => {
+    try {
+      setIsLoadingLocally(true);
+      const credential = PhoneAuthProvider.credential(verificationId, otp);
+      await signInWithCredential(auth, credential);
+      
+      const userDocRef = doc(db, 'users', auth.currentUser?.uid || '');
+      await updateDoc(userDocRef, userData);
+
+      console.log('User verified with OTP:', userData.email);
+      return true;
+    } catch (error) {
+      console.error('OTP confirmation error:', error);
+      return false;
+    } finally {
+      setIsLoadingLocally(false);
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -256,6 +310,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       uploadProfilePicture,
       updateUserProfile,
       googleSignIn,
+      sendPasswordReset,
+      verifyPhoneNumber,
+      confirmOtp,
     }}>
       {children}
     </AuthContext.Provider>

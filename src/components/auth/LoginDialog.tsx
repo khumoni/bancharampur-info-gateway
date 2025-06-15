@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { t } from "@/lib/translations";
 import { LogIn, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GoogleSignInButton } from "./GoogleSignInButton";
+import { ForgotPasswordDialog } from "./ForgotPasswordDialog";
 
 interface LoginDialogProps {
   triggerComponent?: React.ReactNode;
@@ -101,6 +103,9 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ triggerComponent }) =>
               required
               placeholder={language === 'bn' ? "আপনার পাসওয়ার্ড লিখুন" : "Enter your password"}
             />
+            <div className="flex justify-end pt-1">
+              <ForgotPasswordDialog />
+            </div>
           </div>
           <div className="text-sm text-muted-foreground">
             {language === 'bn' ? "ডেমো: demo@example.com / password" : "Demo: demo@example.com / password"}
