@@ -45,6 +45,8 @@ import { RegisterDialog } from "@/components/auth/RegisterDialog";
 import { ProfileDialog } from "@/components/auth/ProfileDialog";
 import { CreatePostDialog } from "@/components/social/CreatePostDialog";
 import { t } from "@/lib/translations";
+import { useLocation } from "@/contexts/LocationContext";
+import { LocationSelectorDialog } from "@/components/location/LocationSelectorDialog";
 
 // MobileNav Component Props
 interface MobileNavProps {
@@ -158,6 +160,8 @@ export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [createPostOpen, setCreatePostOpen] = useState(false);
+  const { location } = useLocation();
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -291,6 +295,21 @@ export const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center ml-auto"> {/* Removed space-x for more granular control */}
+            {/* Location button (always visible, left of all actions) */}
+            <div className="mr-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center px-3 py-1 rounded-full gap-2 text-xs hover:bg-accent"
+                onClick={() => setLocationDialogOpen(true)}
+                aria-label="Change Location"
+              >
+                <MapPin className="h-4 w-4 text-primary" />
+                <span>
+                  {location.district}, {location.upazila}
+                </span>
+              </Button>
+            </div>
             {/* Language Toggle - Visible on md and up */}
             {/* This is now handled within MobileNav for mobile, and can be removed from here if only in hamburger */}
             {/* Keeping it for desktop for now as per previous design, but can be moved to user dropdown */}
@@ -439,6 +458,9 @@ export const Header = () => {
               </Tooltip>
           </div>
       )}
+
+      {/* Location Selector Dialog */}
+      <LocationSelectorDialog isOpen={locationDialogOpen} onOpenChange={setLocationDialogOpen} />
     </TooltipProvider>
   );
 };
