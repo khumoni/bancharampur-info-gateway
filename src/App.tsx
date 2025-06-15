@@ -12,6 +12,7 @@ import { SocialProvider } from "@/contexts/SocialContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Marketplace from "./pages/Marketplace";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 import LocalInfo from "./pages/LocalInfo";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ const App = () => (
                     <Route path="/" element={<Index />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/marketplace" element={<Marketplace />} />
+                    <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
                     <Route path="/local-info" element={<LocalInfo />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

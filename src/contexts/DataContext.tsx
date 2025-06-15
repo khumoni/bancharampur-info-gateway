@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   collection, 
@@ -12,6 +11,7 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { Product } from '@/lib/marketplace/types';
 
 export interface Notice {
   id: string;
@@ -108,6 +108,7 @@ interface DataContextType {
   notices: Notice[];
   marketRates: MarketRate[];
   localInfoItems: LocalInfoItem[];
+  products: Product[];
   addNotice: (notice: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => Promise<void>;
   updateMarketRate: (id: string, rate: Partial<MarketRate>) => Promise<void>;
   addMarketRate: (rate: Omit<MarketRate, 'id' | 'lastUpdated'>) => Promise<void>;
@@ -115,6 +116,9 @@ interface DataContextType {
   addLocalInfoItem: (item: Omit<LocalInfoItem, 'id'>) => Promise<void>;
   updateLocalInfoItem: (id: string, item: Partial<LocalInfoItem>) => Promise<void>;
   deleteLocalInfoItem: (id: string) => Promise<void>;
+  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -132,6 +136,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [notices, setNotices] = useState<Notice[]>([]);
   const [marketRates, setMarketRates] = useState<MarketRate[]>([]);
   const [localInfoItems, setLocalInfoItems] = useState<LocalInfoItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -156,6 +161,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setNotices(noticesData);
     }, (error) => {
       console.error('Error listening to notices:', error);
+    });
+
+    // Listen to products collection
+    const productsQuery = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubscribeProducts = onSnapshot(productsQuery, (snapshot) => {
+      const productsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        } as Product;
+      });
+      console.log('Products updated:', productsData);
+      setProducts(productsData);
+    }, (error) => {
+      console.error('Error listening to products:', error);
     });
 
     // Listen to market rates collection
@@ -193,6 +215,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unsubscribeNotices();
       unsubscribeMarketRates();
       unsubscribeLocalInfoItems();
+      unsubscribeProducts();
     };
   }, []);
 
@@ -280,11 +303,47 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const addProduct = async (productData: Omit<Product, 'id' | 'createdAt'>) => {
+    try {
+      console.log('Adding product:', productData);
+      await addDoc(collection(db, 'products'), {
+        ...productData,
+        createdAt: Timestamp.now()
+      });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      throw error;
+    }
+  };
+
+  const updateProduct = async (id: string, productData: Partial<Product>) => {
+    try {
+      console.log('Updating product:', id, productData);
+      const productRef = doc(db, 'products', id);
+      await updateDoc(productRef, productData as Record<string, any>);
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
+    try {
+      console.log('Deleting product:', id);
+      const productRef = doc(db, 'products', id);
+      await deleteDoc(productRef);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  };
+
   return (
     <DataContext.Provider value={{
       notices,
       marketRates,
       localInfoItems,
+      products,
       addNotice,
       updateMarketRate,
       addMarketRate,
@@ -292,6 +351,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addLocalInfoItem,
       updateLocalInfoItem,
       deleteLocalInfoItem,
+      addProduct,
+      updateProduct,
+      deleteProduct,
       loading
     }}>
       {children}

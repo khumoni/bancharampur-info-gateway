@@ -20,75 +20,20 @@ import {
   Shield
 } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
+import { useData } from "@/contexts/DataContext";
 import { CreateListingDialog } from "@/components/marketplace/CreateListingDialog";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
-import { Product } from "@/lib/marketplace/types";
 
 const Marketplace = () => {
   const { language } = useApp();
+  const { products, loading } = useData();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Sample product data
-  const sampleProducts: Product[] = [
-    {
-      id: "1",
-      title: "iPhone 14 Pro Max",
-      price: 85000,
-      condition: "like-new",
-      category: "electronics",
-      location: "Bancharampur",
-      images: ["https://images.unsplash.com/photo-1592750475338-74b7b21085ab"],
-      description: "Excellent condition iPhone 14 Pro Max, 256GB",
-      seller: {
-        name: "রহিম উদ্দিন",
-        rating: 4.8,
-        verified: true
-      },
-      postedAt: "2 hours ago",
-      views: 45,
-      likes: 12
-    },
-    {
-      id: "2",
-      title: "Honda CB 150R",
-      price: 180000,
-      condition: "used",
-      category: "vehicles",
-      location: "Brahmanbaria",
-      images: ["https://images.unsplash.com/photo-1558618644-fcd25c85cd64"],
-      description: "Well maintained bike, all papers clear",
-      seller: {
-        name: "করিম আহমেদ",
-        rating: 4.6,
-        verified: true
-      },
-      postedAt: "1 day ago",
-      views: 120,
-      likes: 8
-    },
-    {
-      id: "3",
-      title: "Wooden Dining Table",
-      price: 15000,
-      condition: "new",
-      category: "furniture",
-      location: "Bancharampur",
-      images: ["https://images.unsplash.com/photo-1586023492125-27b2c045efd7"],
-      description: "Brand new handcrafted wooden dining table",
-      seller: {
-        name: "ফাতেমা খাতুন",
-        rating: 4.9,
-        verified: false
-      },
-      postedAt: "3 days ago",
-      views: 75,
-      likes: 15
-    }
-  ];
+  // Sample product data removed, now using live data from context
 
   const categories = [
     { id: "all", name: language === 'bn' ? "সব" : "All" },
@@ -100,7 +45,7 @@ const Marketplace = () => {
     { id: "others", name: language === 'bn' ? "অন্যান্য" : "Others" }
   ];
 
-  const filteredProducts = sampleProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
@@ -202,7 +147,7 @@ const Marketplace = () => {
               </div>
 
               {/* No Results */}
-              {filteredProducts.length === 0 && (
+              {loading === false && filteredProducts.length === 0 && (
                 <div className="text-center py-12">
                   <ShoppingCart className="mx-auto h-16 w-16 text-gray-400 mb-4" />
                   <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
