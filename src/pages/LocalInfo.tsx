@@ -1,42 +1,22 @@
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { 
   GraduationCap, 
   Heart, 
   Bolt, 
   CloudSun, 
-  ShoppingCart, 
   HardHat, 
   UserCog, 
   Megaphone,
   Bus,
-  Building,
-  School,
-  Award,
-  Bell,
-  Users,
-  Hospital,
-  Stethoscope,
-  Pill,
-  Ambulance,
-  LightbulbOff,
-  CreditCard,
-  Phone,
-  Sun,
-  AlertTriangle,
-  Shield,
-  Fish,
-  Carrot,
-  Calendar,
-  Hammer,
-  UserCheck,
-  MessageSquare,
-  Speaker,
-  Clock,
-  Route,
   Info,
   icons
 } from "lucide-react";
@@ -44,7 +24,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useApp } from "@/contexts/AppContext";
 import { useData, LocalInfoItem } from "@/contexts/DataContext";
-import { MarketRates } from "@/components/home/MarketRates";
 import { useLocation } from "@/contexts/LocationContext";
 import { LocationSelectorDialog } from "@/components/location/LocationSelectorDialog";
 import { districts } from "@/lib/bd-locations";
@@ -97,7 +76,6 @@ const LocalInfo = () => {
   const { language } = useApp();
   const { localInfoItems } = useData();
   const { location } = useLocation();
-  const [activeTab, setActiveTab] = useState("education");
   const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
 
   const currentDistrict = useMemo(() => districts.find(d => d.name.en === location.district), [location.district]);
@@ -117,12 +95,6 @@ const LocalInfo = () => {
     { id: 'projects', label: language === 'bn' ? 'প্রকল্প' : 'Projects', icon: HardHat },
     { id: 'announcements', label: language === 'bn' ? 'ঘোষণা' : 'Announcements', icon: Megaphone },
   ], [language]);
-
-  const filteredItems = useMemo(() => localInfoItems.filter(item => 
-    item.district === location.district && 
-    item.upazila === location.upazila &&
-    item.categoryId === activeTab
-  ), [localInfoItems, location, activeTab]);
 
   const renderIcon = (name: string) => {
     const Icon = icons[name as keyof typeof icons] || Info;
@@ -147,46 +119,53 @@ const LocalInfo = () => {
           </CardContent>
         </Card>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
-            {categories.map(cat => (
-              <TabsTrigger key={cat.id} value={cat.id}>
-                <cat.icon className="w-4 h-4 mr-2" />
-                {cat.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          
-          {categories.map(cat => (
-            <TabsContent key={cat.id} value={cat.id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{cat.label}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {filteredItems.length > 0 ? (
-                    filteredItems.map(item => {
-                      const { title, description } = getItemContent(item, language);
-                      return (
-                        <div key={item.id} className="flex items-start p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                          {renderIcon(item.icon)}
-                          <div>
-                            <h3 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-gray-500 dark:text-gray-400">
-                      {language === 'bn' ? 'এই এলাকার জন্য কোনো তথ্য পাওয়া যায়নি।' : 'No information found for this area.'}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map(cat => {
+            const itemsForCategory = localInfoItems.filter(item => 
+              item.district === location.district && 
+              item.upazila === location.upazila &&
+              item.categoryId === cat.id
+            );
+
+            return (
+              <Accordion type="single" collapsible key={cat.id} className="w-full bg-card rounded-lg border shadow-sm transition-all hover:shadow-md">
+                <AccordionItem value={cat.id} className="border-b-0">
+                  <AccordionTrigger className="p-6 text-left hover:no-underline">
+                    <div className="flex items-center w-full">
+                      <cat.icon className="w-8 h-8 mr-4 text-primary shrink-0" />
+                      <div className="flex-grow">
+                        <h3 className="text-lg font-semibold">{cat.label}</h3>
+                      </div>
+                      <Badge variant="secondary" className="ml-4 shrink-0">{itemsForCategory.length}</Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-6 pt-0">
+                    <div className="space-y-4">
+                      {itemsForCategory.length > 0 ? (
+                        itemsForCategory.map(item => {
+                          const { title, description } = getItemContent(item, language);
+                          return (
+                            <div key={item.id} className="flex items-start p-3 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                              {renderIcon(item.icon)}
+                              <div>
+                                <h4 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                          {language === 'bn' ? 'এই এলাকার জন্য কোনো তথ্য পাওয়া যায়নি।' : 'No information found for this area.'}
+                        </p>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            );
+          })}
+        </div>
       </main>
       <Footer />
       <LocationSelectorDialog isOpen={isLocationSelectorOpen} onOpenChange={setIsLocationSelectorOpen} />
