@@ -70,8 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('AuthProvider mounted -> checking auth state...');
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       try {
+        console.log('[Auth] onAuthStateChanged fired.', { firebaseUser });
         if (firebaseUser) {
-          console.log('User signed in state detected:', firebaseUser.email, ' | emailVerified:', firebaseUser.emailVerified);
+          console.log('[Auth] User detected:', firebaseUser.email, '| Verified:', firebaseUser.emailVerified);
+          // Fetch userDoc, role detection, user object
           const userDocRef = doc(db, 'users', firebaseUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
@@ -123,9 +125,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await setDoc(userDocRef, newUser);
             setUser(newUser);
           }
+          // Add some logs on success
+          console.log('[Auth] User session loaded and set:', firebaseUser.email);
         } else {
           setUser(null);
-          console.log('No user signed in.');
+          console.log('[Auth] No Firebase user session. Possible auto-logout due to:');
+          console.log('- Manual logout');
+          console.log('- Browser closed/session cleared');
+          console.log('- Cookie or localStorage blocked/cleared');
+          console.log('- Email not verified at Login');
+          console.log('- Internet/network error');
         }
       } catch (error) {
         console.error('Error fetching user data (AuthContext):', error);
@@ -139,19 +148,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoadingLocally(true);
+      // Log attempted persistence setting
+      console.log('[Auth] Setting Firebase persistence to browserLocalPersistence...');
       await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
       // Email verified check
       if (!userCredential.user.emailVerified) {
         await signOut(auth);
+        console.log('[Auth] Login failed - Email not verified.');
         throw new Error("EMAIL_NOT_VERIFIED");
       }
-      console.log('User logged in and persistence set:', userCredential.user.email);
+      console.log('[Auth] User logged in and persistence set:', userCredential.user.email);
       return true;
     } catch (error: any) {
       if (error.message === "EMAIL_NOT_VERIFIED") throw error;
-      console.error('Login error:', error);
+      console.error('[Auth] Login error:', error);
       return false;
     } finally {
       setIsLoadingLocally(false);

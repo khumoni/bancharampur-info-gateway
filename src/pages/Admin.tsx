@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { PostManagementPanel } from "@/components/admin/PostManagementPanel";
 import { MarketRatePanel } from "@/components/admin/MarketRatePanel";
@@ -26,6 +25,7 @@ import { EmergencyNewsManager } from "@/components/admin/EmergencyNewsManager";
 import { JobManager } from "@/components/admin/JobManager";
 import { t } from "@/lib/translations";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminPage() {
   const [totalUsers, setTotalUsers] = useState(150);
@@ -58,8 +58,31 @@ export default function AdminPage() {
     { id: "jobs", label: t("jobs", language), manager: JobManager },
   ];
 
+  const { user, loading } = useAuth();
+
   return (
     <div className="space-y-10 px-2 md:px-4 py-8 max-w-6xl mx-auto">
+      {/* DEBUG: Auth Session Diagnostics - Only visible to admin */}
+      <div className="mb-8">
+        <div className="bg-yellow-50 border border-yellow-300 rounded p-4 mb-3 text-sm text-yellow-900" style={{ display: user?.isAdmin ? "block" : "none" }}>
+          <strong>Session Debug Panel</strong>
+          <div>User: <span className="font-mono">{user ? user.email : "No user"}</span></div>
+          <div>User ID: <span className="font-mono">{user ? user.id : "—"}</span></div>
+          <div>Verified: <span className="font-mono">{user ? String(user.isVerified) : "—"}</span></div>
+          <div>Role: <span className="font-mono">{user ? user.role : "—"}</span></div>
+          <div>Browser: <span className="font-mono">{typeof window !== "undefined" ? window.navigator.userAgent : ""}</span></div>
+          <div>Status: <span className="font-mono">{loading ? "Loading/authenticating..." : (user ? "Authenticated" : "Not logged in or session lost")}</span></div>
+          <div className="text-xs pt-2">
+            <span className="block">If you are logged out unexpectedly:</span>
+            <ul className="list-disc ml-6">
+              <li>Check if you're using Incognito, or cookies/storage are being cleared</li>
+              <li>If your email isn't verified, login won't persist</li>
+              <li>Browser add-ons may interfere with session</li>
+              <li>Network issues may force auto sign out</li>
+            </ul>
+          </div>
+        </div>
+      </div>
       {/* Admin Dashboard */}
       <AdminDashboard
         totalUsers={totalUsers}
@@ -104,4 +127,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
