@@ -67,17 +67,17 @@ export const LocalInfo = () => {
     );
 
   return (
-    <div className="container py-4 md:py-8 relative">
+    <div className="container px-2 pt-3 pb-4 md:py-8 relative">
       {/* Floating location change button removed */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-        <h1 className="text-2xl md:text-3xl font-bold">{t("localInformation", language)}</h1>
+      <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-3 md:mb-4">
+        <h1 className="text-xl md:text-2xl font-bold">{t("localInformation", language)}</h1>
         <div className="flex items-center gap-2">
           <Switch
             checked={showOnlyMyArea}
             onCheckedChange={setShowOnlyMyArea}
             id="area-toggle"
           />
-          <label htmlFor="area-toggle" className="text-sm select-none cursor-pointer">
+          <label htmlFor="area-toggle" className="text-xs md:text-sm select-none cursor-pointer">
             {showOnlyMyArea
               ? `${location.district}, ${location.upazila} ${language === "bn" ? "এর তথ্য" : "info only"}`
               : language === "bn" ? "সব এলাকার তথ্য" : "Show all areas"}
@@ -89,9 +89,9 @@ export const LocalInfo = () => {
         activeCategory={selectedCategory}
         onCategoryClick={handleCategoryClick}
       />
-      <div className="mt-2">
+      <div className="mt-1 md:mt-2">
         {loading ? (
-          <div className="text-center py-10 text-lg text-gray-500 animate-fade-in">
+          <div className="text-center py-8 text-base md:text-lg text-gray-500 animate-fade-in">
             {language === "bn" ? "তথ্য লোড হচ্ছে..." : "Loading local info..."}
           </div>
         ) : (

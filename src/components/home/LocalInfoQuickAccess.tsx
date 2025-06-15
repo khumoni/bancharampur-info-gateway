@@ -51,10 +51,10 @@ export const LocalInfoQuickAccess: React.FC<LocalInfoQuickAccessProps> = ({
   onCategoryClick
 }) => (
   <div>
-    <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800">
+    <h2 className="text-base md:text-lg font-semibold mb-2 md:mb-3 text-gray-800">
       বিভাগ বাছাই করুন:
     </h2>
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-5">
+    <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-5">
       {categories.map((cat, idx) => {
         const info = categoryMeta[cat.id] || {
           icon: Book, color: "from-gray-400 to-gray-600", shadow: "shadow-gray-400/20"
@@ -65,16 +65,16 @@ export const LocalInfoQuickAccess: React.FC<LocalInfoQuickAccessProps> = ({
           <button
             key={cat.id}
             onClick={() => onCategoryClick(cat.id)}
-            className={`group relative overflow-hidden rounded-2xl transition-all duration-200 glass-morphism border-0 shadow-md hover:scale-105 outline-none
+            className={`group relative overflow-hidden rounded-2xl transition-all duration-150 glass-morphism border-0 shadow-md active:scale-[0.98] focus-visible:ring-4 focus-visible:ring-primary/30 outline-none
             ${info.shadow} ${selected ? "ring-4 ring-primary/50" : ""}`}
             style={{ animationDelay: `${idx * 0.06}s` }}
             type="button"
             aria-pressed={selected}
           >
-            <div className="flex flex-col items-center py-6 px-2 text-center relative aspect-square w-full">
-              <div className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-80 group-hover:opacity-90 transition-opacity rounded-2xl z-0`} />
-              <div className="relative z-10 bg-white/30 w-14 h-14 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
-                <Icon className="w-8 h-8 text-white drop-shadow" />
+            <div className="flex flex-col items-center py-4 px-2 text-center relative aspect-square w-full min-h-[72px] sm:min-h-[96px]">
+              <div className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-80 group-active:opacity-95 transition-opacity rounded-2xl z-0`} />
+              <div className="relative z-10 bg-white/40 w-12 h-12 md:w-14 md:h-14 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
+                <Icon className="w-7 h-7 md:w-8 md:h-8 text-white drop-shadow" />
               </div>
               <span className="z-10 font-semibold text-xs sm:text-sm text-white drop-shadow">
                 {cat.label}
