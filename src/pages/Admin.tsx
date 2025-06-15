@@ -58,31 +58,76 @@ export default function AdminPage() {
     { id: "jobs", label: t("jobs", language), manager: JobManager },
   ];
 
+  // Collapsible debug panel state
+  const [showDebug, setShowDebug] = useState(false);
+
   const { user, loading } = useAuth();
 
   return (
-    <div className="space-y-10 px-2 md:px-4 py-8 max-w-6xl mx-auto">
+    <div className="space-y-12 px-1 md:px-6 py-5 max-w-6xl mx-auto w-full">
       {/* DEBUG: Auth Session Diagnostics - Only visible to admin */}
-      <div className="mb-8">
-        <div className="bg-yellow-50 border border-yellow-300 rounded p-4 mb-3 text-sm text-yellow-900" style={{ display: user?.isAdmin ? "block" : "none" }}>
-          <strong>Session Debug Panel</strong>
-          <div>User: <span className="font-mono">{user ? user.email : "No user"}</span></div>
-          <div>User ID: <span className="font-mono">{user ? user.id : "—"}</span></div>
-          <div>Verified: <span className="font-mono">{user ? String(user.isVerified) : "—"}</span></div>
-          <div>Role: <span className="font-mono">{user ? user.role : "—"}</span></div>
-          <div>Browser: <span className="font-mono">{typeof window !== "undefined" ? window.navigator.userAgent : ""}</span></div>
-          <div>Status: <span className="font-mono">{loading ? "Loading/authenticating..." : (user ? "Authenticated" : "Not logged in or session lost")}</span></div>
-          <div className="text-xs pt-2">
-            <span className="block">If you are logged out unexpectedly:</span>
-            <ul className="list-disc ml-6">
-              <li>Check if you're using Incognito, or cookies/storage are being cleared</li>
-              <li>If your email isn't verified, login won't persist</li>
-              <li>Browser add-ons may interfere with session</li>
-              <li>Network issues may force auto sign out</li>
-            </ul>
+      {user?.isAdmin && (
+        <div className="mb-4">
+          <button
+            className="text-xs font-medium rounded bg-yellow-100 hover:bg-yellow-200 transition px-3 py-1 text-yellow-800 border border-yellow-300 mb-2 w-full flex justify-between items-center"
+            onClick={() => setShowDebug((s) => !s)}
+            aria-expanded={showDebug}
+          >
+            <span>Session Debug Panel</span>
+            <span className="ml-2">{showDebug ? "▲" : "▼"}</span>
+          </button>
+          <div
+            className={`
+              border border-yellow-200 bg-yellow-50 rounded px-4 py-2 text-yellow-900 transition-all 
+              ${showDebug ? "max-h-96 opacity-100 mt-0" : "max-h-0 opacity-0 overflow-hidden"}
+              text-xs sm:text-sm
+            `}
+            style={{
+              transition: "all 0.35s cubic-bezier(.4,2,.6,1)",
+            }}
+          >
+            <div className="pb-1">
+              <span className="font-semibold">User:</span>{" "}
+              <span className="font-mono">{user ? user.email : "No user"}</span>
+            </div>
+            <div>
+              <span className="font-semibold">User ID:</span>{" "}
+              <span className="font-mono">{user ? user.id : "—"}</span>
+            </div>
+            <div>
+              <span className="font-semibold">Verified:</span>{" "}
+              <span className="font-mono">{user ? String(user.isVerified) : "—"}</span>
+            </div>
+            <div>
+              <span className="font-semibold">Role:</span>{" "}
+              <span className="font-mono">{user ? user.role : "—"}</span>
+            </div>
+            <div>
+              <span className="font-semibold">Browser:</span>{" "}
+              <span className="font-mono">{typeof window !== "undefined" ? window.navigator.userAgent : ""}</span>
+            </div>
+            <div>
+              <span className="font-semibold">Status:</span>{" "}
+              <span className="font-mono">
+                {loading
+                  ? "Loading/authenticating..."
+                  : user
+                  ? "Authenticated"
+                  : "Not logged in or session lost"}
+              </span>
+            </div>
+            <div className="pt-2 text-xs">
+              <ul className="list-disc ml-5">
+                <li>Incognito mode or cleared storage may log you out</li>
+                <li>Unverified email won't persist login</li>
+                <li>Browser add-ons may interfere</li>
+                <li>Network issues can log you out</li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
       {/* Admin Dashboard */}
       <AdminDashboard
         totalUsers={totalUsers}
@@ -94,7 +139,9 @@ export default function AdminPage() {
 
       {/* Local Information Management Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">{language === "bn" ? "স্থানীয় তথ্য ব্যবস্থাপনা" : "Local Information Management"}</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4">
+          {language === "bn" ? "স্থানীয় তথ্য ব্যবস্থাপনা" : "Local Information Management"}
+        </h2>
         <div className="mb-8">
           <LocalInfoAdminPanel
             localInfoCategories={localInfoCategories}
@@ -107,21 +154,27 @@ export default function AdminPage() {
 
       {/* Marketplace Manager Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">{language === "bn" ? "মার্কেটপ্লেস ব্যবস্থাপনা" : "Marketplace Management"}</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4">
+          {language === "bn" ? "মার্কেটপ্লেস ব্যবস্থাপনা" : "Marketplace Management"}
+        </h2>
         <MarketplaceManager />
       </section>
       <Separator className="my-4" />
 
       {/* Post & User Management Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">{language === "bn" ? "পোস্ট ও ইউজার ব্যবস্থাপনা" : "Post & User Management"}</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4">
+          {language === "bn" ? "পোস্ট ও ইউজার ব্যবস্থাপনা" : "Post & User Management"}
+        </h2>
         <PostManagementPanel />
       </section>
       <Separator className="my-4" />
 
       {/* Market Rates Management Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">{language === "bn" ? "বাজারদর ব্যবস্থাপনা" : "Market Rate Management"}</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4">
+          {language === "bn" ? "বাজারদর ব্যবস্থাপনা" : "Market Rate Management"}
+        </h2>
         <MarketRatePanel />
       </section>
     </div>
