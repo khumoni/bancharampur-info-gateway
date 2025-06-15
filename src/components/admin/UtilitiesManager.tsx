@@ -11,6 +11,7 @@ import { PlusCircle, Edit, Trash2, Save, X, Bolt, icons } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useLocation } from "@/contexts/LocationContext";
 
 const iconNames = Object.keys(icons);
 
@@ -23,6 +24,7 @@ const formSchema = z.object({
 
 export const UtilitiesManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<UtilitiesInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -54,6 +56,8 @@ export const UtilitiesManager = () => {
     } else {
       const newItem: Omit<UtilitiesInfo, 'id'> = {
         categoryId,
+        district: location.district,
+        upazila: location.upazila,
         serviceType: values.serviceType,
         officeAddress: values.officeAddress,
         complaintNumber: values.complaintNumber,

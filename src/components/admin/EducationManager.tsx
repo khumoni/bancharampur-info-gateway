@@ -12,6 +12,7 @@ import { PlusCircle, Edit, Trash2, Save, X, GraduationCap, icons } from "lucide-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useLocation } from "@/contexts/LocationContext";
 
 const iconNames = Object.keys(icons);
 
@@ -25,6 +26,7 @@ const formSchema = z.object({
 
 export const EducationManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<EducationInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -56,6 +58,8 @@ export const EducationManager = () => {
     } else {
       const newItem: Omit<EducationInfo, 'id'> = {
         categoryId,
+        district: location.district,
+        upazila: location.upazila,
         institutionName: values.institutionName,
         type: values.type,
         address: values.address,

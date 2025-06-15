@@ -12,6 +12,7 @@ import { PlusCircle, Edit, Trash2, Save, X, CloudSun, icons } from "lucide-react
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useLocation } from "@/contexts/LocationContext";
 
 const iconNames = Object.keys(icons);
 
@@ -25,6 +26,7 @@ const formSchema = z.object({
 
 export const WeatherManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<WeatherInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -56,6 +58,8 @@ export const WeatherManager = () => {
     } else {
       const newItem: Omit<WeatherInfo, 'id'> = {
         categoryId,
+        district: location.district,
+        upazila: location.upazila,
         area: values.area,
         temperature: values.temperature,
         humidity: values.humidity,

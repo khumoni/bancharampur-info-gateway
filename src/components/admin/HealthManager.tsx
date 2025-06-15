@@ -13,6 +13,7 @@ import { PlusCircle, Edit, Trash2, Save, X, Heart, icons } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useLocation } from "@/contexts/LocationContext";
 
 const iconNames = Object.keys(icons);
 
@@ -27,6 +28,7 @@ const formSchema = z.object({
 
 export const HealthManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<HealthInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -58,6 +60,8 @@ export const HealthManager = () => {
     } else {
       const newItem: Omit<HealthInfo, 'id'> = {
         categoryId,
+        district: location.district,
+        upazila: location.upazila,
         name: values.name,
         type: values.type,
         address: values.address,

@@ -12,6 +12,7 @@ import { PlusCircle, Edit, Trash2, Save, X, Megaphone, icons } from "lucide-reac
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useLocation } from "@/contexts/LocationContext";
 
 const iconNames = Object.keys(icons);
 
@@ -24,6 +25,7 @@ const formSchema = z.object({
 
 export const AnnouncementsManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<AnnouncementInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -55,6 +57,8 @@ export const AnnouncementsManager = () => {
     } else {
       const newItem: Omit<AnnouncementInfo, 'id'> = {
         categoryId,
+        district: location.district,
+        upazila: location.upazila,
         title: values.title,
         details: values.details,
         date: values.date,
