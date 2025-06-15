@@ -66,82 +66,93 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoadingLocally, setIsLoadingLocally] = useState(false);
 
   useEffect(() => {
-    // Debug log
-    console.log('AuthProvider mounted -> checking auth state...');
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      try {
-        console.log('[Auth] onAuthStateChanged fired.', { firebaseUser });
-        if (firebaseUser) {
-          console.log('[Auth] User detected:', firebaseUser.email, '| Verified:', firebaseUser.emailVerified);
-          // Fetch userDoc, role detection, user object
-          const userDocRef = doc(db, 'users', firebaseUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            if (userData.isVerified !== firebaseUser.emailVerified) {
-              await updateDoc(userDocRef, { isVerified: firebaseUser.emailVerified });
-            }
+    // Improved local persistence
+    import('firebase/auth').then(({ browserLocalPersistence, setPersistence }) => {
+      setPersistence(auth, browserLocalPersistence)
+        .then(() => {
+          // Auth state subscribed only after persistence is ensured
+          const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+            try {
+              console.log('[Auth] onAuthStateChanged fired.', { firebaseUser });
+              if (firebaseUser) {
+                console.log('[Auth] User detected:', firebaseUser.email, '| Verified:', firebaseUser.emailVerified);
+                // Fetch userDoc, role detection, user object
+                const userDocRef = doc(db, 'users', firebaseUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                  const userData = userDoc.data();
+                  if (userData.isVerified !== firebaseUser.emailVerified) {
+                    await updateDoc(userDocRef, { isVerified: firebaseUser.emailVerified });
+                  }
 
-            // Role detection (now supports localAdmin)
-            let role: 'admin' | 'localAdmin' | 'user' = 'user';
-            let isAdmin = false;
-            if (userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com') {
-              isAdmin = true;
-              role = 'admin';
-            } else if (userData.role === 'localAdmin') {
-              role = 'localAdmin';
-            }
+                  // Role detection (now supports localAdmin)
+                  let role: 'admin' | 'localAdmin' | 'user' = 'user';
+                  let isAdmin = false;
+                  if (userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com') {
+                    isAdmin = true;
+                    role = 'admin';
+                  } else if (userData.role === 'localAdmin') {
+                    role = 'localAdmin';
+                  }
 
-            setUser({
-              id: firebaseUser.uid,
-              name: userData.name || firebaseUser.displayName || 'Anonymous',
-              email: firebaseUser.email || '',
-              phone: userData.phone || '',
-              profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
-              isVerified: firebaseUser.emailVerified,
-              isAdmin,
-              role,
-              assignedLocations: userData.assignedLocations || [], // support for assignedLocations
-              createdAt: userData.createdAt || firebaseUser.metadata.creationTime
-            });
-          } else {
-            // Role detection (now supports localAdmin)
-            let role: 'admin' | 'localAdmin' | 'user' = 'user';
-            let isAdmin = false;
-            if (firebaseUser.email === 'mohammdaytullah@gmail.com') {
-              isAdmin = true;
-              role = 'admin';
+                  setUser({
+                    id: firebaseUser.uid,
+                    name: userData.name || firebaseUser.displayName || 'Anonymous',
+                    email: firebaseUser.email || '',
+                    phone: userData.phone || '',
+                    profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
+                    isVerified: firebaseUser.emailVerified,
+                    isAdmin,
+                    role,
+                    assignedLocations: userData.assignedLocations || [], // support for assignedLocations
+                    createdAt: userData.createdAt || firebaseUser.metadata.creationTime
+                  });
+                } else {
+                  // Role detection (now supports localAdmin)
+                  let role: 'admin' | 'localAdmin' | 'user' = 'user';
+                  let isAdmin = false;
+                  if (firebaseUser.email === 'mohammdaytullah@gmail.com') {
+                    isAdmin = true;
+                    role = 'admin';
+                  }
+                  const newUser: User = {
+                    id: firebaseUser.uid,
+                    name: firebaseUser.displayName || 'Anonymous',
+                    email: firebaseUser.email || '',
+                    isVerified: firebaseUser.emailVerified,
+                    isAdmin,
+                    role,
+                    assignedLocations: [], // Start with blank for all users (future assignment)
+                    createdAt: new Date().toISOString()
+                  };
+                  await setDoc(userDocRef, newUser);
+                  setUser(newUser);
+                }
+                // Add some logs on success
+                console.log('[Auth] User session loaded and set:', firebaseUser.email);
+              } else {
+                setUser(null);
+                console.log('[Auth] No Firebase user session. Possible auto-logout due to:');
+                console.log('- Manual logout');
+                console.log('- Browser closed/session cleared');
+                console.log('- Cookie or localStorage blocked/cleared');
+                console.log('- Email not verified at Login');
+                console.log('- Internet/network error');
+              }
+            } catch (error) {
+              console.error('Error fetching user data (AuthContext):', error);
             }
-            const newUser: User = {
-              id: firebaseUser.uid,
-              name: firebaseUser.displayName || 'Anonymous',
-              email: firebaseUser.email || '',
-              isVerified: firebaseUser.emailVerified,
-              isAdmin,
-              role,
-              assignedLocations: [], // Start with blank for all users (future assignment)
-              createdAt: new Date().toISOString()
-            };
-            await setDoc(userDocRef, newUser);
-            setUser(newUser);
-          }
-          // Add some logs on success
-          console.log('[Auth] User session loaded and set:', firebaseUser.email);
-        } else {
-          setUser(null);
-          console.log('[Auth] No Firebase user session. Possible auto-logout due to:');
-          console.log('- Manual logout');
-          console.log('- Browser closed/session cleared');
-          console.log('- Cookie or localStorage blocked/cleared');
-          console.log('- Email not verified at Login');
-          console.log('- Internet/network error');
-        }
-      } catch (error) {
-        console.error('Error fetching user data (AuthContext):', error);
-      }
-      setLoading(false);
+            setLoading(false);
+          });
+          // Return unsubscribe on unmount
+          return () => unsubscribe();
+        })
+        .catch(err => {
+          // fallback if persistence fails
+          setLoading(false);
+        });
     });
-    return () => unsubscribe();
+    // fallback in case of module import error
   }, []);
 
   // Login with persistence
@@ -347,7 +358,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       verifyPhoneNumber,
       confirmOtp,
     }}>
-      {children}
+      {loading
+        ? (<div className="min-h-[30vh] flex justify-center items-center text-xl text-gray-500">লোড হচ্ছে...</div>)
+        : children}
     </AuthContext.Provider>
   );
 };
