@@ -5,11 +5,10 @@ import * as z from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useData, HealthInfo } from "@/contexts/DataContext";
-import { PlusCircle, Edit, Trash2, Save, X, Heart, icons } from "lucide-react";
+import { useData } from "@/contexts/DataContext";
+import { HealthInfo } from "@/types/localInfo";
+import { PlusCircle, Edit, Trash2, Save, X, Hospital, icons } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -18,11 +17,11 @@ import { useLocation } from "@/contexts/LocationContext";
 const iconNames = Object.keys(icons);
 
 const formSchema = z.object({
-  name: z.string().min(1, "নাম আবশ্যক"),
-  type: z.enum(['hospital', 'clinic', 'diagnostic', 'pharmacy']),
+  name: z.string().min(1, "প্রতিষ্ঠানের নাম আবশ্যক"),
+  type: z.string().min(1, "ধরণ আবশ্যক"),
   address: z.string().min(1, "ঠিকানা আবশ্যক"),
   phone: z.string().min(1, "ফোন নম্বর আবশ্যক"),
-  services: z.string().min(1, "সেবার বিবরণ আবশ্যক"),
+  services: z.string().min(1, "সেবাসমূহ আবশ্যক"),
   icon: z.string().min(1, "আইকন আবশ্যক"),
 });
 
@@ -33,11 +32,11 @@ export const HealthManager = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   
   const categoryId = 'health';
-  const categoryName = "স্বাস্থ্য";
+  const categoryName = "স্বাস্থ্য বিষয়ক তথ্য";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', type: 'hospital', address: '', phone: '', services: '', icon: 'Stethoscope' },
+    defaultValues: { name: '', type: '', address: '', phone: '', services: '', icon: 'Hospital' },
   });
 
   const categoryItems = localInfoItems.filter((item): item is HealthInfo => item.categoryId === categoryId);
@@ -51,7 +50,7 @@ export const HealthManager = () => {
   const handleCancel = () => {
     setEditingItem(null);
     setShowAddForm(false);
-    form.reset({ name: '', type: 'hospital', address: '', phone: '', services: '', icon: 'Stethoscope' });
+    form.reset({ name: '', type: '', address: '', phone: '', services: '', icon: 'Hospital' });
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -83,7 +82,7 @@ export const HealthManager = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Heart className="h-7 w-7 text-gray-700" />
+          <Hospital className="h-7 w-7 text-gray-700" />
           <h2 className="text-2xl font-bold text-gray-800">{categoryName} ব্যবস্থাপনা</h2>
         </div>
         {!showAddForm && (
@@ -102,25 +101,11 @@ export const HealthManager = () => {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>প্রতিষ্ঠানের নাম</FormLabel><FormControl><Input placeholder="হাসপাতাল/ক্লিনিকের নাম" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="type" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ধরন</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="ধরন নির্বাচন করুন" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="hospital">হাসপাতাল</SelectItem>
-                        <SelectItem value="clinic">ক্লিনিক</SelectItem>
-                        <SelectItem value="diagnostic">ডায়াগনস্টিক সেন্টার</SelectItem>
-                        <SelectItem value="pharmacy">ফার্মেসি</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>প্রতিষ্ঠানের নাম</FormLabel><FormControl><Input placeholder="প্রতিষ্ঠানের নাম" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>ধরণ</FormLabel><FormControl><Input placeholder="ধরণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>ঠিকানা</FormLabel><FormControl><Input placeholder="ঠিকানা" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>ফোন</FormLabel><FormControl><Input placeholder="ফোন নম্বর" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="services" render={({ field }) => (<FormItem><FormLabel>সেবাসমূহ</FormLabel><FormControl><Textarea placeholder="এখানে কি কি সেবা পাওয়া যায় তার বিবরণ" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>ফোন নম্বর</FormLabel><FormControl><Input placeholder="ফোন নম্বর" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="services" render={({ field }) => (<FormItem><FormLabel>সেবাসমূহ</FormLabel><FormControl><Input placeholder="সেবাসমূহ" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="icon" render={({ field }) => (<FormItem><FormLabel>আইকন</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="আইকন নির্বাচন করুন" /></SelectTrigger></FormControl><SelectContent><ScrollArea className="h-72">{iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}><div className="flex items-center space-x-2">{renderIcon(iconName)}<span>{iconName}</span></div></SelectItem>))}</ScrollArea></SelectContent></Select><FormMessage /></FormItem>)} />
                 <div className="flex space-x-2">
                   <Button type="submit" className="bg-green-600 hover:bg-green-700"><Save className="mr-2 h-4 w-4" />সংরক্ষণ করুন</Button>
@@ -136,7 +121,7 @@ export const HealthManager = () => {
         <CardHeader><CardTitle>বর্তমান {categoryName} তথ্য</CardTitle></CardHeader>
         <CardContent>
           <Table>
-            <TableHeader><TableRow><TableHead>আইকন</TableHead><TableHead>নাম</TableHead><TableHead>ধরন</TableHead><TableHead>ঠিকানা</TableHead><TableHead>ফোন</TableHead><TableHead>সেবাসমূহ</TableHead><TableHead>কার্যক্রম</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>আইকন</TableHead><TableHead>নাম</TableHead><TableHead>ধরণ</TableHead><TableHead>ঠিকানা</TableHead><TableHead>ফোন</TableHead><TableHead>সেবাসমূহ</TableHead><TableHead>কার্যক্রম</TableHead></TableRow></TableHeader>
             <TableBody>
               {categoryItems.map((item) => (
                 <TableRow key={item.id}>
@@ -145,7 +130,7 @@ export const HealthManager = () => {
                   <TableCell>{item.type}</TableCell>
                   <TableCell>{item.address}</TableCell>
                   <TableCell>{item.phone}</TableCell>
-                  <TableCell className="max-w-xs truncate">{item.services}</TableCell>
+                  <TableCell>{item.services}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(item)}><Edit className="h-4 w-4" /></Button>

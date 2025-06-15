@@ -1,144 +1,116 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useData, WeatherInfo } from "@/contexts/DataContext";
-import { PlusCircle, Edit, Trash2, Save, X, CloudSun, icons } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { useData } from "@/contexts/DataContext";
+import { WeatherInfo } from "@/types/localInfo";
 import { useLocation } from "@/contexts/LocationContext";
+import { useToast } from "@/hooks/use-toast";
+import { Trash2, Edit, PlusCircle } from "lucide-react";
 
-const iconNames = Object.keys(icons);
-
-const formSchema = z.object({
-  area: z.string().min(1, "এলাকা আবশ্যক"),
-  temperature: z.string().min(1, "তাপমাত্রা আবশ্যক"),
-  humidity: z.string().min(1, "আর্দ্রতা আবশ্যক"),
-  alert: z.string(),
-  icon: z.string().min(1, "আইকন আবশ্যক"),
-});
+type WeatherFormData = Omit<WeatherInfo, 'id' | 'categoryId' | 'district' | 'upazila'>;
 
 export const WeatherManager = () => {
   const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
   const { location } = useLocation();
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WeatherInfo | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  
-  const categoryId = 'weather';
-  const categoryName = "আবহাওয়া ও দুর্যোগ";
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { area: '', temperature: '', humidity: '', alert: '', icon: 'Sun' },
+  const [formData, setFormData] = useState<WeatherFormData>({
+    icon: "Cloud",
+    area: "",
+    temperature: "",
+    humidity: "",
+    alert: "",
   });
 
-  const categoryItems = localInfoItems.filter((item): item is WeatherInfo => item.categoryId === categoryId);
+  const weatherItems = useMemo(() =>
+    localInfoItems.filter(
+      (item): item is WeatherInfo =>
+        item.categoryId === 'weather' &&
+        item.district === location.district &&
+        item.upazila === location.upazila
+    ),
+    [localInfoItems, location]
+  );
+
+  useEffect(() => {
+    if (editingItem) setFormData(editingItem);
+    else setFormData({ icon: "Cloud", area: "", temperature: "", humidity: "", alert: "" });
+  }, [editingItem]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const itemData = { ...formData, categoryId: 'weather' as const, district: location.district, upazila: location.upazila };
+      if (editingItem) {
+        await updateLocalInfoItem(editingItem.id, itemData);
+        toast({ title: "সফল!", description: "আবহাওয়ার তথ্য আপডেট করা হয়েছে।" });
+      } else {
+        await addLocalInfoItem(itemData);
+        toast({ title: "সফল!", description: "নতুন আবহাওয়ার তথ্য যোগ করা হয়েছে।" });
+      }
+      setIsDialogOpen(false); setEditingItem(null);
+    } catch (error) {
+      toast({ title: "ত্রুটি", description: "তথ্য সংরক্ষণ করা যায়নি।", variant: "destructive" });
+    }
+  };
 
   const handleEdit = (item: WeatherInfo) => {
     setEditingItem(item);
-    form.reset(item);
-    setShowAddForm(true);
+    setIsDialogOpen(true);
   };
-  
-  const handleCancel = () => {
-    setEditingItem(null);
-    setShowAddForm(false);
-    form.reset({ area: '', temperature: '', humidity: '', alert: '', icon: 'Sun' });
-  }
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (editingItem) {
-      updateLocalInfoItem(editingItem.id, values);
-    } else {
-      const newItem: Omit<WeatherInfo, 'id'> = {
-        categoryId,
-        district: location.district,
-        upazila: location.upazila,
-        area: values.area,
-        temperature: values.temperature,
-        humidity: values.humidity,
-        alert: values.alert,
-        icon: values.icon,
-      };
-      addLocalInfoItem(newItem);
+  const handleDelete = async (id: string) => {
+    if (window.confirm("আপনি কি নিশ্চিত?")) {
+      await deleteLocalInfoItem(id);
+      toast({ title: "সফল!", description: "আবহাওয়ার তথ্য মুছে ফেলা হয়েছে।" });
     }
-    handleCancel();
-  };
-  
-  const renderIcon = (name: string) => {
-    const Icon = icons[name as keyof typeof icons] || X;
-    return <Icon className="h-5 w-5" />;
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <CloudSun className="h-7 w-7 text-gray-700" />
-          <h2 className="text-2xl font-bold text-gray-800">{categoryName} ব্যবস্থাপনা</h2>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>আবহাওয়া ম্যানেজমেন্ট ({location.upazila}, {location.district})</CardTitle>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) setEditingItem(null); }}>
+          <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> নতুন আবহাওয়া</Button></DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{editingItem ? "সম্পাদনা করুন" : "নতুন আবহাওয়ার তথ্য"}</DialogTitle></DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input name="area" placeholder="এলাকা" value={formData.area} onChange={handleInputChange} required />
+              <Input name="temperature" placeholder="তাপমাত্রা" value={formData.temperature} onChange={handleInputChange} required />
+              <Input name="humidity" placeholder="আর্দ্রতা" value={formData.humidity} onChange={handleInputChange} required />
+              <Input name="alert" placeholder="সতর্কবার্তা" value={formData.alert} onChange={handleInputChange} required />
+              <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="secondary">বাতিল</Button></DialogClose>
+                <Button type="submit">{editingItem ? "আপডেট" : "সংরক্ষণ"}</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {weatherItems.map(item => (
+            <div key={item.id} className="flex justify-between items-center p-3 border rounded-lg">
+              <div>
+                <h4 className="font-semibold">{item.area}</h4>
+                <p className="text-sm text-gray-600">তাপমাত্রা: {item.temperature}, আর্দ্রতা: {item.humidity}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => handleEdit(item)}><Edit className="h-4 w-4" /></Button>
+                <Button variant="destructive" size="icon" onClick={() => handleDelete(item.id)}><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
+          ))}
         </div>
-        {!showAddForm && (
-          <Button onClick={() => { setShowAddForm(true); setEditingItem(null); }} className="bg-green-600 hover:bg-green-700">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            নতুন তথ্য যোগ করুন
-          </Button>
-        )}
-      </div>
-
-      {showAddForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{editingItem ? `এডিট করুন: ${editingItem.area}`: `নতুন ${categoryName} তথ্য যোগ করুন`}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="area" render={({ field }) => (<FormItem><FormLabel>এলাকা</FormLabel><FormControl><Input placeholder="এলাকার নাম" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="temperature" render={({ field }) => (<FormItem><FormLabel>তাপমাত্রা</FormLabel><FormControl><Input placeholder="যেমন: ৩০° সেলসিয়াস" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="humidity" render={({ field }) => (<FormItem><FormLabel>আর্দ্রতা</FormLabel><FormControl><Input placeholder="যেমন: ৭০%" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="alert" render={({ field }) => (<FormItem><FormLabel>সতর্কবার্তা</FormLabel><FormControl><Textarea placeholder="কোনো সতর্কবার্তা থাকলে লিখুন" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="icon" render={({ field }) => (<FormItem><FormLabel>আইকন</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="আইকন নির্বাচন করুন" /></SelectTrigger></FormControl><SelectContent><ScrollArea className="h-72">{iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}><div className="flex items-center space-x-2">{renderIcon(iconName)}<span>{iconName}</span></div></SelectItem>))}</ScrollArea></SelectContent></Select><FormMessage /></FormItem>)} />
-                <div className="flex space-x-2">
-                  <Button type="submit" className="bg-green-600 hover:bg-green-700"><Save className="mr-2 h-4 w-4" />সংরক্ষণ করুন</Button>
-                  <Button type="button" variant="outline" onClick={handleCancel}><X className="mr-2 h-4 w-4" />বাতিল</Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardHeader><CardTitle>বর্তমান {categoryName} তথ্য</CardTitle></CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader><TableRow><TableHead>আইকন</TableHead><TableHead>এলাকা</TableHead><TableHead>তাপমাত্রা</TableHead><TableHead>আর্দ্রতা</TableHead><TableHead>সতর্কবার্তা</TableHead><TableHead>কার্যক্রম</TableHead></TableRow></TableHeader>
-            <TableBody>
-              {categoryItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{renderIcon(item.icon)}</TableCell>
-                  <TableCell className="font-medium">{item.area}</TableCell>
-                  <TableCell>{item.temperature}</TableCell>
-                  <TableCell>{item.humidity}</TableCell>
-                  <TableCell className="max-w-sm truncate">{item.alert}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(item)}><Edit className="h-4 w-4" /></Button>
-                      <Button size="sm" variant="destructive" onClick={() => deleteLocalInfoItem(item.id)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

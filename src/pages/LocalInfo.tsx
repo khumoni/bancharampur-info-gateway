@@ -2,7 +2,26 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
-import { EducationInfo, HealthInfo, TransportInfo, AdministrativeInfo, UtilitiesInfo, WeatherInfo, ProjectInfo, AnnouncementInfo, ScholarshipInfo, LegalAidInfo, AgricultureInfo, HousingInfo, DigitalServiceInfo, CultureInfo, PrivateHealthInfo, EmergencyNewsInfo, JobInfo, LocalInfoItem } from "@/types/localInfo";
+import {
+  EducationInfo,
+  HealthInfo,
+  TransportInfo,
+  AdministrativeInfo,
+  UtilitiesInfo,
+  WeatherInfo,
+  ProjectInfo,
+  AnnouncementInfo,
+  ScholarshipInfo,
+  LegalAidInfo,
+  AgricultureInfo,
+  HousingInfo,
+  DigitalServiceInfo,
+  CultureInfo,
+  PrivateHealthInfo,
+  EmergencyNewsInfo,
+  JobInfo,
+  LocalInfoItem,
+} from "@/types/localInfo";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { t } from "@/lib/translations";
 import { Link } from 'lucide-react';
@@ -24,14 +43,14 @@ export default function LocalInfo() {
   const agricultureItems = localInfoItems.filter((item): item is AgricultureInfo => item.categoryId === 'agriculture');
   const housingItems = localInfoItems.filter((item): item is HousingInfo => item.categoryId === 'housing');
   const digitalServiceItems = localInfoItems.filter((item): item is DigitalServiceInfo => item.categoryId === 'digital_services');
-    const cultureItems = localInfoItems.filter((item): item is CultureInfo => item.categoryId === 'culture');
-    const privateHealthItems = localInfoItems.filter((item): item is PrivateHealthInfo => item.categoryId === 'private_health');
-    const emergencyNewsItems = localInfoItems.filter((item): item is EmergencyNewsInfo => item.categoryId === 'emergency_news');
-    const jobItems = localInfoItems.filter((item): item is JobInfo => item.categoryId === 'jobs');
+  const cultureItems = localInfoItems.filter((item): item is CultureInfo => item.categoryId === 'culture');
+  const privateHealthItems = localInfoItems.filter((item): item is PrivateHealthInfo => item.categoryId === 'private_health');
+  const emergencyNewsItems = localInfoItems.filter((item): item is EmergencyNewsInfo => item.categoryId === 'emergency_news');
+  const jobItems = localInfoItems.filter((item): item is JobInfo => item.categoryId === 'jobs');
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-4">{t("localInformation", language)}</h1>
+      <h1 className="text-3xl font-bold mb-4">{t("localNews", language)}</h1>
 
       <div className="grid gap-6">
         <Card>
@@ -44,23 +63,6 @@ export default function LocalInfo() {
                 {educationItems.map((item) => (
                   <li key={item.id} className="mb-2">
                     {item.institutionName} - {item.type}
-                  </li>
-                ))}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("health", language)}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px] w-full">
-              <ul>
-                {healthItems.map((item) => (
-                  <li key={item.id} className="mb-2">
-                    {item.name} - {item.type}
                   </li>
                 ))}
               </ul>
@@ -153,175 +155,175 @@ export default function LocalInfo() {
           </CardContent>
         </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("announcements", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {announcementItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.title} - {item.date}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("announcements", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {announcementItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.title} - {item.date}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("scholarships", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {scholarshipItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.title} - {item.provider}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("scholarship", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {scholarshipItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.title} - {item.provider}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("legal", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {legalAidItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.serviceName} - {item.provider}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("legal", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {legalAidItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.serviceName} - {item.provider}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("agriculture", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {agricultureItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.serviceType} - {item.contact}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("agriculture", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {agricultureItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.serviceType} - {item.contact}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("housing", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {housingItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.projectName} - {item.contact}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("housing", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {housingItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.projectName} - {item.contact}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("digital_services", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {digitalServiceItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.centerName} - {item.services}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-              
-               <Card>
-                <CardHeader>
-                  <CardTitle>{t("culture", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {cultureItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.eventName} - {item.location}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("digital_services", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {digitalServiceItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.centerName} - {item.services}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("private_health", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {privateHealthItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.name} - {item.specialty}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("culture", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {cultureItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.eventName} - {item.location}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("emergency_news", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {emergencyNewsItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.title} - {item.date}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("private_health", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {privateHealthItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.name} - {item.specialty}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("jobs", language)}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {jobItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          {item.title} - {item.company}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("emergency_news", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {emergencyNewsItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.title} - {item.date}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("jobs", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {jobItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.title} - {item.company}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
