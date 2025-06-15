@@ -184,9 +184,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       district: "Bancharampur",
       upazila: "Bancharampur",
       functionName: "addComment",
-      description: "Adds a comment to a post. Only callable from app clients with App Check enforced.",
+      description: "Adds a comment to a post. Only callable from app clients with strict App Check enforcement (token consumed).",
       type: "callable",
       enforceAppCheck: true,
+      consumeAppCheckToken: true,
+      requireLimitedUseAppCheckTokens: true,
+      platformSupport: ["ios", "android", "web"],
       status: "active",
       lastUpdated: "2024-06-15"
     },
@@ -197,11 +200,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       district: "Bancharampur",
       upazila: "Bancharampur",
       functionName: "notifyOnLike",
-      description: "Triggers notification to post owner when a post is liked.",
+      description: "Triggers notification to post owner when a post is liked. Trigger-based, no App Check enforcement.",
       type: "trigger",
       enforceAppCheck: false,
+      consumeAppCheckToken: false,
       status: "active",
-      lastUpdated: "2024-06-10"
+      lastUpdated: "2024-06-10",
+      platformSupport: ["web"],
     }
   ];
 

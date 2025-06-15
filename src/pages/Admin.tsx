@@ -26,6 +26,7 @@ import { JobManager } from "@/components/admin/JobManager";
 import { t } from "@/lib/translations";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
+import { CloudFunctionsManager } from "@/components/admin/CloudFunctionsManager";
 
 export default function AdminPage() {
   const [totalUsers, setTotalUsers] = useState(150);
@@ -56,6 +57,7 @@ export default function AdminPage() {
     { id: "private_health", label: t("privateHealth", language), manager: PrivateHealthManager },
     { id: "emergency_news", label: t("emergencyNews", language), manager: EmergencyNewsManager },
     { id: "jobs", label: t("jobs", language), manager: JobManager },
+    { id: "cloud_functions", label: t("cloudFunctions", language), manager: CloudFunctionsManager },
   ];
 
   // Collapsible debug panel state

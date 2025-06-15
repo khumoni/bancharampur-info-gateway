@@ -1,4 +1,3 @@
-
 export const translations = {
   bn: {
     siteName: "বাঞ্ছারামপুর ডিজিটাল ইনফোকাইট",
@@ -61,7 +60,7 @@ export const translations = {
     education: "শিক্ষা",
     transport: "পরিবহন",
     utilities: "উপযোগিতা",
-    weather: "আবহাওয়া",
+    weather: "আবহাওয়া",
     projects: "প্রকল্প",
     announcements: "ঘোষণা",
     scholarship: "বৃত্তি",
@@ -71,6 +70,7 @@ export const translations = {
     culture: "সংস্কৃতি",
     privateHealth: "প্রাইভেট স্বাস্থ্য",
     emergencyNews: "জরুরি সংবাদ",
+    cloudFunctions: "ক্লাউড ফাংশন",
   },
   en: {
     siteName: "Bancharampur Digital Infogate",
@@ -143,6 +143,7 @@ export const translations = {
     culture: "Culture",
     privateHealth: "Private Health",
     emergencyNews: "Emergency News",
+    cloudFunctions: "Cloud Functions",
   }
 };
 

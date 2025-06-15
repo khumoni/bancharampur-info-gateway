@@ -146,8 +146,11 @@ export interface CloudFunctionInfo extends BaseInfoItem {
   description: string;
   type: "callable" | "http" | "trigger";
   enforceAppCheck: boolean;
+  consumeAppCheckToken?: boolean; // Added field for strict app check
+  requireLimitedUseAppCheckTokens?: boolean; // (client/SDK support)
   status: "active" | "inactive" | "error";
   lastUpdated: string;
+  platformSupport?: Array<"ios" | "android" | "web">;
 }
 
 export type LocalInfoItem = 
