@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   signInWithEmailAndPassword,
@@ -31,14 +30,15 @@ interface User {
   profilePicture?: string;
   isVerified?: boolean;
   isAdmin?: boolean;
-  role?: 'admin' | 'user';
+  role?: 'admin' | 'localAdmin' | 'user';
+  assignedLocations?: Array<{ district: string; upazila: string }>; // NEW: Optional!
   createdAt?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string, phone?: string) => Promise<boolean>;
+  register: (email: string, password: string, name: string, phone?: string, role?: 'admin' | 'localAdmin' | 'user', assignedLocations?: Array<{ district: string; upazila: string }>) => Promise<boolean>;
   logout: () => Promise<void>;
   loading: boolean;
   isLoading: boolean;
@@ -79,7 +79,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (userData.isVerified !== firebaseUser.emailVerified) {
               await updateDoc(userDocRef, { isVerified: firebaseUser.emailVerified });
             }
-            const isAdmin = userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com';
+
+            // Role detection (now supports localAdmin)
+            let role: 'admin' | 'localAdmin' | 'user' = 'user';
+            let isAdmin = false;
+            if (userData.isAdmin || firebaseUser.email === 'mohammdaytullah@gmail.com') {
+              isAdmin = true;
+              role = 'admin';
+            } else if (userData.role === 'localAdmin') {
+              role = 'localAdmin';
+            }
+
             setUser({
               id: firebaseUser.uid,
               name: userData.name || firebaseUser.displayName || 'Anonymous',
@@ -88,18 +98,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               profilePicture: userData.profilePicture || firebaseUser.photoURL || '',
               isVerified: firebaseUser.emailVerified,
               isAdmin,
-              role: isAdmin ? 'admin' : 'user',
+              role,
+              assignedLocations: userData.assignedLocations || [], // support for assignedLocations
               createdAt: userData.createdAt || firebaseUser.metadata.creationTime
             });
           } else {
-            const isAdmin = firebaseUser.email === 'mohammdaytullah@gmail.com';
+            // Role detection (now supports localAdmin)
+            let role: 'admin' | 'localAdmin' | 'user' = 'user';
+            let isAdmin = false;
+            if (firebaseUser.email === 'mohammdaytullah@gmail.com') {
+              isAdmin = true;
+              role = 'admin';
+            }
             const newUser: User = {
               id: firebaseUser.uid,
               name: firebaseUser.displayName || 'Anonymous',
               email: firebaseUser.email || '',
               isVerified: firebaseUser.emailVerified,
               isAdmin,
-              role: isAdmin ? 'admin' : 'user',
+              role,
+              assignedLocations: [], // Start with blank for all users (future assignment)
               createdAt: new Date().toISOString()
             };
             await setDoc(userDocRef, newUser);
@@ -140,7 +158,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string, phone?: string): Promise<boolean> => {
+  // UPDATED register logic so later, if you want to register localAdmin, just provide a role & locations
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string,
+    role: 'admin' | 'localAdmin' | 'user' = 'user', // NEW
+    assignedLocations?: Array<{ district: string; upazila: string }> // NEW
+  ): Promise<boolean> => {
     try {
       setIsLoadingLocally(true);
       await setPersistence(auth, browserLocalPersistence);
@@ -148,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       await sendEmailVerification(userCredential.user);
 
-      const isAdmin = email === 'mohammdaytullah@gmail.com';
+      const isAdmin = role === 'admin' || email === 'mohammdaytullah@gmail.com';
       const userData: Omit<User, 'id'> = {
         name,
         email,
@@ -156,7 +182,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profilePicture: '',
         isVerified: false,
         isAdmin,
-        role: isAdmin ? 'admin' : 'user',
+        role,
+        assignedLocations: assignedLocations || [],
         createdAt: new Date().toISOString()
       };
 
@@ -313,4 +340,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// নোট: এই ফাইলটি অনেক বড় (৩২৩+ লাইন)! চাইলে বলুন এটা ছোট ছোট ফাইলে ভেঙে দিব।
+// নোট: এই ফাইলটি অনেক বড় (৩১৭+ লাইন)! এখন role ও assignedLocations যুক্ত করা হয়েছে। পরবর্তী ধাপে UI ও অ্যাডমিন প্যানেল মডিফাই করতে চাইলে বলুন।
