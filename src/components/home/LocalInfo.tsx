@@ -7,7 +7,7 @@ import LocalInfoQuickAccess from "./LocalInfoQuickAccess";
 import { Switch } from "@/components/ui/switch";
 import { CategorySection } from "./CategorySection";
 import { LocalInfoItem } from "@/types/localInfo";
-import LocationSelectorDialog from "@/components/LocationSelectorDialog";
+import LocationSelectorDialog from "@/components/location/LocationSelectorDialog";
 
 const categoryList = [
   { id: "education", i18n: "education" },

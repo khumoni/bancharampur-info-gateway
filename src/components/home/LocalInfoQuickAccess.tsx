@@ -1,8 +1,9 @@
 
 import React from "react";
 import {
-  Book, Heart, Bus, Cloud, Hammer, Leaf, Zap, Building2, Announcements, BadgePercent, Gavel,
-  Home, Monitor, Palette, Stethoscope, Newspaper, Briefcase
+  Book, Heart, Bus, Cloud, Hammer, Leaf, Zap, Building2, 
+  Megaphone, BadgePercent, Gavel, Home, Monitor, Palette, 
+  Stethoscope, Newspaper, Briefcase
 } from "lucide-react";
 
 const categoryMeta: Record<
@@ -22,7 +23,8 @@ const categoryMeta: Record<
   agriculture:      { icon: Leaf,         color: "from-green-600 to-green-300",    shadow: "shadow-green-200/30" },
   utilities:        { icon: Zap,          color: "from-yellow-400 to-yellow-500",  shadow: "shadow-yellow-300/30" },
   admin:            { icon: Building2,    color: "from-indigo-400 to-indigo-700",  shadow: "shadow-indigo-400/30" },
-  announcements:    { icon: Announcements,color: "from-rose-400 to-pink-500",      shadow: "shadow-pink-300/20" },
+  // FIXED: Use Megaphone instead of Announcements
+  announcements:    { icon: Megaphone,    color: "from-rose-400 to-pink-500",      shadow: "shadow-pink-300/20" },
   scholarship:      { icon: BadgePercent, color: "from-cyan-500 to-teal-400",      shadow: "shadow-cyan-400/20" },
   legal:            { icon: Gavel,        color: "from-gray-600 to-gray-900",      shadow: "shadow-gray-400/20" },
   housing:          { icon: Home,         color: "from-purple-400 to-fuchsia-400", shadow: "shadow-purple-300/20" },
