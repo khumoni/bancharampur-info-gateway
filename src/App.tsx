@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,39 +15,58 @@ import Marketplace from "./pages/Marketplace";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import LocalInfo from "./pages/LocalInfo";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
+import { useFCM } from "@/hooks/useFCM";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="lovable-ui-theme">
-      <AppProvider>
-        <AuthProvider>
-          <LocationProvider>
-            <DataProvider>
-              <SocialProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/admin" element={<Admin />} />
-                      <Route path="/marketplace" element={<Marketplace />} />
-                      <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
-                      <Route path="/local-info" element={<LocalInfo />} />
-                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </BrowserRouter>
-                </TooltipProvider>
-              </SocialProvider>
-            </DataProvider>
-          </LocationProvider>
-        </AuthProvider>
-      </AppProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // FCM: Ask permission on load (one time)
+  const { permission, fcmToken, requestPermission } = useFCM();
+
+  useEffect(() => {
+    // Only ask if not granted/denied
+    if (permission === "default") {
+      // Ask user after a 1s delay to avoid spamming
+      setTimeout(() => {
+        if (window.confirm("আপনি কি browser notification চান?")) {
+          requestPermission();
+        }
+      }, 1000);
+    }
+  }, [permission]);
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="system" storageKey="lovable-ui-theme">
+        <AppProvider>
+          <AuthProvider>
+            <LocationProvider>
+              <DataProvider>
+                <SocialProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/admin" element={<Admin />} />
+                        <Route path="/marketplace" element={<Marketplace />} />
+                        <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
+                        <Route path="/local-info" element={<LocalInfo />} />
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </BrowserRouter>
+                  </TooltipProvider>
+                </SocialProvider>
+              </DataProvider>
+            </LocationProvider>
+          </AuthProvider>
+        </AppProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
