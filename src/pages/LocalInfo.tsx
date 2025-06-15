@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +106,7 @@ const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
 
 const LocalInfo = () => {
   const { language } = useApp();
-  const { localInfoItems, loading, error } = useData();
+  const { localInfoItems, loading } = useData();
   const { location } = useLocation();
   const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
