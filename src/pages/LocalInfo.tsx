@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +36,8 @@ import { useData, LocalInfoItem } from "@/contexts/DataContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { LocationSelectorDialog } from "@/components/location/LocationSelectorDialog";
 import { districts } from "@/lib/bd-locations";
+import { Skeleton } from "@/components/ui/skeleton";
+import { RefreshCw } from "lucide-react";
 
 const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
   const typeTranslations = {
@@ -87,7 +88,7 @@ const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
     case 'digital_services':
       return { title: item.centerName, description: `${lang === 'bn' ? 'সেবা সমূহ' : 'Services'}: ${item.services} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
     case 'culture':
-      return { title: item.eventName, description: `${lang === 'bn' ? 'স্থান' : 'Location'}: ${item.location} | ${lang === 'bn' ? 'তারিখ' : 'Date'}: ${item.date} | ${item.details}` };
+      return { title: item.eventName, description: `${lang === 'bn' ? 'স্থান' : 'Location'}: ${item.location} | ${lang === 'bn' ? 'তারikh' : 'Date'}: ${item.date} | ${item.details}` };
     case 'private_health':
         const typeText = item.type === 'clinic' 
             ? (lang === 'bn' ? 'বেসরকারি ক্লিনিক' : 'Private Clinic') 
@@ -105,13 +106,15 @@ const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
 
 const LocalInfo = () => {
   const { language } = useApp();
-  const { localInfoItems } = useData();
+  const { localInfoItems, loading, error } = useData();
   const { location } = useLocation();
   const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const currentDistrict = useMemo(() => districts.find(d => d.name.en === location.district), [location.district]);
   const currentUpazila = useMemo(() => currentDistrict?.upazilas.find(u => u.name.en === location.upazila), [currentDistrict, location.upazila]);
-
+  
   const locationName = language === 'bn'
     ? `${currentUpazila?.name.bn || location.upazila}, ${currentDistrict?.name.bn || location.district}`
     : `${location.upazila}, ${location.district}`;
@@ -147,6 +150,15 @@ const LocalInfo = () => {
     return <Icon className="h-5 w-5 mr-3 text-gray-600" />;
   };
 
+  // Refresh function: simple reload for demo (would refetch in real app)
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    setError(null);
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -159,59 +171,83 @@ const LocalInfo = () => {
             <p className="text-gray-600 dark:text-gray-300 mt-2">
               {language === 'bn' ? 'আপনার প্রয়োজনীয় সকল তথ্য এখানে পাবেন।' : 'Find all the necessary information here.'}
             </p>
-            <Button onClick={() => setIsLocationSelectorOpen(true)} className="mt-4">
-              {language === 'bn' ? 'এলাকা পরিবর্তন করুন' : 'Change Location'}
-            </Button>
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <Button onClick={() => setIsLocationSelectorOpen(true)}>
+                {language === 'bn' ? 'এলাকা পরিবর্তন করুন' : 'Change Location'}
+              </Button>
+              <Button variant="outline" size="sm" className="mt-1 flex items-center gap-2" onClick={handleRefresh} disabled={refreshing}>
+                <RefreshCw className={refreshing ? "animate-spin" : ""} size={16} />
+                {refreshing
+                  ? (language === 'bn' ? "রিফ্রেশ হচ্ছে..." : "Refreshing...")
+                  : (language === 'bn' ? "তথ্য রিফ্রেশ করুন" : "Refresh Data")}
+              </Button>
+            </div>
+            {error && (
+              <div className="text-red-500 mt-3">{error}</div>
+            )}
           </CardContent>
         </Card>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map(cat => {
-            const itemsForCategory = localInfoItems.filter(item => 
-              item.district === location.district && 
-              item.upazila === location.upazila &&
-              item.categoryId === cat.id
-            );
+        {/* LOADING & ERROR STATE */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="skeletons">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="w-full">
+                <Skeleton className="h-56 w-full rounded-xl mb-3" />
+                <Skeleton className="h-4 w-2/3 mb-1" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map(cat => {
+              const itemsForCategory = localInfoItems.filter(item => 
+                item.district === location.district && 
+                item.upazila === location.upazila &&
+                item.categoryId === cat.id
+              );
 
-            return (
-              <Accordion type="single" collapsible key={cat.id} className="w-full bg-card rounded-lg border shadow-sm transition-all hover:shadow-md">
-                <AccordionItem value={cat.id} className="border-b-0">
-                  <AccordionTrigger className="p-6 text-left hover:no-underline">
-                    <div className="flex items-center w-full">
-                      <cat.icon className="w-8 h-8 mr-4 text-primary shrink-0" />
-                      <div className="flex-grow">
-                        <h3 className="text-lg font-semibold">{cat.label}</h3>
+              return (
+                <Accordion type="single" collapsible key={cat.id} className="w-full bg-card rounded-lg border shadow-sm transition-all hover:shadow-md">
+                  <AccordionItem value={cat.id} className="border-b-0">
+                    <AccordionTrigger className="p-6 text-left hover:no-underline">
+                      <div className="flex items-center w-full">
+                        <cat.icon className="w-8 h-8 mr-4 text-primary shrink-0" />
+                        <div className="flex-grow">
+                          <h3 className="text-lg font-semibold">{cat.label}</h3>
+                        </div>
+                        <Badge variant="secondary" className="ml-4 shrink-0">{itemsForCategory.length}</Badge>
                       </div>
-                      <Badge variant="secondary" className="ml-4 shrink-0">{itemsForCategory.length}</Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="p-6 pt-0">
-                    <div className="space-y-4">
-                      {itemsForCategory.length > 0 ? (
-                        itemsForCategory.map(item => {
-                          const { title, description } = getItemContent(item, language);
-                          return (
-                            <div key={item.id} className="flex items-start p-3 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                              {renderIcon(item.icon)}
-                              <div>
-                                <h4 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0">
+                      <div className="space-y-4">
+                        {itemsForCategory.length > 0 ? (
+                          itemsForCategory.map(item => {
+                            const { title, description } = getItemContent(item, language);
+                            return (
+                              <div key={item.id} className="flex items-start p-3 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                                {renderIcon(item.icon)}
+                                <div>
+                                  <h4 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h4>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                          {language === 'bn' ? 'এই এলাকার জন্য কোনো তথ্য পাওয়া যায়নি।' : 'No information found for this area.'}
-                        </p>
-                      )}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            );
-          })}
-        </div>
+                            );
+                          })
+                        ) : (
+                          <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                            {language === 'bn' ? 'এই এলাকার জন্য কোনো তথ্য পাওয়া যায়নি।' : 'No information found for this area.'}
+                          </p>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              );
+            })}
+          </div>
+        )}
       </main>
       <Footer />
       <LocationSelectorDialog isOpen={isLocationSelectorOpen} onOpenChange={setIsLocationSelectorOpen} />
