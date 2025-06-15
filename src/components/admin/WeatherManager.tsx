@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import { Trash2, Edit, PlusCircle } from "lucide-react";
 type WeatherFormData = Omit<WeatherInfo, 'id' | 'categoryId' | 'district' | 'upazila'>;
 
 export const WeatherManager = () => {
-  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
   const { location } = useLocation();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);

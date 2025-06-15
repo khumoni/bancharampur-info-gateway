@@ -1,10 +1,9 @@
-
 import React from "react";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import type { CloudFunctionInfo } from "@/types/localInfo";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useData } from "@/contexts/DataContext";
 import { t } from "@/lib/translations";
 import { Code } from "lucide-react";
 
@@ -29,7 +28,7 @@ function platformLabel(support?: Array<"ios" | "android" | "web">) {
 }
 
 export const CloudFunctionsManager: React.FC<Props> = ({ language }) => {
-  const { localInfoItems } = useData();
+  const { localInfoItems } = useLocalInfo();
   const cloudFunctions = localInfoItems.filter(
     i => i.categoryId === "cloud_functions"
   ) as CloudFunctionInfo[];

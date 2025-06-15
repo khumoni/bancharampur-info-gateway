@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useData } from "@/contexts/DataContext";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import { useApp } from "@/contexts/AppContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { t } from "@/lib/translations";
@@ -35,7 +35,7 @@ type CategoryId = typeof categoryList[number]["id"];
 // Main LocalInfo Component
 export const LocalInfo = () => {
   const { language } = useApp();
-  const { localInfoItems, loading } = useData();
+  const { localInfoItems, loading } = useLocalInfo();
   const { location } = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | null>(null);
   const [showOnlyMyArea, setShowOnlyMyArea] = useState(true);

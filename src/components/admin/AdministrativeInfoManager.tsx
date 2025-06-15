@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLocation } from "@/contexts/LocationContext";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 
 const iconNames = Object.keys(icons);
 
@@ -25,7 +26,7 @@ const formSchema = z.object({
 });
 
 export const AdministrativeInfoManager = () => {
-  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
   const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<AdministrativeInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);

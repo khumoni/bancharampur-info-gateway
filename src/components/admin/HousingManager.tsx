@@ -9,11 +9,12 @@ import { HousingInfo } from "@/types/localInfo";
 import { useLocation } from "@/contexts/LocationContext";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, PlusCircle } from "lucide-react";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 
 type HousingFormData = Omit<HousingInfo, 'id' | 'categoryId' | 'district' | 'upazila'>;
 
 export const HousingManager = () => {
-  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
   const { location } = useLocation();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);

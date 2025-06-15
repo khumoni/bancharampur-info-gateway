@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLocation } from "@/contexts/LocationContext";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 
 const iconNames = Object.keys(icons);
 
@@ -26,7 +26,7 @@ const formSchema = z.object({
 });
 
 export const ProjectsManager = () => {
-  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
   const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<ProjectInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);

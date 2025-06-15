@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,7 +26,7 @@ const formSchema = z.object({
 });
 
 export const AnnouncementsManager = () => {
-  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
+  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
   const { location } = useLocation();
   const [editingItem, setEditingItem] = useState<AnnouncementInfo | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);

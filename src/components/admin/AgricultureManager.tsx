@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useData } from '@/contexts/DataContext';
+import { useLocalInfo } from '@/contexts/LocalInfoContext';
 import {
   Card,
   CardHeader,
@@ -14,7 +14,7 @@ import { useApp } from "@/contexts/AppContext";
 import { AgricultureInfo } from "@/types/localInfo";
 
 export function AgricultureManager() {
-  const { addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem, localInfoItems } = useData();
+  const { addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem, localInfoItems } = useLocalInfo();
   const { language } = useApp();
   const [newItem, setNewItem] = useState({
     district: 'Brahmanbaria',

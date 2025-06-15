@@ -1,20 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
+import { useLocalInfo } from "@/contexts/LocalInfoContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { useData } from "@/contexts/DataContext";
-import { DigitalServiceInfo } from "@/types/localInfo";
-import { useLocation } from "@/contexts/LocationContext";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, PlusCircle } from "lucide-react";
 
 type DigitalServiceFormData = Omit<DigitalServiceInfo, 'id' | 'categoryId' | 'district' | 'upazila'>;
 
 export const DigitalServiceManager = () => {
-  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useData();
-  const { location } = useLocation();
+  const { localInfoItems, addLocalInfoItem, updateLocalInfoItem, deleteLocalInfoItem } = useLocalInfo();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<DigitalServiceInfo | null>(null);
