@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/lib/marketplace/types';
+import { Shop } from '@/lib/marketplace/types';
 
 export interface Notice {
   id: string;
@@ -193,12 +194,12 @@ export type LocalInfoItem =
   | EmergencyNewsInfo 
   | JobInfo;
 
-
 interface DataContextType {
   notices: Notice[];
   marketRates: MarketRate[];
   localInfoItems: LocalInfoItem[];
   products: Product[];
+  shops: Shop[];
   addNotice: (notice: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => Promise<void>;
   updateMarketRate: (id: string, rate: Partial<MarketRate>) => Promise<void>;
   addMarketRate: (rate: Omit<MarketRate, 'id' | 'lastUpdated'>) => Promise<void>;
@@ -209,6 +210,9 @@ interface DataContextType {
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  addShop: (shop: Omit<Shop, 'id' | 'createdAt' | 'verified' | 'featured' | 'products' | 'rating' | 'reviewsCount'>) => Promise<void>;
+  updateShop: (id: string, shop: Partial<Shop>) => Promise<void>;
+  deleteShop: (id: string) => Promise<void>;
   loading: boolean;
   refetchData: () => Promise<void>; // NEW!
 }
@@ -228,6 +232,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [marketRates, setMarketRates] = useState<MarketRate[]>([]);
   const [localInfoItems, setLocalInfoItems] = useState<LocalInfoItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Demo/Seed data for new categories
@@ -407,11 +412,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
+    // Listen to shops collection
+    const shopsQuery = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
+    const unsubscribeShops = onSnapshot(
+      shopsQuery,
+      (snapshot) => {
+        const shopsData = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+          } as Shop;
+        });
+        setShops(shopsData);
+      },
+      (error) => {
+        console.error('Error listening to shops:', error);
+      }
+    );
+
     return () => {
       unsubscribeNotices();
       unsubscribeMarketRates();
       unsubscribeLocalInfoItems();
       unsubscribeProducts();
+      unsubscribeShops();
     };
   }, []);
 
@@ -534,6 +560,43 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const addShop = async (shopData: Omit<Shop, 'id' | 'createdAt' | 'verified' | 'featured' | 'products' | 'rating' | 'reviewsCount'>) => {
+    try {
+      await addDoc(collection(db, 'shops'), {
+        ...shopData,
+        createdAt: Timestamp.now(),
+        verified: false,
+        featured: false,
+        products: [],
+        rating: 0,
+        reviewsCount: 0,
+      });
+    } catch (error) {
+      console.error('Error adding shop:', error);
+      throw error;
+    }
+  };
+
+  const updateShop = async (id: string, shopData: Partial<Shop>) => {
+    try {
+      const shopRef = doc(db, 'shops', id);
+      await updateDoc(shopRef, shopData as Record<string, any>);
+    } catch (error) {
+      console.error('Error updating shop:', error);
+      throw error;
+    }
+  };
+
+  const deleteShop = async (id: string) => {
+    try {
+      const shopRef = doc(db, 'shops', id);
+      await deleteDoc(shopRef);
+    } catch (error) {
+      console.error('Error deleting shop:', error);
+      throw error;
+    }
+  };
+
   // ----------- REFETCH FUNCTION -----------
   /** Re-fetch all main data sets (local info, notices, products, marketRates) from Firestore */
   const refetchData = async () => {
@@ -586,6 +649,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })) as LocalInfoItem[];
       // Fallback to demo data if empty
       setLocalInfoItems(itemsData.length > 0 ? itemsData : (demoLocalInfoItems as any));
+
+      // Shops
+      const shopsQuery = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
+      const shopsSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(shopsQuery));
+      const shopsData = shopsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Shop[];
+      setShops(shopsData);
     } catch (err) {
       console.error('Error during manual data refetch:', err);
     }
@@ -598,6 +670,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       marketRates,
       localInfoItems,
       products,
+      shops,
       addNotice,
       updateMarketRate,
       addMarketRate,
@@ -608,6 +681,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addProduct,
       updateProduct,
       deleteProduct,
+      addShop,
+      updateShop,
+      deleteShop,
       loading,
       refetchData, // NEW!
     }}>
