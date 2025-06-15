@@ -45,6 +45,9 @@ import { Footer } from "@/components/layout/Footer";
 import { useApp } from "@/contexts/AppContext";
 import { useData, LocalInfoItem } from "@/contexts/DataContext";
 import { MarketRates } from "@/components/home/MarketRates";
+import { useLocation } from "@/contexts/LocationContext";
+import { LocationSelectorDialog } from "@/components/location/LocationSelectorDialog";
+import { districts } from "@/lib/bd-locations";
 
 const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
   const typeTranslations = {
@@ -93,7 +96,22 @@ const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
 const LocalInfo = () => {
   const { language } = useApp();
   const { localInfoItems } = useData();
+  const { location } = useLocation();
   const [activeTab, setActiveTab] = useState("education");
+  const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
+
+  const currentDistrict = useMemo(() => districts.find(d => d.name.en === location.district), [location.district]);
+  const currentUpazila = useMemo(() => currentDistrict?.upazilas.find(u => u.name.en === location.upazila), [currentDistrict, location.upazila]);
+
+  const locationName = language === 'bn'
+    ? `${currentUpazila?.name.bn || location.upazila}, ${currentDistrict?.name.bn || location.district}`
+    : `${location.upazila}, ${location.district}`;
+
+  const upazilaName = language === 'bn' ? currentUpazila?.name.bn || location.upazila : location.upazila;
+
+  const filteredLocalInfoItems = useMemo(() => localInfoItems.filter(item =>
+    item.district === location.district && item.upazila === location.upazila
+  ), [localInfoItems, location]);
 
   const categories = [
     {
@@ -168,15 +186,18 @@ const LocalInfo = () => {
             <div className="flex items-center justify-center mb-6">
               <Building className="h-8 w-8 text-emerald-500 mr-3 animate-pulse" />
               <span className="text-lg font-medium text-emerald-600 dark:text-emerald-400 tracking-wide">
-                {language === 'bn' ? 'উপজেলা তথ্য' : 'Upazila Information'}
+                {locationName}
               </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 leading-tight">
               {language === 'bn' ? 'স্থানীয় সেবা ও তথ্য' : 'Local Services & Information'}
             </h1>
             <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
-              {language === 'bn' ? 'বাঞ্ছারামপুর উপজেলার সকল গুরুত্বপূর্ণ তথ্য ও সেবা এক জায়গায়' : 'All important information and services of Bancharampur Upazila in one place'}
+              {language === 'bn' ? `${upazilaName} উপজেলার সকল গুরুত্বপূর্ণ তথ্য ও সেবা এক জায়গায়` : `All important information and services of ${upazilaName} Upazila in one place`}
             </p>
+            <Button onClick={() => setIsLocationSelectorOpen(true)} variant="outline" className="bg-white/50 backdrop-blur-sm">
+                {language === 'bn' ? 'এলাকা পরিবর্তন করুন' : 'Change Location'}
+            </Button>
           </div>
         </div>
       </section>
@@ -206,7 +227,7 @@ const LocalInfo = () => {
 
             {/* Category Content */}
             {categories.map((category) => {
-              const itemsForCategory = localInfoItems.filter(item => item.categoryId === category.id);
+              const itemsForCategory = filteredLocalInfoItems.filter(item => item.categoryId === category.id);
               return (
               <TabsContent key={category.id} value={category.id} className="mt-8">
                 <div className="animate-fade-in">
@@ -254,8 +275,8 @@ const LocalInfo = () => {
                       ) : (
                         <div className="text-center py-12 text-gray-500">
                           <Info className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                          <h3 className="text-xl font-semibold">কোনো তথ্য পাওয়া যায়নি</h3>
-                          <p className="mt-2">এই ক্যাটেগরিতে এখনো কোনো তথ্য যোগ করা হয়নি।</p>
+                          <h3 className="text-xl font-semibold">{language === 'bn' ? 'কোনো তথ্য পাওয়া যায়নি' : 'No Information Found'}</h3>
+                          <p className="mt-2">{language === 'bn' ? `এই এলাকায় '${category.title}' ক্যাটেগরিতে কোনো তথ্য যোগ করা হয়নি।` : `No information has been added in the '${category.title}' category for this area yet.`}</p>
                         </div>
                       )}
                     </CardContent>
@@ -266,6 +287,11 @@ const LocalInfo = () => {
           </Tabs>
         </div>
       </section>
+
+      <LocationSelectorDialog 
+        isOpen={isLocationSelectorOpen} 
+        onOpenChange={setIsLocationSelectorOpen}
+      />
 
       <Footer />
     </div>

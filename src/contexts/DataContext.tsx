@@ -36,6 +36,8 @@ export interface BaseInfoItem {
   id: string;
   categoryId: string;
   icon: string;
+  district: string;
+  upazila: string;
 }
 
 export interface EducationInfo extends BaseInfoItem {
