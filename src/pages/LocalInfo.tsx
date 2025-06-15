@@ -50,11 +50,11 @@ export default function LocalInfo() {
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-4">{t("localInformationTitle", language)}</h1>
+      <h1 className="text-3xl font-bold mb-4">{t("localInformation", language)}</h1>
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{t("educationTitle", language)}</CardTitle>
+            <CardTitle>{t("education", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -71,7 +71,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("transportTitle", language)}</CardTitle>
+            <CardTitle>{t("transport", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -88,7 +88,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("adminTitle", language)}</CardTitle>
+            <CardTitle>{t("admin", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -105,7 +105,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("utilitiesTitle", language)}</CardTitle>
+            <CardTitle>{t("utilities", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -122,7 +122,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("weatherTitle", language)}</CardTitle>
+            <CardTitle>{t("weather", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -139,7 +139,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("projectsTitle", language)}</CardTitle>
+            <CardTitle>{t("projects", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -156,7 +156,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("announcementsTitle", language)}</CardTitle>
+            <CardTitle>{t("announcements", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -173,7 +173,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("scholarshipTitle", language)}</CardTitle>
+            <CardTitle>{t("scholarship", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -190,7 +190,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("legalTitle", language)}</CardTitle>
+            <CardTitle>{t("legal", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -207,7 +207,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("agricultureTitle", language)}</CardTitle>
+            <CardTitle>{t("agriculture", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -224,7 +224,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("housingTitle", language)}</CardTitle>
+            <CardTitle>{t("housing", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -241,7 +241,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("digitalServicesTitle", language)}</CardTitle>
+            <CardTitle>{t("digitalServices", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -258,7 +258,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("cultureTitle", language)}</CardTitle>
+            <CardTitle>{t("culture", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -275,7 +275,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("privateHealthTitle", language)}</CardTitle>
+            <CardTitle>{t("privateHealth", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -292,7 +292,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("emergencyNewsTitle", language)}</CardTitle>
+            <CardTitle>{t("emergencyNews", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
@@ -309,7 +309,7 @@ export default function LocalInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("jobsTitle", language)}</CardTitle>
+            <CardTitle>{t("jobs", language)}</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[200px] w-full">
