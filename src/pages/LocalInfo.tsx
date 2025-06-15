@@ -106,7 +106,7 @@ const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
 
 const LocalInfo = () => {
   const { language } = useApp();
-  const { localInfoItems, loading } = useData();
+  const { localInfoItems, loading, refetchData } = useData(); // <-- refetchData now available
   const { location } = useLocation();
   const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -150,14 +150,22 @@ const LocalInfo = () => {
     return <Icon className="h-5 w-5 mr-3 text-gray-600" />;
   };
 
-  // Refresh function: simple reload for demo (would refetch in real app)
-  const handleRefresh = useCallback(() => {
+  // Refresh function: refetch data without reloading/logging out user
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     setError(null);
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-  }, []);
+    try {
+      await refetchData();
+    } catch (e: any) {
+      setError(
+        language === "bn"
+          ? "তথ্য রিফ্রেশ করতে সমস্যা হয়েছে।"
+          : "Failed to refresh data."
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchData, language]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">

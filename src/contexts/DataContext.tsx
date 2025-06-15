@@ -210,6 +210,7 @@ interface DataContextType {
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   loading: boolean;
+  refetchData: () => Promise<void>; // NEW!
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -533,6 +534,64 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // ----------- REFETCH FUNCTION -----------
+  /** Re-fetch all main data sets (local info, notices, products, marketRates) from Firestore */
+  const refetchData = async () => {
+    setLoading(true);
+    try {
+      // Notices
+      const noticesQuery = query(
+        collection(db, 'notices'),
+        orderBy('createdAt', 'desc')
+      );
+      const noticesSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(noticesQuery));
+      const noticesData = noticesSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        } as Notice;
+      });
+      setNotices(noticesData);
+
+      // Products
+      const productsQuery = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+      const productsSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(productsQuery));
+      const productsData = productsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        } as Product;
+      });
+      setProducts(productsData);
+
+      // Market Rates
+      const marketRatesQuery = query(collection(db, 'marketRates'));
+      const marketRatesSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(marketRatesQuery));
+      const marketRatesData = marketRatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as MarketRate[];
+      setMarketRates(marketRatesData);
+
+      // Local Info Items
+      const localInfoItemsQuery = query(collection(db, 'localInfoItems'));
+      const localInfoItemsSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(localInfoItemsQuery));
+      const itemsData = localInfoItemsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as LocalInfoItem[];
+      // Fallback to demo data if empty
+      setLocalInfoItems(itemsData.length > 0 ? itemsData : (demoLocalInfoItems as any));
+    } catch (err) {
+      console.error('Error during manual data refetch:', err);
+    }
+    setLoading(false);
+  };
+
   return (
     <DataContext.Provider value={{
       notices,
@@ -549,7 +608,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addProduct,
       updateProduct,
       deleteProduct,
-      loading
+      loading,
+      refetchData, // NEW!
     }}>
       {children}
     </DataContext.Provider>
