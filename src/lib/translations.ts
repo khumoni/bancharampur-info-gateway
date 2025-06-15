@@ -17,7 +17,7 @@ export const translations = {
     login: "লগইন",
     register: "রেজিস্টার",
     profile: "প্রোফাইল",
-    admin: "অ্যাডমিন",
+    admin: "প্রশাসন",
     contactInfo: "যোগাযোগের তথ্য",
     adminEmail: "অ্যাডমিন ইমেইল",
     adminPhone: "অ্যাডমিন ফোন",
@@ -30,7 +30,6 @@ export const translations = {
     phone: "ফোন নম্বর",
     uploadPhoto: "ছবি আপলোড করুন",
     comments: "মন্তব্য",
-    // New keys for LocalInfo and MarketRates
     riceMiniket: "মিনিকেট চাল",
     onion: "পেঁয়াজ",
     egg: "ডিম",
@@ -57,6 +56,21 @@ export const translations = {
     upcomingEvents: "আসন্ন ঘটনাবলী",
     loading: "লোড হচ্ছে...",
     noMarketRatesFound: "কোন বাজার দর পাওয়া যায়নি",
+    // ---- ADDED FOR LOCALINFO PAGE ----
+    localInformation: "স্থানীয় তথ্য",
+    education: "শিক্ষা",
+    transport: "পরিবহন",
+    utilities: "উপযোগিতা",
+    weather: "আবহাওয়া",
+    projects: "প্রকল্প",
+    announcements: "ঘোষণা",
+    scholarship: "বৃত্তি",
+    legal: "আইনী সহায়তা",
+    housing: "আবাসন",
+    digitalServices: "ডিজিটাল সেবা",
+    culture: "সংস্কৃতি",
+    privateHealth: "প্রাইভেট স্বাস্থ্য",
+    emergencyNews: "জরুরি সংবাদ",
   },
   en: {
     siteName: "Bancharampur Digital Infogate",
@@ -75,7 +89,7 @@ export const translations = {
     login: "Login",
     register: "Register",
     profile: "Profile",
-    admin: "Admin",
+    admin: "Administration",
     contactInfo: "Contact Information",
     adminEmail: "Admin Email",
     adminPhone: "Admin Phone",
@@ -88,7 +102,6 @@ export const translations = {
     phone: "Phone Number",
     uploadPhoto: "Upload Photo",
     comments: "Comments",
-    // New keys for LocalInfo and MarketRates
     riceMiniket: "Miniket Rice",
     onion: "Onion",
     egg: "Egg",
@@ -115,6 +128,21 @@ export const translations = {
     upcomingEvents: "Upcoming Events",
     loading: "Loading...",
     noMarketRatesFound: "No market rates found",
+    // ---- ADDED FOR LOCALINFO PAGE ----
+    localInformation: "Local Information",
+    education: "Education",
+    transport: "Transport",
+    utilities: "Utilities",
+    weather: "Weather",
+    projects: "Projects",
+    announcements: "Announcements",
+    scholarship: "Scholarship",
+    legal: "Legal Aid",
+    housing: "Housing",
+    digitalServices: "Digital Services",
+    culture: "Culture",
+    privateHealth: "Private Health",
+    emergencyNews: "Emergency News",
   }
 };
 
@@ -123,4 +151,3 @@ export type TranslationKey = keyof typeof translations.bn;
 export const t = (key: TranslationKey, language: 'bn' | 'en' = 'bn') => {
   return translations[language][key] || translations.bn[key];
 };
-
