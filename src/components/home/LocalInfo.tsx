@@ -10,7 +10,6 @@ import { LocalInfoItem } from "@/types/localInfo";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 
-// Set as const so TS narrows keys for i18n
 const categoryList = [
   { id: "education", i18n: "education" },
   { id: "health", i18n: "health" },
@@ -19,7 +18,17 @@ const categoryList = [
   { id: "weather", i18n: "weather" },
   { id: "projects", i18n: "projects" },
   { id: "agriculture", i18n: "agriculture" },
-  // Add more as needed
+  // Add more as needed, keeping IDs as in types/localInfo.ts
+  { id: "admin", i18n: "admin" },
+  { id: "announcements", i18n: "announcements" },
+  { id: "scholarship", i18n: "scholarship" },
+  { id: "legal", i18n: "legal" },
+  { id: "housing", i18n: "housing" },
+  { id: "digital_services", i18n: "digitalServices" },
+  { id: "culture", i18n: "culture" },
+  { id: "private_health", i18n: "privateHealth" },
+  { id: "emergency_news", i18n: "emergencyNews" },
+  { id: "jobs", i18n: "jobs" }
 ] as const;
 
 type CategoryId = typeof categoryList[number]["id"];
@@ -52,7 +61,7 @@ export const LocalInfo = () => {
     label: t(cat.i18n as any, language),
   }));
 
-  // Utility: Get item title/subtitle by category
+  // Utility: Get item title/subtitle by category, using type guards to avoid TS errors
   const getItemDisplay = (item: LocalInfoItem) => {
     switch (item.categoryId) {
       case "education":
@@ -61,10 +70,14 @@ export const LocalInfo = () => {
           subtitle: item.type,
         };
       case "health":
+        return {
+          title: item.name,
+          subtitle: item.type,
+        };
       case "private_health":
         return {
           title: item.name,
-          subtitle: item.type || item.specialty,
+          subtitle: item.specialty,
         };
       case "transport":
         return {
@@ -82,10 +95,14 @@ export const LocalInfo = () => {
           subtitle: item.temperature,
         };
       case "projects":
+        return {
+          title: item.projectName,
+          subtitle: item.implementingAgency,
+        };
       case "housing":
         return {
           title: item.projectName,
-          subtitle: item.implementingAgency || item.contact || item.details,
+          subtitle: item.contact || item.details,
         };
       case "agriculture":
         return {
@@ -123,7 +140,6 @@ export const LocalInfo = () => {
           subtitle: item.date,
         };
       case "announcements":
-      case "emergencyNews":
         return {
           title: item.title,
           subtitle: item.date,
@@ -135,13 +151,12 @@ export const LocalInfo = () => {
         };
       default:
         return {
-          title: item.id,
-          subtitle: "",
+          title: 'Unknown',
+          subtitle: '',
         };
     }
   };
 
-  // Filter local items by district/upazila if showOnlyMyArea
   const matchesMyArea = (item: LocalInfoItem) =>
     item.district === location.district && item.upazila === location.upazila;
 
@@ -155,16 +170,17 @@ export const LocalInfo = () => {
     return (
       <div
         key={cat.id}
-        ref={el => (sectionRefs.current[cat.id] = el)}
+        ref={el => (sectionRefs.current[cat.id as CategoryId] = el)}
         className="mb-10"
         id={`cat-${cat.id}`}
       >
         <Card className="border-0 rounded-2xl shadow-2xl glass-morphism mb-2 animate-fade-in">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-semibold">{t(cat.i18n as any, language)}</CardTitle>
-            <Badge variant="secondary" className="ml-2">
+            {/* Removed incorrect t("category", ...) usage */}
+            {/* <Badge variant="secondary" className="ml-2">
               {t("category", language)}
-            </Badge>
+            </Badge> */}
           </CardHeader>
           <CardContent>
             <ScrollArea className="max-h-[220px] w-full">
