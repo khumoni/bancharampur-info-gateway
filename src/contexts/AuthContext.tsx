@@ -13,6 +13,7 @@ import {
   RecaptchaVerifier,
   signInWithCredential,
   PhoneAuthCredential,
+  signInWithPhoneNumber,
 } from 'firebase/auth';
 import { auth, db, storage } from '@/lib/firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
@@ -270,10 +271,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const verifyPhoneNumber = async (phoneNumber: string, appVerifier: RecaptchaVerifier): Promise<string | null> => {
     try {
       setIsLoadingLocally(true);
-      const verificationId = await PhoneAuthProvider.credential(appVerifier.getVerificationId());
+      const verificationId = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       return verificationId;
     } catch (error) {
-      console.error('Verification error:', error);
+      console.error('Phone verification sending error:', error);
       return null;
     } finally {
       setIsLoadingLocally(false);
