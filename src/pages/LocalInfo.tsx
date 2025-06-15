@@ -1,266 +1,328 @@
-import { useState, useMemo, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { 
-  GraduationCap, 
-  Heart, 
-  Bolt, 
-  CloudSun, 
-  HardHat, 
-  UserCog, 
-  Megaphone,
-  Bus,
-  Info,
-  icons,
-  Award, // Scholarship
-  Gavel, // Legal Aid
-  Leaf,  // Agriculture
-  Landmark, // Housing
-  Laptop, // Digital Services
-  Theater, // Culture
-  Stethoscope, // Private Health
-  Siren, // Emergency News
-  Briefcase, // Jobs
-} from "lucide-react";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useData } from "@/contexts/DataContext";
 import { useApp } from "@/contexts/AppContext";
-import { useData, LocalInfoItem } from "@/contexts/DataContext";
-import { useLocation } from "@/contexts/LocationContext";
-import { LocationSelectorDialog } from "@/components/location/LocationSelectorDialog";
-import { districts } from "@/lib/bd-locations";
-import { Skeleton } from "@/components/ui/skeleton";
-import { RefreshCw } from "lucide-react";
+import { EducationInfo, HealthInfo, TransportInfo, AdministrativeInfo, UtilitiesInfo, WeatherInfo, ProjectInfo, AnnouncementInfo, ScholarshipInfo, LegalAidInfo, AgricultureInfo, HousingInfo, DigitalServiceInfo, CultureInfo, PrivateHealthInfo, EmergencyNewsInfo, JobInfo, LocalInfoItem } from "@/types/localInfo";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { t } from "@/lib/translations";
+import { Link } from 'lucide-react';
 
-const getItemContent = (item: LocalInfoItem, lang: 'bn' | 'en') => {
-  const typeTranslations = {
-    school: lang === 'bn' ? 'স্কুল' : 'School',
-    college: lang === 'bn' ? 'কলেজ' : 'College',
-    university: lang === 'bn' ? 'বিশ্ববিদ্যালয়' : 'University',
-    madrasha: lang === 'bn' ? 'মাদ্রাসা' : 'Madrasha',
-    hospital: lang === 'bn' ? 'হাসপাতাল' : 'Hospital',
-    clinic: lang === 'bn' ? 'ক্লিনিক' : 'Clinic',
-    diagnostic: lang === 'bn' ? 'ডায়াগনস্টিক' : 'Diagnostic',
-    pharmacy: lang === 'bn' ? 'ফার্মেসি' : 'Pharmacy',
-    bus: lang === 'bn' ? 'বাস' : 'Bus',
-    train: lang === 'bn' ? 'ট্রেন' : 'Train',
-    'auto-rickshaw': lang === 'bn' ? 'অটো-রিকশা' : 'Auto Rickshaw',
-    electricity: lang === 'bn' ? 'বিদ্যুৎ' : 'Electricity',
-    gas: lang === 'bn' ? 'গ্যাস' : 'Gas',
-    water: lang === 'bn' ? 'পানি' : 'Water',
-    ongoing: lang === 'bn' ? 'চলমান' : 'Ongoing',
-    completed: lang === 'bn' ? 'সম্পন্ন' : 'Completed',
-    planned: lang === 'bn' ? 'পরিকল্পনাধীন' : 'Planned',
-  };
-
-  switch (item.categoryId) {
-    case 'education':
-      return { title: item.institutionName, description: `${typeTranslations[item.type]} | ${item.address} | ${item.contact}` };
-    case 'health':
-      return { title: item.name, description: `${typeTranslations[item.type]} | ${item.address} | ${item.phone}` };
-    case 'transport':
-      return { title: item.routeName, description: `${lang === 'bn' ? 'ধরন' : 'Type'}: ${typeTranslations[item.type]}, ${lang === 'bn' ? 'ভাড়া' : 'Fare'}: ${item.fare}, ${lang === 'bn' ? 'সময়সূচী' : 'Schedule'}: ${item.schedule}` };
-    case 'admin':
-      return { title: item.officeName, description: `${item.officerName} (${item.designation}) | ${item.contact}` };
-    case 'utilities':
-      return { title: `${typeTranslations[item.serviceType]} ${lang === 'bn' ? 'অফিস' : 'Office'}`, description: `${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.officeAddress}, ${lang === 'bn' ? 'অভিযোগ' : 'Complaint'}: ${item.complaintNumber}` };
-    case 'weather':
-      return { title: item.area, description: `${lang === 'bn' ? 'তাপমাত্রা' : 'Temp'}: ${item.temperature}, ${lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}: ${item.humidity}. ${lang === 'bn' ? 'সতর্কবার্তা' : 'Alert'}: ${item.alert || (lang === 'bn' ? 'নেই' : 'None')}` };
-    case 'projects':
-      return { title: item.projectName, description: `${lang === 'bn' ? 'সংস্থা' : 'Agency'}: ${item.implementingAgency}, ${lang === 'bn' ? 'বাজেট' : 'Budget'}: ${item.budget}, ${lang === 'bn' ? 'অবস্থা' : 'Status'}: ${typeTranslations[item.status]}` };
-    case 'announcements':
-      return { title: item.title, description: `${item.details} (${item.date})` };
-    case 'scholarship':
-      return { title: item.title, description: `${lang === 'bn' ? 'প্রদানকারী' : 'Provider'}: ${item.provider} | ${lang === 'bn' ? 'যোগ্যতা' : 'Eligibility'}: ${item.eligibility} | ${lang === 'bn' ? 'শেষ তারিখ' : 'Deadline'}: ${item.deadline}` };
-    case 'legal':
-      return { title: item.serviceName, description: `${lang === 'bn' ? 'প্রদানকারী' : 'Provider'}: ${item.provider} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
-    case 'agriculture':
-      return { title: item.serviceType, description: `${item.details} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
-    case 'housing':
-      return { title: item.projectName, description: `${item.details} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
-    case 'digital_services':
-      return { title: item.centerName, description: `${lang === 'bn' ? 'সেবা সমূহ' : 'Services'}: ${item.services} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
-    case 'culture':
-      return { title: item.eventName, description: `${lang === 'bn' ? 'স্থান' : 'Location'}: ${item.location} | ${lang === 'bn' ? 'তারikh' : 'Date'}: ${item.date} | ${item.details}` };
-    case 'private_health':
-        const typeText = item.type === 'clinic' 
-            ? (lang === 'bn' ? 'বেসরকারি ক্লিনিক' : 'Private Clinic') 
-            : (lang === 'bn' ? 'ডায়াগনস্টিক সেন্টার' : 'Diagnostic Center');
-        return { title: item.name, description: `${typeText} | ${lang === 'bn' ? 'বিশেষত্ব' : 'Specialty'}: ${item.specialty} | ${lang === 'bn' ? 'ঠিকানা' : 'Address'}: ${item.address} | ${lang === 'bn' ? 'যোগাযোগ' : 'Contact'}: ${item.contact}` };
-    case 'emergency_news':
-      return { title: item.title, description: `${item.details} (${item.date})` };
-    case 'jobs':
-      return { title: item.title, description: `${lang === 'bn' ? 'প্রতিষ্ঠান' : 'Company'}: ${item.company} | ${lang === 'bn' ? 'স্থান' : 'Location'}: ${item.location} | ${lang === 'bn' ? 'শেষ তারিখ' : 'Deadline'}: ${item.deadline}` };
-    default:
-      const exhaustiveCheck: never = item;
-      return { title: 'Unknown Item', description: 'No details available.' };
-  }
-};
-
-const LocalInfo = () => {
+export default function LocalInfo() {
+  const { localInfoItems } = useData();
   const { language } = useApp();
-  const { localInfoItems, loading, refetchData } = useData(); // <-- refetchData now available
-  const { location } = useLocation();
-  const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const currentDistrict = useMemo(() => districts.find(d => d.name.en === location.district), [location.district]);
-  const currentUpazila = useMemo(() => currentDistrict?.upazilas.find(u => u.name.en === location.upazila), [currentDistrict, location.upazila]);
-  
-  const locationName = language === 'bn'
-    ? `${currentUpazila?.name.bn || location.upazila}, ${currentDistrict?.name.bn || location.district}`
-    : `${location.upazila}, ${location.district}`;
-
-  const categories = useMemo(() => [
-    // Primary Services
-    { id: 'education', label: language === 'bn' ? 'শিক্ষা' : 'Education', icon: GraduationCap },
-    { id: 'health', label: language === 'bn' ? 'স্বাস্থ্য' : 'Health', icon: Heart },
-    { id: 'agriculture', label: language === 'bn' ? 'কৃষি' : 'Agriculture', icon: Leaf },
-    { id: 'private_health', label: language === 'bn' ? 'বেসরকারি স্বাস্থ্যসেবা' : 'Private Healthcare', icon: Stethoscope },
-    // Support Services
-    { id: 'scholarship', label: language === 'bn' ? 'বৃত্তি ও প্রশিক্ষণ' : 'Scholarships & Training', icon: Award },
-    { id: 'legal', label: language === 'bn' ? 'আইনি সহায়তা' : 'Legal Aid', icon: Gavel },
-    { id: 'jobs', label: language === 'bn' ? 'চাকরি' : 'Jobs', icon: Briefcase },
-    // Administrative
-    { id: 'admin', label: language === 'bn' ? 'প্রশাসন' : 'Admin', icon: UserCog },
-    { id: 'digital_services', label: language === 'bn' ? 'ডিজিটাল সেবা' : 'Digital Services', icon: Laptop },
-    { id: 'housing', label: language === 'bn' ? 'আবাসন ও জমি' : 'Housing & Land', icon: Landmark },
-    // Infrastructure
-    { id: 'transport', label: language === 'bn' ? 'যাতায়াত' : 'Transport', icon: Bus },
-    { id: 'utilities', label: language === 'bn' ? 'सेवा' : 'Utilities', icon: Bolt },
-    { id: 'projects', label: language === 'bn' ? 'প্রকল্প' : 'Projects', icon: HardHat },
-    // Emergency & Info
-    { id: 'weather', label: language === 'bn' ? 'আবহাওয়া' : 'Weather', icon: CloudSun },
-    { id: 'announcements', label: language === 'bn' ? 'ঘোষণা' : 'Announcements', icon: Megaphone },
-    { id: 'emergency_news', label: language === 'bn' ? 'জরুরি সংবাদ' : 'Emergency News', icon: Siren },
-    // Social & Culture
-    { id: 'culture', label: language === 'bn' ? 'সংস্কৃতি ও বিনোদন' : 'Culture & Entertainment', icon: Theater },
-  ], [language]);
-
-  const renderIcon = (name: string) => {
-    const Icon = icons[name as keyof typeof icons] || Info;
-    return <Icon className="h-5 w-5 mr-3 text-gray-600" />;
-  };
-
-  // Refresh function: refetch data without reloading/logging out user
-  const handleRefresh = useCallback(async () => {
-    setRefreshing(true);
-    setError(null);
-    try {
-      await refetchData();
-    } catch (e: any) {
-      setError(
-        language === "bn"
-          ? "তথ্য রিফ্রেশ করতে সমস্যা হয়েছে।"
-          : "Failed to refresh data."
-      );
-    } finally {
-      setRefreshing(false);
-    }
-  }, [refetchData, language]);
+  const educationItems = localInfoItems.filter((item): item is EducationInfo => item.categoryId === 'education');
+  const healthItems = localInfoItems.filter((item): item is HealthInfo => item.categoryId === 'health');
+  const transportItems = localInfoItems.filter((item): item is TransportInfo => item.categoryId === 'transport');
+  const administrativeItems = localInfoItems.filter((item): item is AdministrativeInfo => item.categoryId === 'admin');
+  const utilitiesItems = localInfoItems.filter((item): item is UtilitiesInfo => item.categoryId === 'utilities');
+  const weatherItems = localInfoItems.filter((item): item is WeatherInfo => item.categoryId === 'weather');
+  const projectItems = localInfoItems.filter((item): item is ProjectInfo => item.categoryId === 'projects');
+  const announcementItems = localInfoItems.filter((item): item is AnnouncementInfo => item.categoryId === 'announcements');
+  const scholarshipItems = localInfoItems.filter((item): item is ScholarshipInfo => item.categoryId === 'scholarship');
+  const legalAidItems = localInfoItems.filter((item): item is LegalAidInfo => item.categoryId === 'legal');
+  const agricultureItems = localInfoItems.filter((item): item is AgricultureInfo => item.categoryId === 'agriculture');
+  const housingItems = localInfoItems.filter((item): item is HousingInfo => item.categoryId === 'housing');
+  const digitalServiceItems = localInfoItems.filter((item): item is DigitalServiceInfo => item.categoryId === 'digital_services');
+    const cultureItems = localInfoItems.filter((item): item is CultureInfo => item.categoryId === 'culture');
+    const privateHealthItems = localInfoItems.filter((item): item is PrivateHealthInfo => item.categoryId === 'private_health');
+    const emergencyNewsItems = localInfoItems.filter((item): item is EmergencyNewsInfo => item.categoryId === 'emergency_news');
+    const jobItems = localInfoItems.filter((item): item is JobInfo => item.categoryId === 'jobs');
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <Card className="mb-8 bg-white/50 dark:bg-gray-800/40 backdrop-blur-sm shadow-lg border-0 rounded-2xl">
-          <CardContent className="p-6 text-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">
-              {language === 'bn' ? `${locationName}-এর স্থানীয় তথ্য` : `Local Information for ${locationName}`}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">
-              {language === 'bn' ? 'আপনার প্রয়োজনীয় সকল তথ্য এখানে পাবেন।' : 'Find all the necessary information here.'}
-            </p>
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <Button onClick={() => setIsLocationSelectorOpen(true)}>
-                {language === 'bn' ? 'এলাকা পরিবর্তন করুন' : 'Change Location'}
-              </Button>
-              <Button variant="outline" size="sm" className="mt-1 flex items-center gap-2" onClick={handleRefresh} disabled={refreshing}>
-                <RefreshCw className={refreshing ? "animate-spin" : ""} size={16} />
-                {refreshing
-                  ? (language === 'bn' ? "রিফ্রেশ হচ্ছে..." : "Refreshing...")
-                  : (language === 'bn' ? "তথ্য রিফ্রেশ করুন" : "Refresh Data")}
-              </Button>
-            </div>
-            {error && (
-              <div className="text-red-500 mt-3">{error}</div>
-            )}
+    <div className="container py-8">
+      <h1 className="text-3xl font-bold mb-4">{t("localInformation", language)}</h1>
+
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("education", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {educationItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.institutionName} - {item.type}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
           </CardContent>
         </Card>
-        
-        {/* LOADING & ERROR STATE */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="skeletons">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="w-full">
-                <Skeleton className="h-56 w-full rounded-xl mb-3" />
-                <Skeleton className="h-4 w-2/3 mb-1" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map(cat => {
-              const itemsForCategory = localInfoItems.filter(item => 
-                item.district === location.district && 
-                item.upazila === location.upazila &&
-                item.categoryId === cat.id
-              );
 
-              return (
-                <Accordion type="single" collapsible key={cat.id} className="w-full bg-card rounded-lg border shadow-sm transition-all hover:shadow-md">
-                  <AccordionItem value={cat.id} className="border-b-0">
-                    <AccordionTrigger className="p-6 text-left hover:no-underline">
-                      <div className="flex items-center w-full">
-                        <cat.icon className="w-8 h-8 mr-4 text-primary shrink-0" />
-                        <div className="flex-grow">
-                          <h3 className="text-lg font-semibold">{cat.label}</h3>
-                        </div>
-                        <Badge variant="secondary" className="ml-4 shrink-0">{itemsForCategory.length}</Badge>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 pt-0">
-                      <div className="space-y-4">
-                        {itemsForCategory.length > 0 ? (
-                          itemsForCategory.map(item => {
-                            const { title, description } = getItemContent(item, language);
-                            return (
-                              <div key={item.id} className="flex items-start p-3 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                                {renderIcon(item.icon)}
-                                <div>
-                                  <h4 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h4>
-                                  <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
-                                </div>
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                            {language === 'bn' ? 'এই এলাকার জন্য কোনো তথ্য পাওয়া যায়নি।' : 'No information found for this area.'}
-                          </p>
-                        )}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              );
-            })}
-          </div>
-        )}
-      </main>
-      <Footer />
-      <LocationSelectorDialog isOpen={isLocationSelectorOpen} onOpenChange={setIsLocationSelectorOpen} />
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("health", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {healthItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.name} - {item.type}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("transport", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {transportItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.routeName} - {item.type}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("administration", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {administrativeItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.officeName} - {item.officerName}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("utilities", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {utilitiesItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.serviceType} - {item.officeAddress}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("weather", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {weatherItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.area} - {item.temperature}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("projects", language)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] w-full">
+              <ul>
+                {projectItems.map((item) => (
+                  <li key={item.id} className="mb-2">
+                    {item.projectName} - {item.implementingAgency}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("announcements", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {announcementItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.title} - {item.date}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("scholarships", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {scholarshipItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.title} - {item.provider}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("legalAid", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {legalAidItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.serviceName} - {item.provider}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("agriculture", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {agricultureItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.serviceType} - {item.contact}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("housing", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {housingItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.projectName} - {item.contact}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("digitalServices", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {digitalServiceItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.centerName} - {item.services}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+              
+               <Card>
+                <CardHeader>
+                  <CardTitle>{t("culture", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {cultureItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.eventName} - {item.location}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("privateHealth", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {privateHealthItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.name} - {item.specialty}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("emergencyNews", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {emergencyNewsItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.title} - {item.date}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("jobs", language)}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {jobItems.map((item) => (
+                        <li key={item.id} className="mb-2">
+                          {item.title} - {item.company}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+      </div>
     </div>
   );
-};
-
-export default LocalInfo;
+}

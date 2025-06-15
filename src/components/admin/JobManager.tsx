@@ -1,11 +1,11 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { useData, JobInfo } from "@/contexts/DataContext";
+import { useData } from "@/contexts/DataContext";
+import { JobInfo } from "@/types/localInfo";
 import { useLocation } from "@/contexts/LocationContext";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, PlusCircle } from "lucide-react";
