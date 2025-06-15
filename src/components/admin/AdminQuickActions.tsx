@@ -20,7 +20,15 @@ interface AdminQuickActionsProps {
   onCategoryClick: (catId: string) => void;
 }
 
-const categoryMeta: Record<string, Omit<Category, "label">> = {
+// FIX: Remove the incorrect type that expects an "id" property on each entry.
+const categoryMeta: Record<
+  string,
+  {
+    icon: React.ElementType;
+    color: string; // tailwind gradient
+    shadow: string; // shadow color
+  }
+> = {
   education:    { icon: Book,       color: "from-blue-500 to-cyan-500",    shadow: "shadow-blue-400/30" },
   health:       { icon: Heart,      color: "from-emerald-500 to-green-500",shadow: "shadow-emerald-400/30" },
   transport:    { icon: Bus,        color: "from-orange-500 to-amber-500", shadow: "shadow-orange-400/30" },
