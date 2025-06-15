@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +18,7 @@ import { useLocation } from "@/contexts/LocationContext";
 const iconNames = Object.keys(icons);
 
 const formSchema = z.object({
-  serviceType: z.string().min(1, "সেবার ধরন আবশ্যক"),
+  serviceType: z.enum(['electricity', 'gas', 'water']),
   officeAddress: z.string().min(1, "অফিসের ঠিকানা আবশ্যক"),
   complaintNumber: z.string().min(1, "অভিযোগের নম্বর আবশ্যক"),
   icon: z.string().min(1, "আইকন আবশ্যক"),
@@ -34,7 +35,7 @@ export const UtilitiesManager = () => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { serviceType: '', officeAddress: '', complaintNumber: '', icon: 'Lightbulb' },
+    defaultValues: { serviceType: 'electricity', officeAddress: '', complaintNumber: '', icon: 'Lightbulb' },
   });
 
   const categoryItems = localInfoItems.filter((item): item is UtilitiesInfo => item.categoryId === categoryId);
@@ -48,7 +49,7 @@ export const UtilitiesManager = () => {
   const handleCancel = () => {
     setEditingItem(null);
     setShowAddForm(false);
-    form.reset({ serviceType: '', officeAddress: '', complaintNumber: '', icon: 'Lightbulb' });
+    form.reset({ serviceType: 'electricity', officeAddress: '', complaintNumber: '', icon: 'Lightbulb' });
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {

@@ -51,10 +51,10 @@ export const WeatherManager = () => {
       const itemData = { ...formData, categoryId: 'weather' as const, district: location.district, upazila: location.upazila };
       if (editingItem) {
         await updateLocalInfoItem(editingItem.id, itemData);
-        toast({ title: "সফল!", description: "আবহাওয়ার তথ্য আপডেট করা হয়েছে।" });
+        toast({ title: "সফল!", description: "আবহাওয়ার তথ্য আপডেট করা হয়েছে।" });
       } else {
         await addLocalInfoItem(itemData);
-        toast({ title: "সফল!", description: "নতুন আবহাওয়ার তথ্য যোগ করা হয়েছে।" });
+        toast({ title: "সফল!", description: "নতুন আবহাওয়ার তথ্য যোগ করা হয়েছে।" });
       }
       setIsDialogOpen(false); setEditingItem(null);
     } catch (error) {
@@ -70,7 +70,7 @@ export const WeatherManager = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm("আপনি কি নিশ্চিত?")) {
       await deleteLocalInfoItem(id);
-      toast({ title: "সফল!", description: "আবহাওয়ার তথ্য মুছে ফেলা হয়েছে।" });
+      toast({ title: "সফল!", description: "আবহাওয়ার তথ্য মুছে ফেলা হয়েছে।" });
     }
   };
 
@@ -81,7 +81,7 @@ export const WeatherManager = () => {
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) setEditingItem(null); }}>
           <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> নতুন আবহাওয়া</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>{editingItem ? "সম্পাদনা করুন" : "নতুন আবহাওয়ার তথ্য"}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingItem ? "সম্পাদনা করুন" : "নতুন আবহাওয়ার তথ্য"}</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input name="area" placeholder="এলাকা" value={formData.area} onChange={handleInputChange} required />
               <Input name="temperature" placeholder="তাপমাত্রা" value={formData.temperature} onChange={handleInputChange} required />

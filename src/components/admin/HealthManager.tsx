@@ -18,7 +18,7 @@ const iconNames = Object.keys(icons);
 
 const formSchema = z.object({
   name: z.string().min(1, "প্রতিষ্ঠানের নাম আবশ্যক"),
-  type: z.string().min(1, "ধরণ আবশ্যক"),
+  type: z.enum(['hospital', 'clinic', 'diagnostic', 'pharmacy']),
   address: z.string().min(1, "ঠিকানা আবশ্যক"),
   phone: z.string().min(1, "ফোন নম্বর আবশ্যক"),
   services: z.string().min(1, "সেবাসমূহ আবশ্যক"),
@@ -32,11 +32,11 @@ export const HealthManager = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   
   const categoryId = 'health';
-  const categoryName = "স্বাস্থ্য বিষয়ক তথ্য";
+  const categoryName = "স্বাস্থ্য বিষয়ক তথ্য";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', type: '', address: '', phone: '', services: '', icon: 'Hospital' },
+    defaultValues: { name: '', type: 'hospital', address: '', phone: '', services: '', icon: 'Hospital' },
   });
 
   const categoryItems = localInfoItems.filter((item): item is HealthInfo => item.categoryId === categoryId);
@@ -50,7 +50,7 @@ export const HealthManager = () => {
   const handleCancel = () => {
     setEditingItem(null);
     setShowAddForm(false);
-    form.reset({ name: '', type: '', address: '', phone: '', services: '', icon: 'Hospital' });
+    form.reset({ name: '', type: 'hospital', address: '', phone: '', services: '', icon: 'Hospital' });
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
