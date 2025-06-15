@@ -35,20 +35,17 @@ import {
   JobInfo,
   LocalInfoItem,
 } from "@/types/localInfo";
+import { LocalInfoProvider } from './LocalInfoContext';
 
 export interface DataContextType {
   notices: Notice[];
   marketRates: MarketRate[];
-  localInfoItems: LocalInfoItem[];
   products: Product[];
   shops: Shop[];
   addNotice: (notice: Omit<Notice, 'id' | 'createdAt' | 'isActive'>) => Promise<void>;
   updateMarketRate: (id: string, rate: Partial<MarketRate>) => Promise<void>;
   addMarketRate: (rate: Omit<MarketRate, 'id' | 'lastUpdated'>) => Promise<void>;
   deleteMarketRate: (id: string) => Promise<void>;
-  addLocalInfoItem: (item: Omit<LocalInfoItem, 'id'>) => Promise<void>;
-  updateLocalInfoItem: (id: string, item: Partial<LocalInfoItem>) => Promise<void>;
-  deleteLocalInfoItem: (id: string) => Promise<void>;
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
@@ -72,7 +69,6 @@ export const useData = () => {
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [marketRates, setMarketRates] = useState<MarketRate[]>([]);
-  const [localInfoItems, setLocalInfoItems] = useState<LocalInfoItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
@@ -267,25 +263,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Listen to local info items collection
-    const localInfoItemsQuery = query(collection(db, 'localInfoItems'));
-    const unsubscribeLocalInfoItems = onSnapshot(localInfoItemsQuery, (snapshot) => {
-      const itemsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as LocalInfoItem[];
-      console.log('Local info items updated:', itemsData);
-      setLocalInfoItems(itemsData);
-      // Demo: যদি localinfoitems ফাঁকা থাকে তাহলে ডেমো ডেটা দেখাও (admin/ডেমো)
-      if (localInfoItems.length === 0) {
-        setLocalInfoItems(demoLocalInfoItems as any);
-      }
-      setLoading(false); // Set loading to false after all initial data is fetched
-    }, (error) => {
-      console.error('Error listening to local info items:', error);
-      setLoading(false);
-    });
-
     // Listen to shops collection
     const shopsQuery = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
     const unsubscribeShops = onSnapshot(
@@ -309,7 +286,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       unsubscribeNotices();
       unsubscribeMarketRates();
-      unsubscribeLocalInfoItems();
       unsubscribeProducts();
       unsubscribeShops();
     };
@@ -363,38 +339,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await deleteDoc(rateRef);
     } catch (error) {
       console.error('Error deleting market rate:', error);
-      throw error;
-    }
-  };
-
-  const addLocalInfoItem = async (itemData: Omit<LocalInfoItem, 'id'>) => {
-    try {
-      console.log('Adding local info item:', itemData);
-      await addDoc(collection(db, 'localInfoItems'), itemData);
-    } catch (error) {
-      console.error('Error adding local info item:', error);
-      throw error;
-    }
-  };
-
-  const updateLocalInfoItem = async (id: string, itemData: Partial<LocalInfoItem>) => {
-    try {
-      console.log('Updating local info item:', id, itemData);
-      const itemRef = doc(db, 'localInfoItems', id);
-      await updateDoc(itemRef, itemData as Record<string, any>);
-    } catch (error) {
-      console.error('Error updating local info item:', error);
-      throw error;
-    }
-  };
-
-  const deleteLocalInfoItem = async (id: string) => {
-    try {
-      console.log('Deleting local info item:', id);
-      const itemRef = doc(db, 'localInfoItems', id);
-      await deleteDoc(itemRef);
-    } catch (error) {
-      console.error('Error deleting local info item:', error);
       throw error;
     }
   };
@@ -514,16 +458,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })) as MarketRate[];
       setMarketRates(marketRatesData);
 
-      // Local Info Items
-      const localInfoItemsQuery = query(collection(db, 'localInfoItems'));
-      const localInfoItemsSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(localInfoItemsQuery));
-      const itemsData = localInfoItemsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as LocalInfoItem[];
-      // Fallback to demo data if empty
-      setLocalInfoItems(itemsData.length > 0 ? itemsData : (demoLocalInfoItems as any));
-
       // Shops
       const shopsQuery = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
       const shopsSnapshot = await import('firebase/firestore').then(({ getDocs }) => getDocs(shopsQuery));
@@ -542,16 +476,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <DataContext.Provider value={{
       notices,
       marketRates,
-      localInfoItems,
       products,
       shops,
       addNotice,
       updateMarketRate,
       addMarketRate,
       deleteMarketRate,
-      addLocalInfoItem,
-      updateLocalInfoItem,
-      deleteLocalInfoItem,
       addProduct,
       updateProduct,
       deleteProduct,
@@ -561,7 +491,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading,
       refetchData, // NEW!
     }}>
-      {children}
+      {/* LocalInfoProvider যোগ করুন */}
+      <LocalInfoProvider demoLocalInfoItems={demoLocalInfoItems}>
+        {children}
+      </LocalInfoProvider>
     </DataContext.Provider>
   );
 };
