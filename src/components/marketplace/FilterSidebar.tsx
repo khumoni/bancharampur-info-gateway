@@ -20,9 +20,10 @@ import {
 
 interface FilterSidebarProps {
   language: 'bn' | 'en';
+  onApply?: () => void;
 }
 
-export const FilterSidebar = ({ language }: FilterSidebarProps) => {
+export const FilterSidebar = ({ language, onApply }: FilterSidebarProps) => {
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
@@ -246,7 +247,7 @@ export const FilterSidebar = ({ language }: FilterSidebarProps) => {
         </div>
 
         {/* Apply Filters Button */}
-        <Button className="w-full mt-6">
+        <Button className="w-full mt-6" onClick={onApply}>
           {language === 'bn' ? 'ফিল্টার প্রয়োগ করুন' : 'Apply Filters'}
         </Button>
       </CardContent>

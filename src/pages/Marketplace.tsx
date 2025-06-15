@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -24,6 +25,13 @@ import { useData } from "@/contexts/DataContext";
 import { CreateListingDialog } from "@/components/marketplace/CreateListingDialog";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
+import { useMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 const Marketplace = () => {
   const { language } = useApp();
@@ -31,7 +39,8 @@ const Marketplace = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const isMobile = useMobile();
 
   // Sample product data removed, now using live data from context
 
@@ -81,7 +90,7 @@ const Marketplace = () => {
                 />
               </div>
               <Button 
-                onClick={() => setShowFilters(!showFilters)}
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
                 variant="outline" 
                 className="h-12 px-6"
               >
@@ -104,10 +113,10 @@ const Marketplace = () => {
       <section className="px-4 pb-12">
         <div className="max-w-7xl mx-auto">
           <div className="flex gap-6">
-            {/* Filters Sidebar */}
-            {showFilters && (
+            {/* Filters Sidebar for desktop */}
+            {!isMobile && isFilterOpen && (
               <div className="w-80">
-                <FilterSidebar language={language} />
+                <FilterSidebar language={language} onApply={() => setIsFilterOpen(false)} />
               </div>
             )}
             
@@ -164,6 +173,20 @@ const Marketplace = () => {
           </div>
         </div>
       </section>
+
+      {/* Filter Drawer for mobile */}
+      {isMobile && (
+        <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <DrawerContent>
+            <DrawerHeader className="text-left">
+              <DrawerTitle>{language === 'bn' ? 'ফিল্টার' : 'Filters'}</DrawerTitle>
+            </DrawerHeader>
+            <div className="p-4 overflow-y-auto max-h-[80vh]">
+              <FilterSidebar language={language} onApply={() => setIsFilterOpen(false)} />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
 
       <CreateListingDialog 
         isOpen={isCreateDialogOpen} 
