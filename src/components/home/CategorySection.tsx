@@ -10,7 +10,7 @@ interface CategorySectionProps {
   title: string;
   items: LocalInfoItem[];
   language: string;
-  refEl?: React.RefObject<HTMLDivElement>;
+  refEl?: ((el: HTMLDivElement | null) => void); // Accept callback ref
 }
 
 export const CategorySection: React.FC<CategorySectionProps> = ({
