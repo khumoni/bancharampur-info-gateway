@@ -1,6 +1,6 @@
 export const translations = {
   bn: {
-    siteName: "বাঞ্ছারামপুর ডিজিটাল ইনফোকাইট",
+    siteName: "ইনফোকাইট",
     tagline: "আপনার প্রয়োজনীয় তথ্য এক জায়গায়",
     joinUs: "যোগ দিন",
     viewMap: "মানচিত্র দেখুন",
@@ -73,7 +73,7 @@ export const translations = {
     cloudFunctions: "ক্লাউড ফাংশন",
   },
   en: {
-    siteName: "Bancharampur Digital Infogate",
+    siteName: "Infogate",
     tagline: "All your essential information in one place",
     joinUs: "Join Us",
     viewMap: "View Map",

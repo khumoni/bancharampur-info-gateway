@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, FileText, Users, MessageSquare, Briefcase, DollarSign, Building, Phone } from "lucide-react";
+import { MapPin, FileText, Users, MessageSquare, Briefcase, DollarSign, Building, Phone, Video } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
 import { Link } from "react-router-dom";
@@ -45,6 +45,13 @@ export const QuickAccess = () => {
       href: "/jobs" 
     },
     { 
+      icon: Video, 
+      label: language === 'bn' ? "ভিডিও দেখুন" : "Watch Videos", 
+      color: "from-pink-500 to-rose-500", 
+      shadowColor: "shadow-pink-500/30",
+      href: "/videos" 
+    },
+    { 
       icon: DollarSign, 
       label: language === 'bn' ? "বাজার দর" : "Market Rates", 
       color: "from-yellow-400 to-yellow-500", 
@@ -68,23 +75,21 @@ export const QuickAccess = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-4 sm:gap-6">
       {services.map((service, index) => {
         const IconComponent = service.icon;
         return (
           <Link key={service.label} to={service.href} className="group">
             <Card 
-              className={`hover-lift cursor-pointer border-0 glass-morphism rounded-2xl overflow-hidden animate-fade-in hover:${service.shadowColor} transition-all duration-300`}
+              className="relative overflow-hidden rounded-2xl border-0 bg-card hover:bg-accent/5 transition-all duration-300 hover-lift shadow-lg hover:shadow-xl animate-fade-in group"
               style={{ animationDelay: `${index * 0.08}s` }}
             >
-              <CardContent className="p-5 text-center relative flex flex-col items-center justify-center aspect-square">
-                {/* Hover gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl`}></div>
-                
-                <div className={`relative bg-gradient-to-br ${service.color} w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
-                  <IconComponent className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+              <CardContent className="p-4 text-center relative flex flex-col items-center justify-center aspect-square">
+                {/* Facebook-like background circle */}
+                <div className={`relative bg-gradient-to-br ${service.color} w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
+                  <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-300 leading-tight">
+                <h3 className="text-xs sm:text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors duration-300 leading-tight">
                   {service.label}
                 </h3>
               </CardContent>

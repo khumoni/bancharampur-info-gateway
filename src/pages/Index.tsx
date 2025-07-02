@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PostFeed } from "@/components/social/PostFeed";
 import { EmergencyNotices } from "@/components/home/EmergencyNotices";
+import { QuickAccess } from "@/components/home/QuickAccess";
 import { useApp } from "@/contexts/AppContext";
 import { useData } from "@/contexts/DataContext";
 import { t } from "@/lib/translations";
@@ -51,6 +52,18 @@ const Index = () => {
             </div>
           </section>
         )}
+
+        <section className="py-8 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-gradient mb-4">
+                {t("quickServices", language)}
+              </h2>
+              <div className="w-20 h-1 bg-gradient-to-r from-emerald-500 to-blue-500 mx-auto rounded-full"></div>
+            </div>
+            <QuickAccess />
+          </div>
+        </section>
 
         <section className="py-8 px-4">
           <div className="max-w-4xl mx-auto">
