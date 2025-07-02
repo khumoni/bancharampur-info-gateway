@@ -17,6 +17,7 @@ import LocalInfo from "./pages/LocalInfo";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useFCM } from "@/hooks/useFCM";
+import { initializeRemoteConfig } from "@/lib/remoteConfig";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,9 @@ const App = () => {
   const { permission, fcmToken, requestPermission } = useFCM();
 
   useEffect(() => {
+    // Initialize Firebase Remote Config
+    initializeRemoteConfig();
+    
     // Only ask if not granted/denied
     if (permission === "default") {
       // Ask user after a 1s delay to avoid spamming

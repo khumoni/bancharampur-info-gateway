@@ -4,6 +4,7 @@ import { MapPin, FileText, Users, MessageSquare, Briefcase, DollarSign, Building
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
 import { Link } from "react-router-dom";
+import { trackServiceAccess } from "@/services/analytics";
 
 export const QuickAccess = () => {
   const { language } = useApp();
@@ -79,7 +80,12 @@ export const QuickAccess = () => {
       {services.map((service, index) => {
         const IconComponent = service.icon;
         return (
-          <Link key={service.label} to={service.href} className="group">
+          <Link 
+            key={service.label} 
+            to={service.href} 
+            className="group"
+            onClick={() => trackServiceAccess(service.label)}
+          >
             <Card 
               className="relative overflow-hidden rounded-2xl border-0 bg-card hover:bg-accent/5 transition-all duration-300 hover-lift shadow-lg hover:shadow-xl animate-fade-in group"
               style={{ animationDelay: `${index * 0.08}s` }}

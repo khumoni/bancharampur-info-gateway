@@ -1,9 +1,10 @@
 
 import React, { useRef, useState } from "react";
-import { useGeminiAI } from "@/hooks/useGeminiAI";
+import { useVertexAI } from "@/hooks/useVertexAI";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
+import { trackAIInteraction } from "@/services/analytics";
 
 interface ChatInterfaceProps {
   language: "bn" | "en";
@@ -11,13 +12,14 @@ interface ChatInterfaceProps {
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ language, onClose }) => {
-  const { messages, loading, error, sendMessage, reset } = useGeminiAI(language);
+  const { messages, loading, error, sendMessage, reset } = useVertexAI(language);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
+    trackAIInteraction(language, input.trim());
     sendMessage(input.trim());
     setInput("");
     inputRef.current?.focus();
