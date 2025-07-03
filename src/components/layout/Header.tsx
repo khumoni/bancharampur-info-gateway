@@ -37,6 +37,8 @@ import {
   MapPin,
   Bell,
   PlusCircle,
+  Video,
+  MessageCircle,
 } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +48,7 @@ import { ProfileDialog } from "@/components/auth/ProfileDialog";
 import { CreatePostDialog } from "@/components/social/CreatePostDialog";
 import { t } from "@/lib/translations";
 import { useLocation } from "@/contexts/LocationContext";
+import { useLocation as useRouterLocation } from "react-router-dom";
 import { LocationSelectorDialog } from "@/components/location/LocationSelectorDialog";
 
 // MobileNav Component Props
@@ -179,6 +182,7 @@ export const Header = () => {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const { location } = useLocation();
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const routerLocation = useRouterLocation();
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -198,11 +202,16 @@ export const Header = () => {
 
           {/* Icon Navigation - Visible on all screens */}
           <nav className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 flex-1">
-            {/* Profile Icon */}
+            {/* Profile Icon - Below Logo */}
             <Tooltip>
               <TooltipTrigger asChild>
                 {user ? (
-                  <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 sm:h-10 sm:w-10" onClick={() => setProfileOpen(true)}>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`rounded-full h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/profile' ? 'bg-primary/10 text-primary' : ''}`}
+                    onClick={() => setProfileOpen(true)}
+                  >
                     <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                       <AvatarImage src={user.profilePicture} alt={user.name} />
                       <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
@@ -226,7 +235,12 @@ export const Header = () => {
             {/* News Feed Icon */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" asChild className="h-9 w-9 sm:h-10 sm:w-10">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  asChild 
+                  className={`h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/' ? 'bg-primary/10 text-primary' : ''}`}
+                >
                   <Link to="/">
                     <Newspaper className="h-5 w-5 sm:h-6 sm:w-6" />
                   </Link>
@@ -237,10 +251,53 @@ export const Header = () => {
               </TooltipContent>
             </Tooltip>
 
+            {/* Video Icon - New */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  asChild 
+                  className={`h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/videos' ? 'bg-primary/10 text-primary' : ''}`}
+                >
+                  <Link to="/videos">
+                    <Video className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{language === 'bn' ? "ভিডিও" : "Videos"}</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Messaging Icon - New */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  asChild 
+                  className={`h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/messages' ? 'bg-primary/10 text-primary' : ''}`}
+                >
+                  <Link to="/messages">
+                    <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{language === 'bn' ? "বার্তা" : "Messages"}</p>
+              </TooltipContent>
+            </Tooltip>
+
             {/* Marketplace Icon */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" asChild className="h-9 w-9 sm:h-10 sm:w-10">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  asChild 
+                  className={`h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/marketplace' ? 'bg-primary/10 text-primary' : ''}`}
+                >
                   <Link to="/marketplace">
                     <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
                   </Link>
@@ -254,7 +311,12 @@ export const Header = () => {
             {/* Local Info Icon */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" asChild className="h-9 w-9 sm:h-10 sm:w-10">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  asChild 
+                  className={`h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/local-info' ? 'bg-primary/10 text-primary' : ''}`}
+                >
                   <Link to="/local-info">
                     <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
                   </Link>
@@ -264,20 +326,6 @@ export const Header = () => {
                 <p>{language === 'bn' ? "স্থানীয় তথ্য" : "Local Info"}</p>
               </TooltipContent>
             </Tooltip>
-
-            {/* Notification Icon - New */}
-            {user && ( // Only show if user is logged in
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10"> {/* Add onClick for notification action later */}
-                    <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{language === 'bn' ? "নোটিফিকেশন" : "Notifications"}</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
 
             {/* Create Post Icon - New (Desktop/Tablet) */}
             {user && ( // Only show if user is logged in
@@ -297,7 +345,12 @@ export const Header = () => {
             {user?.isAdmin && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild className="h-9 w-9 sm:h-10 sm:w-10">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    asChild 
+                    className={`h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/admin' ? 'bg-primary/10 text-primary' : ''}`}
+                  >
                     <Link to="/admin">
                       <Shield className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Link>

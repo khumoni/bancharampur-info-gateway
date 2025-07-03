@@ -14,6 +14,8 @@ import Admin from "./pages/Admin";
 import Marketplace from "./pages/Marketplace";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import LocalInfo from "./pages/LocalInfo";
+import Videos from "./pages/Videos";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useFCM } from "@/hooks/useFCM";
@@ -60,6 +62,8 @@ const App = () => {
                         <Route path="/marketplace" element={<Marketplace />} />
                         <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
                         <Route path="/local-info" element={<LocalInfo />} />
+                        <Route path="/videos" element={<Videos />} />
+                        <Route path="/messages" element={<Messages />} />
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
