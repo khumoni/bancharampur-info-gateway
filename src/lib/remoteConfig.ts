@@ -21,8 +21,10 @@ export const initializeRemoteConfig = async () => {
   try {
     await fetchAndActivate(remoteConfig);
     console.log('Remote config fetched and activated');
+    return true;
   } catch (error) {
-    console.warn('Remote config fetch failed:', error);
+    console.warn('Remote config fetch failed, using defaults:', error);
+    return false;
   }
 };
 

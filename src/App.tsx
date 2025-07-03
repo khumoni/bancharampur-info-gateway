@@ -26,8 +26,10 @@ const App = () => {
   const { permission, fcmToken, requestPermission } = useFCM();
 
   useEffect(() => {
-    // Initialize Firebase Remote Config
-    initializeRemoteConfig();
+    // Initialize Firebase Remote Config safely
+    initializeRemoteConfig().catch(error => {
+      console.warn('Failed to initialize remote config:', error);
+    });
     
     // Only ask if not granted/denied
     if (permission === "default") {

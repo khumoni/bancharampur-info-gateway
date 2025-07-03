@@ -25,12 +25,24 @@ export const AdSenseComponent: React.FC<AdSenseProps> = ({
   const isLoaded = useRef(false);
 
   useEffect(() => {
-    // Load Google AdSense script if not already loaded
+    // Skip AdSense loading in development or if no valid publisher ID
+    if (process.env.NODE_ENV === 'development') {
+      console.log('AdSense skipped in development mode');
+      return;
+    }
+
+    // Load Google AdSense script only with valid publisher ID
+    const publisherId = 'ca-pub-YOUR_PUBLISHER_ID'; // Replace with actual ID
+    if (publisherId === 'ca-pub-YOUR_PUBLISHER_ID') {
+      console.log('AdSense placeholder ID detected, skipping load');
+      return;
+    }
+
     if (!document.querySelector('script[src*="adsbygoogle"]')) {
       const script = document.createElement('script');
       script.async = true;
       script.crossOrigin = 'anonymous';
-      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID';
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`;
       document.head.appendChild(script);
     }
 
@@ -50,6 +62,18 @@ export const AdSenseComponent: React.FC<AdSenseProps> = ({
       clearTimeout(timeoutId);
     };
   }, []);
+
+  // Show placeholder in development or with invalid publisher ID
+  if (process.env.NODE_ENV === 'development' || adSlot.includes('1234567')) {
+    return (
+      <div className={`adsense-placeholder ${className} bg-muted/20 border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center`} style={style}>
+        <div className="text-muted-foreground text-sm text-center p-4">
+          <div>Ad Placeholder</div>
+          <div className="text-xs mt-1">AdSense will appear here in production</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`adsense-container ${className}`} style={style}>
