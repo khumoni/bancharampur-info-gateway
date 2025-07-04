@@ -19,6 +19,8 @@ const Messages = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>(["1", "3"]);
 
   // Mock data - replace with real data from your backend
   const mockChats = [

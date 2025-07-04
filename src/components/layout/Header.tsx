@@ -45,6 +45,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LoginDialog } from "@/components/auth/LoginDialog";
 import { RegisterDialog } from "@/components/auth/RegisterDialog";
 import { ProfileDialog } from "@/components/auth/ProfileDialog";
+import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { CreatePostDialog } from "@/components/social/CreatePostDialog";
 import { t } from "@/lib/translations";
 import { useLocation } from "@/contexts/LocationContext";
@@ -180,6 +181,7 @@ export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [createPostOpen, setCreatePostOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { location } = useLocation();
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const routerLocation = useRouterLocation();
@@ -210,7 +212,7 @@ export const Header = () => {
                     variant="ghost" 
                     size="icon" 
                     className={`rounded-full h-9 w-9 sm:h-10 sm:w-10 ${routerLocation.pathname === '/profile' ? 'bg-primary/10 text-primary' : ''}`}
-                    onClick={() => setProfileOpen(true)}
+                    onClick={() => setSidebarOpen(true)}
                   >
                     <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                       <AvatarImage src={user.profilePicture} alt={user.name} />
@@ -479,6 +481,7 @@ export const Header = () => {
       </header>
 
       <ProfileDialog isOpen={profileOpen} onOpenChange={setProfileOpen} />
+      <ProfileSidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <CreatePostDialog isOpen={createPostOpen} onOpenChange={setCreatePostOpen} />
 
       {/* FAB for Create Post - Mobile Only */}

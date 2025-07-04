@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { SocialProvider } from "@/contexts/SocialContext";
 import { LocationProvider } from "@/contexts/LocationContext";
+import { PersonalizationProvider } from "@/contexts/PersonalizationContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Marketplace from "./pages/Marketplace";
@@ -16,6 +17,7 @@ import ProductDetailsPage from "./pages/ProductDetailsPage";
 import LocalInfo from "./pages/LocalInfo";
 import Videos from "./pages/Videos";
 import Messages from "./pages/Messages";
+import Preferences from "./pages/Preferences";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { useFCM } from "@/hooks/useFCM";
@@ -50,8 +52,9 @@ const App = () => {
         <AppProvider>
           <AuthProvider>
             <LocationProvider>
-              <DataProvider>
-                <SocialProvider>
+              <PersonalizationProvider>
+                <DataProvider>
+                  <SocialProvider>
                   <TooltipProvider>
                     <Toaster />
                     <Sonner />
@@ -64,13 +67,15 @@ const App = () => {
                         <Route path="/local-info" element={<LocalInfo />} />
                         <Route path="/videos" element={<Videos />} />
                         <Route path="/messages" element={<Messages />} />
+                        <Route path="/preferences" element={<Preferences />} />
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </BrowserRouter>
                   </TooltipProvider>
-                </SocialProvider>
-              </DataProvider>
+                  </SocialProvider>
+                </DataProvider>
+              </PersonalizationProvider>
             </LocationProvider>
           </AuthProvider>
         </AppProvider>

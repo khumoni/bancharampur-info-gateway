@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, Play, Heart, MessageCircle, Share2, Clock } from "lucide-react";
+import { Search, Play, Heart, MessageCircle, Share2, Clock, Settings, Filter } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { t } from "@/lib/translations";
 
@@ -13,6 +13,8 @@ const Videos = () => {
   const { language } = useApp();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [videoQuality, setVideoQuality] = useState("720p");
+  const [autoplay, setAutoplay] = useState(false);
 
   // Mock video data - replace with real data from your backend
   const videoCategories = [
@@ -90,14 +92,27 @@ const Videos = () => {
 
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder={language === 'bn' ? "ভিডিও খুঁজুন..." : "Search videos..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative max-w-md mx-auto md:mx-0 w-full md:w-auto">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder={language === 'bn' ? "ভিডিও খুঁজুন..." : "Search videos..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                {language === 'bn' ? 'কোয়ালিটি' : 'Quality'}
+              </Button>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                {language === 'bn' ? 'ফিল্টার' : 'Filter'}
+              </Button>
+            </div>
           </div>
           
           <div className="flex flex-wrap justify-center gap-2">
