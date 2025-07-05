@@ -174,27 +174,18 @@ const LocalInfo = () => {
         </div>
 
         {/* Information Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 gap-4 mb-8">
           {infoCategories.map((category) => {
             const IconComponent = category.icon;
             return (
               <Card key={category.id} className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-background to-muted/30">
-                <CardHeader className="pb-3">
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                <CardContent className="p-4 text-center">
+                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 mx-auto`}>
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <CardTitle className="text-lg">{category.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {category.description}
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                  >
-                    {language === 'bn' ? 'বিস্তারিত দেখুন' : 'View Details'}
-                  </Button>
+                  <h3 className="text-xs font-medium group-hover:text-primary transition-colors">
+                    {category.title}
+                  </h3>
                 </CardContent>
               </Card>
             );

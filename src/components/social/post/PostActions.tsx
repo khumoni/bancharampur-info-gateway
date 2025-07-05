@@ -2,17 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Post } from "@/lib/social/types";
-import { Heart, MessageSquare, Share, Check } from "lucide-react";
+import { Heart, MessageSquare, Share, Check, Repeat } from "lucide-react";
 
 interface PostActionsProps {
   post: Post;
   onLike: () => void;
   onToggleComments: () => void;
   onShare: () => void;
+  onRepost: () => void;
   isCopied: boolean;
 }
 
-export const PostActions = ({ post, onLike, onToggleComments, onShare, isCopied }: PostActionsProps) => {
+export const PostActions = ({ post, onLike, onToggleComments, onShare, onRepost, isCopied }: PostActionsProps) => {
   const { user } = useAuth();
   
   return (
@@ -40,6 +41,15 @@ export const PostActions = ({ post, onLike, onToggleComments, onShare, isCopied 
       >
         <MessageSquare className="mr-2 h-4 w-4" />
         {post.comments.length}
+      </Button>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="text-gray-600 hover:text-blue-500"
+        onClick={onRepost}
+      >
+        <Repeat className="mr-2 h-4 w-4" />
+        রিপোস্ট
       </Button>
       <Button 
         variant="ghost" 

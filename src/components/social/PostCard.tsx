@@ -6,6 +6,7 @@ import { PostHeader } from "./post/PostHeader";
 import { PostContent } from "./post/PostContent";
 import { PostActions } from "./post/PostActions";
 import { CommentSection } from "./post/CommentSection";
+import { RepostDialog } from "./RepostDialog";
 import { useSocial } from "@/contexts/SocialContext";
 import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/contexts/AppContext";
@@ -18,12 +19,32 @@ interface PostCardProps {
 export const PostCard = ({ post, onReport }: PostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
-  const { likePost, addComment } = useSocial();
+  const [repostDialogOpen, setRepostDialogOpen] = useState(false);
+  const { likePost, addComment, addPost } = useSocial();
   const { toast } = useToast();
   const { language } = useApp();
 
   const handleLike = () => likePost(post.id);
   const toggleComments = () => setShowComments(prev => !prev);
+  const handleRepost = () => setRepostDialogOpen(true);
+
+  const handleRepostSubmit = async (originalPost: Post, comment: string) => {
+    try {
+      const repostContent = comment + (comment ? '\n\n' : '') + `রিপোস্ট: "${originalPost.content}" - @${originalPost.author}`;
+      await addPost(repostContent);
+      
+      toast({
+        title: language === 'bn' ? "রিপোস্ট সফল!" : "Repost successful!",
+        description: language === 'bn' ? "পোস্টটি রিপোস্ট করা হয়েছে" : "Post has been reposted",
+      });
+    } catch (error) {
+      toast({
+        title: language === 'bn' ? "ত্রুটি!" : "Error!",
+        description: language === 'bn' ? "রিপোস্ট করতে ব্যর্থ" : "Failed to repost",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleShare = async () => {
     try {
@@ -71,10 +92,18 @@ export const PostCard = ({ post, onReport }: PostCardProps) => {
           onLike={handleLike}
           onToggleComments={toggleComments}
           onShare={handleShare}
+          onRepost={handleRepost}
           isCopied={copiedPostId === post.id}
         />
         {showComments && <CommentSection post={post} onCommentSubmit={addComment} />}
       </CardContent>
+      
+      <RepostDialog
+        isOpen={repostDialogOpen}
+        onOpenChange={setRepostDialogOpen}
+        post={post}
+        onRepost={handleRepostSubmit}
+      />
     </Card>
   );
 };

@@ -343,6 +343,25 @@ export const Header = () => {
               </Tooltip>
             )}
 
+            {/* Notification Icon - New */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 sm:h-10 sm:w-10 relative"
+                >
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    3
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{language === 'bn' ? "নোটিফিকেশন" : "Notifications"}</p>
+              </TooltipContent>
+            </Tooltip>
+
             {/* Admin Icon (if user is admin) */}
             {user?.isAdmin && (
               <Tooltip>

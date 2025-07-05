@@ -11,10 +11,16 @@ import { t } from "@/lib/translations";
 
 const Videos = () => {
   const { language } = useApp();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [videoQuality, setVideoQuality] = useState("720p");
   const [autoplay, setAutoplay] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoTitle, setVideoTitle] = useState("");
+  const [videoDescription, setVideoDescription] = useState("");
+  const [videoCategory, setVideoCategory] = useState("");
 
   // Mock video data - replace with real data from your backend
   const videoCategories = [
@@ -197,6 +203,73 @@ const Videos = () => {
       </main>
 
       <Footer />
+      
+      {/* Video Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{language === 'bn' ? "ভিডিও আপলোড করুন" : "Upload Video"}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label>{language === 'bn' ? "ভিডিও ফাইল" : "Video File"}</Label>
+              <Input
+                type="file"
+                accept="video/*"
+                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+              />
+            </div>
+            
+            <div>
+              <Label>{language === 'bn' ? "শিরোনাম" : "Title"}</Label>
+              <Input
+                value={videoTitle}
+                onChange={(e) => setVideoTitle(e.target.value)}
+                placeholder={language === 'bn' ? "ভিডিওর শিরোনাম..." : "Video title..."}
+              />
+            </div>
+            
+            <div>
+              <Label>{language === 'bn' ? "বিবরণ" : "Description"}</Label>
+              <Textarea
+                value={videoDescription}
+                onChange={(e) => setVideoDescription(e.target.value)}
+                placeholder={language === 'bn' ? "ভিডিওর বিবরণ..." : "Video description..."}
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label>{language === 'bn' ? "ক্যাটাগরি" : "Category"}</Label>
+              <Select value={videoCategory} onValueChange={setVideoCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder={language === 'bn' ? "ক্যাটাগরি নির্বাচন করুন" : "Select category"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="education">{language === 'bn' ? "শিক্ষা" : "Education"}</SelectItem>
+                  <SelectItem value="entertainment">{language === 'bn' ? "বিনোদন" : "Entertainment"}</SelectItem>
+                  <SelectItem value="agriculture">{language === 'bn' ? "কৃষি" : "Agriculture"}</SelectItem>
+                  <SelectItem value="health">{language === 'bn' ? "স্বাস্থ্য" : "Health"}</SelectItem>
+                  <SelectItem value="local">{language === 'bn' ? "স্থানীয়" : "Local"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
+                {language === 'bn' ? "বাতিল" : "Cancel"}
+              </Button>
+              <Button 
+                onClick={handleVideoUpload}
+                disabled={!videoFile || !videoTitle}
+              >
+                {language === 'bn' ? "আপলোড" : "Upload"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
