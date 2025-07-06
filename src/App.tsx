@@ -12,6 +12,7 @@ import { LocationProvider } from "@/contexts/LocationContext";
 import { PersonalizationProvider } from "@/contexts/PersonalizationContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import AdminAI from "./pages/AdminAI";
 import Marketplace from "./pages/Marketplace";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import LocalInfo from "./pages/LocalInfo";
@@ -61,7 +62,8 @@ const App = () => {
                     <BrowserRouter>
                       <Routes>
                         <Route path="/" element={<Index />} />
-                        <Route path="/admin" element={<Admin />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin-ai/*" element={<AdminAI />} />
                         <Route path="/marketplace" element={<Marketplace />} />
                         <Route path="/marketplace/:productId" element={<ProductDetailsPage />} />
                         <Route path="/local-info" element={<LocalInfo />} />
