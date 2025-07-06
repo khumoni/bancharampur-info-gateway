@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Play, Heart, MessageCircle, Share2, Clock, Settings, Filter } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { t } from "@/lib/translations";
 
 const Videos = () => {
   const { language } = useApp();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [videoQuality, setVideoQuality] = useState("720p");
@@ -21,6 +28,30 @@ const Videos = () => {
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
   const [videoCategory, setVideoCategory] = useState("");
+
+  const handleVideoUpload = () => {
+    if (!videoFile || !videoTitle) return;
+    
+    // This would typically upload to your backend
+    console.log('Uploading video:', {
+      file: videoFile,
+      title: videoTitle,
+      description: videoDescription,
+      category: videoCategory
+    });
+    
+    toast({
+      title: language === 'bn' ? "ভিডিও আপলোড সফল!" : "Video uploaded successfully!",
+      description: language === 'bn' ? "আপনার ভিডিও সফলভাবে আপলোড হয়েছে" : "Your video has been uploaded successfully",
+    });
+    
+    // Reset form
+    setVideoFile(null);
+    setVideoTitle("");
+    setVideoDescription("");
+    setVideoCategory("");
+    setUploadDialogOpen(false);
+  };
 
   // Mock video data - replace with real data from your backend
   const videoCategories = [
