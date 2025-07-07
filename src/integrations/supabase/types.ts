@@ -9,6 +9,129 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      advertisements: {
+        Row: {
+          category: string
+          contact_info: string | null
+          created_at: string | null
+          description: string
+          expires_at: string | null
+          featured: boolean | null
+          id: string
+          images: string[] | null
+          location: string | null
+          price: number | null
+          shop_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          category: string
+          contact_info?: string | null
+          created_at?: string | null
+          description: string
+          expires_at?: string | null
+          featured?: boolean | null
+          id?: string
+          images?: string[] | null
+          location?: string | null
+          price?: number | null
+          shop_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          category?: string
+          contact_info?: string | null
+          created_at?: string | null
+          description?: string
+          expires_at?: string | null
+          featured?: boolean | null
+          id?: string
+          images?: string[] | null
+          location?: string | null
+          price?: number | null
+          shop_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          last_message_id: string | null
+          participant_1: string
+          participant_2: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          last_message_id?: string | null
+          participant_1: string
+          participant_2: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          last_message_id?: string | null
+          participant_1?: string
+          participant_2?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          attachment_url: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message_type: string | null
+          receiver_id: string
+          sender_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          attachment_url?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          receiver_id: string
+          sender_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          attachment_url?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          receiver_id?: string
+          sender_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           author_id: string | null
@@ -88,6 +211,90 @@ export type Database = {
           },
         ]
       }
+      shop_orders: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          customer_info: Json | null
+          id: string
+          notes: string | null
+          product_id: string
+          quantity: number
+          shop_id: string
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          customer_info?: Json | null
+          id?: string
+          notes?: string | null
+          product_id: string
+          quantity?: number
+          shop_id: string
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          customer_info?: Json | null
+          id?: string
+          notes?: string | null
+          product_id?: string
+          quantity?: number
+          shop_id?: string
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      shop_products: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          images: string[] | null
+          is_available: boolean | null
+          name: string
+          price: number
+          shop_id: string
+          stock_quantity: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_available?: boolean | null
+          name: string
+          price: number
+          shop_id: string
+          stock_quantity?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_available?: boolean | null
+          name?: string
+          price?: number
+          shop_id?: string
+          stock_quantity?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       shops: {
         Row: {
           created_at: string | null
@@ -159,6 +366,54 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: Database["public"]["Enums"]["user_status"] | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          file_size: number | null
+          id: string
+          like_count: number | null
+          status: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          video_url: string
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          file_size?: number | null
+          id?: string
+          like_count?: number | null
+          status?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          video_url: string
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          file_size?: number | null
+          id?: string
+          like_count?: number | null
+          status?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          video_url?: string
+          view_count?: number | null
         }
         Relationships: []
       }
