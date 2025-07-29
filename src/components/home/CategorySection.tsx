@@ -43,6 +43,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                   </li>
               );
             })}
+              
            </ul>
           </ScrollArea>
         </CardContent>
