@@ -1,3 +1,5 @@
+
+import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LocalInfoItem } from "@/types/localInfo";
