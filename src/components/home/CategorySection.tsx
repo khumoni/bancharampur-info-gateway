@@ -41,4 +41,13 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                       <div className="text-xs text-gray-700 dark:text-gray-300 mt-1 truncate">{subtitle}</div>
                     )}
                   </li>
-                );
+              );
+            })}
+              
+           </ul>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
